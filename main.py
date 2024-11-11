@@ -17,7 +17,8 @@ kStepsPerSecond = 10
 class Frisbee():
     def __init__(self, pos, direction, forwardSpeed, upSpeed, pitch, roll,):
         magnitude = (direction[0]**2 + direction[1]**2)**0.5
-        direction = direction[0] / magnitude, direction[1] / magnitude
+        if magnitude == 0: direction = (1,1)
+        else: direction = direction[0] / magnitude, direction[1] / magnitude
         self.direction = direction # 2D UNIT VECTOR
         self.leftDirection = getPerpendicularVector(direction)
         self.forwardSpeed = forwardSpeed # UNITS/STEP
@@ -25,6 +26,8 @@ class Frisbee():
         self.downSpeed = upSpeed # UNITS/STEP
         self.pitch = pitch # DEGREES
         self.roll = roll # DEGREES
+        self.trail = []
+        self.inFlight = True
         self.x = pos[0]
         self.y = pos[1]
         self.z = pos[2]
@@ -35,6 +38,7 @@ class Frisbee():
         self.pitch = 0
         self.forwardSpeed = 0
         self.leftSpeed = 0
+        self.inFlight = False
 
     def updatePosition(self): # convert speeds from vector direction to 
         xSpeed, ySpeed = self.getConvertedSpeeds()
@@ -64,15 +68,19 @@ class Frisbee():
     
     def takeFlightStep(self):
         oldPos = self.x, self.y, self.z
-        self.updatePosition()
-        if self.z <= 0:
-            self.stop()
-        else:
-            self.downSpeed += kGravity - abs(math.cos(math.radians(self.roll)))
-            self.roll, self.leftSpeed = self.getSideRollAndSpeed()
-            self.forwardSpeed -= self.getForwardResistance()
-        newPos = self.x, self.y, self.z
-        # print(f'{oldPos} --> {newPos}')
+        if self.inFlight:
+            self.trail.append((self.x, self.y, self.z, self.pitch, self.roll))
+            self.updatePosition()
+            if self.z <= 0:
+                self.stop()
+            else:
+                self.downSpeed += kGravity - abs(math.cos(math.radians(self.roll)))
+                self.roll, self.leftSpeed = self.getSideRollAndSpeed()
+                self.forwardSpeed -= self.getForwardResistance()
+            newPos = self.x, self.y, self.z
+            # print(f'{oldPos} --> {newPos}')
+        if (len(self.trail) > 5 or not self.inFlight) and self.trail != []:
+            self.trail.pop(0)
 
 def getPerpendicularVector(vector):
     if vector[0] == 0:
@@ -129,11 +137,23 @@ def redrawAll(app):
         drawFrisbee(app, frisbee)
 
 def drawFrisbee(app, frisbee):
-    sizeMultiplier = max(20, (frisbee.z/20 + 1) * 20)
-    drawOval(frisbee.x, frisbee.y, math.cos(math.radians(frisbee.pitch)) * sizeMultiplier, math.cos(math.radians(frisbee.roll)) * sizeMultiplier, fill='cyan', rotateAngle=getAngle(frisbee.direction), borderWidth=4, border='black')
+    sizeMultiplier = max(1, (frisbee.z/40 + 1))
+    width = 30 * math.cos(math.radians(frisbee.pitch))
+    height = 30 * math.cos(math.radians(frisbee.roll))
+    rotAngle = getAngle(frisbee.direction)
+    drawTrail(frisbee) # Draws frisbee trail
+    drawOval(frisbee.x + frisbee.z, frisbee.y + frisbee.z, width, height, fill='gray', rotateAngle=rotAngle) # draws frisbee shadow
+    drawOval(frisbee.x, frisbee.y, width * sizeMultiplier, height * sizeMultiplier, fill='blue', rotateAngle=rotAngle, borderWidth=1, border='black') # draw draws frisbee itself
     if app.labelDiscs:
-        drawLabel(f'Height = {int(frisbee.z)}, Roll = {int(frisbee.roll)}, Pitch = {int(frisbee.pitch)}', frisbee.x, frisbee.y)
+        drawLabel(f'Height = {int(frisbee.z)}, Roll = {int(frisbee.roll)}, Pitch = {int(frisbee.pitch)}', frisbee.x, frisbee.y) # draws frisbee label if labels are on
 
+def drawTrail(frisbee):
+    for trailData in frisbee.trail:
+        sizeMultiplier = max(1, (trailData[2]/40 + 1))
+        width = 30 * math.cos(math.radians(trailData[3]))
+        height = 30 * math.cos(math.radians(trailData[4]))
+        rotAngle = getAngle(frisbee.direction)
+        drawOval(trailData[0], trailData[1], width*sizeMultiplier, height*sizeMultiplier, rotateAngle=rotAngle, fill='gainsboro')
 
 def main():
     runApp()
