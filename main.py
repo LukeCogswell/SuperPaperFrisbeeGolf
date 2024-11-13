@@ -16,6 +16,7 @@ kGravity = -.4              # downward acceleration due to gravity - UNITS / STE
 
 kMaxPlayerAcceleration = 10
 kMaxPlayerSpeed = 50
+kPositionAccuracy = 20
 
 kRollControlMultiplier = 1 / 10
 kAimControlMultiplier = 1 / 4
@@ -190,6 +191,7 @@ class Player():
     def __init__(self, vec2, number, team, isDefending, hasFrisbee):
         self.pos = vec2
         self.goalPos = vec2
+        self.futureGoalPositions = []
         self.velocity = Vector2(0,0)
         self.goalVelocity = Vector2(0,0)
         self.number = number
@@ -215,6 +217,9 @@ class Player():
         self.pos.add(self.velocity.multipliedBy(kMotionTimeFactor))
 
     def takeMotionStep(self):
+        if self.pos.subtracted(self.goalPos).magnitude() <= kPositionAccuracy:
+            if self.futureGoalPositions != []:
+                self.goalPos = self.futureGoalPositions.pop(0)
         self.goalVelocity = self.calculateGoalVelocity()
         self.accelerate()
         self.move()
@@ -222,7 +227,6 @@ class Player():
     def calculateGoalVelocity(self):
         goalVelocity = self.goalPos.subtracted(self.pos).clamped(kMaxPlayerSpeed)
         return goalVelocity
-
 
 class Frisbee():
     def __init__(self, pos, direction, forwardSpeed, upSpeed, pitch, roll,):
@@ -331,6 +335,7 @@ def onAppStart(app):
     app.currTeamIndex = 0
     app.throwPoint = None
     app.curvePoint = None
+    app.selectedPlayer = None
 
 def onStep(app):
     if not app.paused:
@@ -344,43 +349,50 @@ def takeStep(app):
             player.takeMotionStep()
 
 def onKeyPress(app, key):
-    match key:
-        case 's':
-            takeStep(app)
-        case 'r':
-            app.frisbees = []
-            app.teams = [[],[]]
-        case 'space':
-            app.paused = not app.paused
-        case 'l':
-            app.drawLabels = not app.drawLabels
-        case 'n':
-            app.frisbees.append(Frisbee((200,200,0), Vector2(1,1), 50, 15, 20, 45))
-        case 'p':
-            app.settingPitch = not app.settingPitch
-        case 't':
-            app.currTeamIndex = (app.currTeamIndex + 1) % len(kTeamColors)
-        case 'f':
-            app.throwing = not app.throwing
-        case 'g':
-            spawnPlayerOnMouse(app)
-        case 'up':
-            if app.settingPitch: app.initPitch += 5
-            else: app.upSpeed += 1
-        case 'down':
-            if app.settingPitch: app.initPitch -= 5
-            else: app.upSpeed -= 1
-        case 'escape':
-            app.quit()
+    if key.isnumeric():
+        if int(key)-1 <= len(app.teams[app.currTeamIndex]):
+            app.selectedPlayer = app.teams[app.currTeamIndex][int(key)-1]
+    else:    
+        match key:
+            case 's':
+                takeStep(app)
+            case 'r':
+                app.frisbees = []
+                app.teams = [[],[]]
+            case 'space':
+                app.paused = not app.paused
+            case 'l':
+                app.drawLabels = not app.drawLabels
+            case 'n':
+                app.frisbees.append(Frisbee((200,200,0), Vector2(1,1), 50, 15, 20, 45))
+            case 'p':
+                app.settingPitch = not app.settingPitch
+            case 't':
+                app.currTeamIndex = (app.currTeamIndex + 1) % len(kTeamColors)
+            case 'f':
+                app.throwing = not app.throwing
+            case 'g':
+                spawnPlayerOnMouse(app)
+            case 'up':
+                if app.settingPitch: app.initPitch += 5
+                else: app.upSpeed += 1
+            case 'backspace':
+                if app.frisbees != []:
+                    app.frisbees.pop(0)
+            case 'down':
+                if app.settingPitch: app.initPitch -= 5
+                else: app.upSpeed -= 1
+            case 'escape':
+                app.quit()
 
 def onMousePress(app, mouseX, mouseY):
     if app.throwing:
         app.throwPoint = (mouseX, mouseY)
     else:
         app.goalPos = Vector2(mouseX, mouseY)
-        if app.teams[app.currTeamIndex] != []:
-            playerNumber = getClosestOffensivePlayer(app)
-            app.teams[app.currTeamIndex][playerNumber-1].goalPos = app.goalPos
+        if app.selectedPlayer:
+            # playerNumber = getClosestOffensivePlayer(app)
+            app.selectedPlayer.futureGoalPositions.append(app.goalPos)
 
 def onMouseMove(app, mouseX, mouseY):
     app.mousePos = Vector2(mouseX, mouseY)
@@ -465,11 +477,21 @@ def drawTrail(frisbee, frisbeeWidth):
     # endTime = time.time()
     # print(f'Done: Time= {endTime-startTime}s')
 
+def drawPlayerRoute(player):
+    drawLine(*player.pos.tup(), *player.goalPos.tup(), arrowEnd=True, lineWidth=5, opacity=5, fill='cyan')
+    for index in range(len(player.futureGoalPositions)):
+        if index == 0:
+            drawLine(*player.goalPos.tup(), *player.futureGoalPositions[index].tup(), arrowEnd=True, lineWidth=5, opacity=5, fill='cyan')
+        else:
+            drawLine(*player.futureGoalPositions[index-1].tup(), *player.futureGoalPositions[index].tup(), arrowEnd=True, lineWidth=5, opacity=5, fill='cyan')
+
+
+
 def drawPlayer(app, player):
     drawRect(player.pos.x, player.pos.y, 20, 30, fill=kTeamColors[player.team], align='center')
     drawLabel(str(player.number), player.pos.x, player.pos.y, fill=kTeamColors[(player.team+1)%2], size=16)
     if app.drawLabels:
-        drawLine(*player.pos.tup(), *player.goalPos.tup(), arrowEnd=True, lineWidth=5, opacity=5, fill='cyan')
+        drawPlayerRoute(player)
         drawLine(*player.pos.tup(), *player.pos.added(player.velocity).tup(), arrowEnd=True, lineWidth=3, opacity=30, fill='cyan')
 
 def drawBackground(app):
