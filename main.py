@@ -11,16 +11,18 @@ kSpeedResistance = 0.1     # resistance to speed based on current speed - PERCEN
 kPitchResistance = 0.1     # resistance to speed based on current pitch - PERCENTAGE
 kRollFactor      = 0.05    # roll increase based on current roll - PERCENTAGE 
 kRollFactorReduction = 1/5 # roll increase reduction based on current roll - RATIO
-kleftSpeedFactor = 2.0     # side speed increase factor based on current roll - PERCENTAGE
+kleftSpeedFactor = 5.0     # side speed increase factor based on current roll - PERCENTAGE
 kGravity = -.4              # downward acceleration due to gravity - UNITS / STEP / STEP
 
-kMaxPlayerAcceleration = 1
+kMaxPlayerAcceleration = 10
+kMaxPlayerSpeed = 50
 
 kRollControlMultiplier = 1 / 10
 kAimControlMultiplier = 1 / 4
 
-kStepsPerSecond = 60 
-kMotionTimeFactor = 7 / kStepsPerSecond
+kStepsPerSecond = 30 
+kMotionStepsPerSecond = 5
+kMotionTimeFactor = kMotionStepsPerSecond / kStepsPerSecond
 
 kTrailLength = 5
 kTrailOpacity = 40
@@ -70,33 +72,69 @@ class Vector2():
     
     def multiplyBy(self, other):
         if isinstance(other, int):
-            self.x *= other
-            self.y *= other
+            self.x *= other*abs(self.unitVector().x)
+            self.y *= other*abs(self.unitVector().y)
         elif isinstance(other, Vector2):
             self.x *= other.x
             self.y *= other.y
         else:
             print(f'ERROR: Cannot multiply Vector2 by {type(other)}')
-    
+
+    def multipliedBy(self, other):
+        if isinstance(other, int) or isinstance(other, float):
+            x = self.x * other*abs(self.unitVector().x)
+            y = self.y * other*abs(self.unitVector().y)
+        elif isinstance(other, Vector2):
+            x = self.x * other.x
+            y = self.y * other.y
+        else:
+            print(f'ERROR: Cannot multiply Vector2 by {type(other)}')
+        return Vector2(x,y)
+
+    def tup(self):
+        return (self.x, self.y)
+
     def add(self, other):
         if isinstance(other, int):
-            self.x += other *self.unitVector()[0]
-            self.y += other *self.unitVector()[1]
+            self.x += other *abs(self.unitVector().x)
+            self.y += other *abs(self.unitVector().y)
         elif isinstance(other, Vector2):
             self.x += other.x
             self.y += other.y
         else:
             print(f'ERROR: Cannot add {type(other)} to Vector2')
-
+    
+    def added(self, other):
+        if isinstance(other, int):
+            x = self.x + other * self.unitVector().x
+            y = self.y + other * self.unitVector().y
+        elif isinstance(other, Vector2):
+            x = self.x + other.x
+            y = self.y + other.y
+        else:
+            print(f'ERROR: Cannot add {type(other)} to Vector2')
+        return Vector2(x, y)
+    
     def subtract(self, other):
         if isinstance(other, int):
-            self.x -= other *self.unitVector()[0]
-            self.y -= other *self.unitVector()[1]
+            self.x -= other *self.unitVector().x
+            self.y -= other *self.unitVector().y
         elif isinstance(other, Vector2):
             self.x -= other.x
             self.y -= other.y
         else:
-            print(f'ERROR: Cannot add {type(other)} to Vector2')
+            print(f'ERROR: Cannot subtract {type(other)} from Vector2')
+    
+    def subtracted(self, other):
+        if isinstance(other, int):
+            x = self.x - other * self.unitVector().x
+            y = self.y - other * self.unitVector().y
+        elif isinstance(other, Vector2):
+            x = self.x - other.x
+            y = self.y - other.y
+        else:
+            print(f'ERROR: Cannot subtract {type(other)} from Vector2')
+        return Vector2(x, y)
 
     def dotProduct(self, other):
         if isinstance(other, Vector2):
@@ -105,9 +143,13 @@ class Vector2():
     
     def clamped(self, value):
         if isinstance(value, int):
-            x = min(max(self.x, -value), value) 
-            y = min(max(self.y, -value), value) 
+            value = abs(value)
+            unitVector = self.unitVector()
+            xFactor, yFactor = abs(unitVector.x), abs(unitVector.y)
+            x = min(max(self.x, -value*xFactor), value*xFactor) 
+            y = min(max(self.y, -value*yFactor), value*yFactor) 
             return Vector2(x, y)
+        return Vector2(0,0)
 
 class Vector3():
     def __init__(self, x, y, z):
@@ -145,14 +187,15 @@ class Vector3():
         return (self.x**2+self.y**2+self.z**2)**.5
     
 class Player():
-    def __init__(self, pos2d, number, team, isDefending):
-        self.x = pos2d[0]
-        self.y = pos2d[1]
+    def __init__(self, vec2, number, team, isDefending, hasFrisbee):
+        self.pos = vec2
+        self.goalPos = vec2
         self.velocity = Vector2(0,0)
         self.goalVelocity = Vector2(0,0)
         self.number = number
         self.team = team
         self.defending = isDefending
+        self.hasFrisbee = hasFrisbee
 
     def __eq__(self, other):
         if isinstance(other, Player):
@@ -164,9 +207,22 @@ class Player():
 
     def accelerate(self):
         if self.velocity != self.goalVelocity:
-            differenceVelocity = self.velocity.subtract(self.goalVelocity)
+            differenceVelocity = self.goalVelocity.subtracted(self.velocity)
             clampedDifferenceVelocity = differenceVelocity.clamped(kMaxPlayerAcceleration)
             self.velocity.add(clampedDifferenceVelocity)
+
+    def move(self):
+        self.pos.add(self.velocity.multipliedBy(kMotionTimeFactor))
+
+    def takeMotionStep(self):
+        self.goalVelocity = self.calculateGoalVelocity()
+        self.accelerate()
+        self.move()
+
+    def calculateGoalVelocity(self):
+        goalVelocity = self.goalPos.subtracted(self.pos).clamped(kMaxPlayerSpeed)
+        return goalVelocity
+
 
 class Frisbee():
     def __init__(self, pos, direction, forwardSpeed, upSpeed, pitch, roll,):
@@ -220,7 +276,7 @@ class Frisbee():
         return roll, leftSpeed
     
     def getDownSpeedChange(self):
-        return kGravity - abs(math.cos(math.radians(self.roll))) - max(self.forwardSpeed*(-self.pitch/50), -kGravity)
+        return kGravity - 3*abs(math.cos(math.radians(self.roll))) - max(self.forwardSpeed*(-self.pitch/50), -kGravity)
 
     def takeFlightStep(self):
         # print(f'Taking Flight Step...', end='')
@@ -255,17 +311,22 @@ def getAngle(vector):
         return 0
     return math.degrees(math.atan(vector.y / vector.x)) # vector angle in radians
 
+def getDistance(vector0, vector1):
+    return ((vector0.x-vector1.x)**2 + (vector0.y - vector1.y)**2)**.5
+
 def onAppStart(app):
     app.width, app.height = kAppWidth, kAppHeight
     app.frisbees = []
-    app.players = []
+    app.teams = [[],[]]
     app.paused = kAppInitPauseState
     app.stepsPerSecond = kStepsPerSecond
-    app.labelDiscs = False
+    app.drawLabels = False
     app.frisbeeInitPoint = (kFrisbeeSize*2, app.height/2)
     app.upSpeed = 5
     app.initPitch = 10
     app.mousePos = None
+    app.throwing = True
+    app.goalPos = Vector2(app.width - kFrisbeeSize*2, app.height/2)
     app.settingPitch = False
     app.currTeamIndex = 0
     app.throwPoint = None
@@ -278,6 +339,9 @@ def onStep(app):
 def takeStep(app):
     for frisbee in app.frisbees:
         frisbee.takeFlightStep()
+    for team in app.teams:
+        for player in team:
+            player.takeMotionStep()
 
 def onKeyPress(app, key):
     match key:
@@ -285,51 +349,82 @@ def onKeyPress(app, key):
             takeStep(app)
         case 'r':
             app.frisbees = []
+            app.teams = [[],[]]
         case 'space':
             app.paused = not app.paused
         case 'l':
-            app.labelDiscs = not app.labelDiscs
+            app.drawLabels = not app.drawLabels
         case 'n':
             app.frisbees.append(Frisbee((200,200,0), Vector2(1,1), 50, 15, 20, 45))
         case 'p':
             app.settingPitch = not app.settingPitch
         case 't':
             app.currTeamIndex = (app.currTeamIndex + 1) % len(kTeamColors)
+        case 'f':
+            app.throwing = not app.throwing
         case 'g':
-            spawnPlayer(app)
+            spawnPlayerOnMouse(app)
         case 'up':
             if app.settingPitch: app.initPitch += 5
-            else: app.upSpeed += 5
+            else: app.upSpeed += 1
         case 'down':
             if app.settingPitch: app.initPitch -= 5
-            else: app.upSpeed -= 5
+            else: app.upSpeed -= 1
         case 'escape':
             app.quit()
 
 def onMousePress(app, mouseX, mouseY):
-    app.throwPoint = (mouseX, mouseY)
+    if app.throwing:
+        app.throwPoint = (mouseX, mouseY)
+    else:
+        app.goalPos = Vector2(mouseX, mouseY)
+        if app.teams[app.currTeamIndex] != []:
+            playerNumber = getClosestOffensivePlayer(app)
+            app.teams[app.currTeamIndex][playerNumber-1].goalPos = app.goalPos
 
 def onMouseMove(app, mouseX, mouseY):
-    app.mousePos = (mouseX, mouseY)
+    app.mousePos = Vector2(mouseX, mouseY)
 
-def spawnPlayer(app):
+def getClosestOffensivePlayer(app):
+    if app.teams[app.currTeamIndex] == []:
+        return None
+    closestPlayer = None
+    closestDistance = None
+    for player in app.teams[app.currTeamIndex]:
+        dis = player.pos.subtracted(app.goalPos).magnitude()
+        if closestDistance == None or dis < closestDistance:
+            closestDistance = dis
+            closestPlayer = player.number
+    return closestPlayer
+
+def spawnPlayerOnMouse(app):
     if app.mousePos:
-        app.players.append(Player(app.mousePos, random.randint(1, 7), kTeamColors[app.currTeamIndex], bool(app.currTeamIndex%2)))
+        app.teams[app.currTeamIndex].append(Player(Vector2(*app.mousePos.tup()), len(app.teams[app.currTeamIndex])+1, app.currTeamIndex, bool(app.currTeamIndex%2), False))
+
+def formVertStack(app):
+    formationGoalPositions = [] #TODO
+    pass
+
+def formOffense(app, style):
+    match style:
+        case 'vert':
+            formVertStack(app)
 
 def onMouseDrag(app, mouseX, mouseY):
     app.curvePoint = (mouseX, mouseY)
 
 def onMouseRelease(app, mouseX, mouseY):
-    aimVector = Vector2(app.throwPoint[0]-app.frisbeeInitPoint[0], app.throwPoint[1]-app.frisbeeInitPoint[1])
-    rollVector = Vector2(app.throwPoint[0]-mouseX, app.throwPoint[1]-mouseY)
-    rollDirection = rollVector.dotProduct(getLeftVector(aimVector))
-    roll = -kRollControlMultiplier * math.copysign(rollVector.magnitude(), rollDirection)
-    newFrisbee = Frisbee((*app.frisbeeInitPoint, 5), aimVector.unitVector(), aimVector.magnitude() * kAimControlMultiplier, app.upSpeed, app.initPitch, roll)
-    app.frisbees.append(newFrisbee)
-    app.throwPoint = None
-    app.curvePoint = None
+    if app.throwing:
+        aimVector = Vector2(app.throwPoint[0]-app.frisbeeInitPoint[0], app.throwPoint[1]-app.frisbeeInitPoint[1])
+        rollVector = Vector2(app.throwPoint[0]-mouseX, app.throwPoint[1]-mouseY)
+        rollDirection = rollVector.dotProduct(getLeftVector(aimVector))
+        roll = -kRollControlMultiplier * math.copysign(rollVector.magnitude(), rollDirection)
+        newFrisbee = Frisbee((*app.frisbeeInitPoint, 5), aimVector.unitVector(), aimVector.magnitude() * kAimControlMultiplier, app.upSpeed, app.initPitch, roll)
+        app.frisbees.append(newFrisbee)
+        app.throwPoint = None
+        app.curvePoint = None
 
-def drawFrisbee(app, frisbee):
+def drawFrisbeeTopDown(app, frisbee):
     # print(f'Drawing Frisbee...', end='')
     # startTime = time.time()
     sizeMultiplier = max(1, (frisbee.z/40 + 1))
@@ -350,7 +445,7 @@ def drawFrisbee(app, frisbee):
     drawOval(frisbee.x, frisbee.y, width * sizeMultiplier, height * sizeMultiplier, fill=fill, rotateAngle=rotAngle, borderWidth=kDiscBorderWidth, border=kDiscGradient)
     
     ## LABEL ##
-    if app.labelDiscs:
+    if app.drawLabels:
         drawLine(frisbee.x, frisbee.y, frisbee.x + 100*frisbee.direction.x, frisbee.y + 100*frisbee.direction.y, arrowEnd=True,fill='red', opacity=30)
         drawLine(frisbee.x, frisbee.y, frisbee.x + 100*frisbee.leftDirection.x, frisbee.y + 100*frisbee.leftDirection.y, arrowEnd=True,fill='lime', opacity=30)
         drawLabel(frisbee.getLabel(), frisbee.x, frisbee.y+20) # draws frisbee label if labels are on
@@ -370,8 +465,12 @@ def drawTrail(frisbee, frisbeeWidth):
     # endTime = time.time()
     # print(f'Done: Time= {endTime-startTime}s')
 
-def drawPlayer(player):
-    drawRect(player.x, player.y, 20, 30, fill=player.team, align='center')
+def drawPlayer(app, player):
+    drawRect(player.pos.x, player.pos.y, 20, 30, fill=kTeamColors[player.team], align='center')
+    drawLabel(str(player.number), player.pos.x, player.pos.y, fill=kTeamColors[(player.team+1)%2], size=16)
+    if app.drawLabels:
+        drawLine(*player.pos.tup(), *player.goalPos.tup(), arrowEnd=True, lineWidth=5, opacity=5, fill='cyan')
+        drawLine(*player.pos.tup(), *player.pos.added(player.velocity).tup(), arrowEnd=True, lineWidth=3, opacity=30, fill='cyan')
 
 def drawBackground(app):
     # print(f'Drawing Background...', end='')
@@ -390,7 +489,7 @@ def drawBackground(app):
     # print(f'Done: Time= {endTime-startTime}s')
 
 def drawThrowVisualization(app):
-    drawFrisbee(app, Frisbee((*app.frisbeeInitPoint, 5), Vector2(1,0), 0, 0, app.initPitch, 0))
+    drawFrisbeeTopDown(app, Frisbee((*app.frisbeeInitPoint, 5), Vector2(1,0), 0, 0, app.initPitch, 0))
     drawLabel(f'Pitch = {app.initPitch}', app.frisbeeInitPoint[0], app.frisbeeInitPoint[1]+30)
     drawLabel(f'Up Speed = {app.upSpeed}', app.frisbeeInitPoint[0], app.frisbeeInitPoint[1]+40)
     drawLabel(f'Changing: {"Pitch" if app.settingPitch else "Up Speed"}', app.frisbeeInitPoint[0], app.frisbeeInitPoint[1]+50)
@@ -400,19 +499,21 @@ def drawThrowVisualization(app):
             drawLine(*app.throwPoint, *app.curvePoint, fill=kFrisbeeColor, arrowEnd=True, opacity=40)
 
 def drawPlayers(app):
-    for player in app.players:
-        drawPlayer(player)
+    for team in app.teams:
+        for player in team:
+            drawPlayer(app, player)
 
 def redrawAll(app):
-    print(f'Drawing All...', end='')
-    startTime = time.time()
+    # print(f'Drawing All...', end='')
+    # startTime = time.time()
     drawBackground(app)
+    if app.mousePos: drawCircle(*app.mousePos.tup(), 5, fill='red', border='black', borderWidth=2)
     drawPlayers(app)
-    drawThrowVisualization(app)
-    for frisbee in app.frisbees:
-        drawFrisbee(app, frisbee)
-    endTime = time.time()
-    print(f'Done: Time= {endTime-startTime}s')
+    if app.throwing: drawThrowVisualization(app)
+    for frisbee in app.frisbees: drawFrisbeeTopDown(app, frisbee)
+
+    # endTime = time.time()
+    # print(f'Done: Time= {endTime-startTime}s')
 
 
 def main():
