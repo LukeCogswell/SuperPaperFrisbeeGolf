@@ -374,8 +374,8 @@ def drawPlayer(player):
     drawRect(player.x, player.y, 20, 30, fill=player.team, align='center')
 
 def drawBackground(app):
-    print(f'Drawing Background...', end='')
-    startTime = time.time()
+    # print(f'Drawing Background...', end='')
+    # startTime = time.time()
     drawRect(0,0, app.width, app.height, fill=kBackgroundGradient0)
     # drawRect(0,0, app.width, app.height, fill=kBackgroundGradient1, opacity=10)
     now = time.time()
@@ -386,8 +386,8 @@ def drawBackground(app):
     drawRect(-offset+10*math.cos(.5*now),-offset+40*math.sin(.5*now), width, height, fill=kBackgroundGradient3, opacity=30)
     drawRect(-offset+30*math.cos(.8*now),-offset-20*math.sin(.5*now), width, height, fill=kBackgroundGradient4, opacity=30)
     # drawImage(floorTexture, 0,0)
-    endTime = time.time()
-    print(f'Done: Time= {endTime-startTime}s')
+    # endTime = time.time()
+    # print(f'Done: Time= {endTime-startTime}s')
 
 def drawThrowVisualization(app):
     drawFrisbee(app, Frisbee((*app.frisbeeInitPoint, 5), Vector2(1,0), 0, 0, app.initPitch, 0))
