@@ -371,8 +371,11 @@ def onKeyPress(app, key):
                 app.currTeamIndex = (app.currTeamIndex + 1) % len(kTeamColors)
             case 'f':
                 app.throwing = not app.throwing
+            case 'v':
+                if app.frisbees != []:
+                    formOffense(app, 'vert')
             case 'g':
-                spawnPlayerOnMouse(app)
+                spawnPlayerOnPoint(app, app.mousePos)
             case 'up':
                 if app.settingPitch: app.initPitch += 5
                 else: app.upSpeed += 1
@@ -409,13 +412,20 @@ def getClosestOffensivePlayer(app):
             closestPlayer = player.number
     return closestPlayer
 
-def spawnPlayerOnMouse(app):
-    if app.mousePos:
-        app.teams[app.currTeamIndex].append(Player(Vector2(*app.mousePos.tup()), len(app.teams[app.currTeamIndex])+1, app.currTeamIndex, bool(app.currTeamIndex%2), False))
+def spawnPlayerOnPoint(app, point):
+    if point:
+        app.teams[app.currTeamIndex].append(Player(Vector2(*point.tup()), len(app.teams[app.currTeamIndex])+1, app.currTeamIndex, bool(app.currTeamIndex%2), False))
 
 def formVertStack(app):
-    formationGoalPositions = [] #TODO
-    pass
+    frontStackPos = Vector2(app.frisbees[0].x + 50, app.height/2)
+    handlerPos = Vector2(app.frisbees[0].x, app.frisbees[0].y)
+    resetPos = Vector2(handlerPos.x - 60, handlerPos.y + 60)
+    formationGoalPositions = [handlerPos, resetPos]
+    for i in range(5):
+        formationGoalPositions.append(frontStackPos.added(Vector2(80*i + (40 if i==6 else 0), 0)))
+    for j in range(len(app.teams[app.currTeamIndex])):
+        if not (j >= len(app.teams[app.currTeamIndex]) or j >= len(formationGoalPositions)):
+            app.teams[app.currTeamIndex][j].goalPos = formationGoalPositions[j]
 
 def formOffense(app, style):
     match style:
@@ -435,6 +445,9 @@ def onMouseRelease(app, mouseX, mouseY):
         app.frisbees.append(newFrisbee)
         app.throwPoint = None
         app.curvePoint = None
+        if len(app.frisbees) > 1:
+            app.frisbees.pop(0)
+
 
 def drawFrisbeeTopDown(app, frisbee):
     # print(f'Drawing Frisbee...', end='')
@@ -484,8 +497,6 @@ def drawPlayerRoute(player):
             drawLine(*player.goalPos.tup(), *player.futureGoalPositions[index].tup(), arrowEnd=True, lineWidth=5, opacity=5, fill='cyan')
         else:
             drawLine(*player.futureGoalPositions[index-1].tup(), *player.futureGoalPositions[index].tup(), arrowEnd=True, lineWidth=5, opacity=5, fill='cyan')
-
-
 
 def drawPlayer(app, player):
     drawRect(player.pos.x, player.pos.y, 20, 30, fill=kTeamColors[player.team], align='center')
@@ -540,7 +551,5 @@ def redrawAll(app):
 
 def main():
     runApp()
-
-
 
 main()
