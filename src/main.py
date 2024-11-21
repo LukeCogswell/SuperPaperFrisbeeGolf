@@ -15,7 +15,7 @@ def onAppStart(app):
 
     #FRISBEE SETTINGS
     app.frisbees = []
-    app.frisbeeInitPoint = (kFrisbeeSize*2, app.height/2)
+    app.frisbeeInitPoint = Vector2(kFrisbeeSize*2, app.height/2)
     app.upSpeed = 5
     app.initPitch = 10
     app.mousePos = None
@@ -40,6 +40,8 @@ def onStep(app):
 def takeStep(app):  
     for frisbee in app.frisbees:
         frisbee.takeFlightStep()
+        if not frisbee.inFlight:
+            app.frisbeeInitPoint = Vector2(frisbee.x, frisbee.y)
     for cloud in app.clouds:
         cloud.move()
     for team in app.teams:
@@ -99,7 +101,7 @@ def onKeyPress(app, key):
 
 def onMousePress(app, mouseX, mouseY):
     if app.throwing:
-        app.throwPoint = (mouseX, mouseY)
+        app.throwPoint = Vector2(mouseX, mouseY)
     else:
         app.goalPos = Vector2(mouseX, mouseY)
         if app.selectedPlayer:
@@ -152,11 +154,11 @@ def onMouseDrag(app, mouseX, mouseY):
 
 def onMouseRelease(app, mouseX, mouseY):
     if app.throwing:
-        aimVector = Vector2(app.throwPoint[0]-app.frisbeeInitPoint[0], app.throwPoint[1]-app.frisbeeInitPoint[1])
-        rollVector = Vector2(app.throwPoint[0]-mouseX, app.throwPoint[1]-mouseY)
+        aimVector = app.throwPoint.subtracted(app.frisbeeInitPoint)
+        rollVector = Vector2(app.throwPoint.x-mouseX, app.throwPoint.y-mouseY)
         rollDirection = rollVector.dotProduct(aimVector.leftVector())
         roll = -kRollControlMultiplier * math.copysign(rollVector.magnitude(), rollDirection)
-        newFrisbee = Frisbee((*app.frisbeeInitPoint, 5), aimVector.unitVector(), aimVector.magnitude() * kAimControlMultiplier, app.upSpeed, app.initPitch, roll)
+        newFrisbee = Frisbee((*app.frisbeeInitPoint.tup(), 5), aimVector.unitVector(), aimVector.magnitude() * kAimControlMultiplier, app.upSpeed, app.initPitch, roll)
         app.frisbees.append(newFrisbee)
         app.throwPoint = None
         app.curvePoint = None

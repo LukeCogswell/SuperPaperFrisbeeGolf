@@ -31,6 +31,7 @@ kTrailOpacity = 40
 kTrailWidth = 3
 kDiscBorderWidth = 4
 kFrisbeeSize = 30
+kFrisbee3DSize = 2 * kFrisbeeSize
 kFrisbeeColor = 'lightBlue'
 kTrailColor = kFrisbeeColor
 kShadowColor = 'black'
@@ -38,11 +39,11 @@ kDiscGradient = gradient(*[kFrisbeeColor]*4, 'skyBlue', 'steelBlue', start='cent
 
 # BACKGROUND COLORS
 kGrassLight, kGrassMedium, kGrassDark = rgb(20, 150, 50), rgb(30, 125, 30), rgb(20, 100, 10)
-kSkyDark, kSkyMedium, kSkyLight = rgb(70, 70, 255), rgb(100, 150, 200), rgb(180, 220, 255)
+kSkyDark, kSkyMedium, kSkyLight = rgb(90, 130, 255), rgb(100, 150, 200), rgb(180, 220, 255)
 kHorizonHeight = 220
 # CLOUDS
 kMinCloudHeight = kAppHeight - (kHorizonHeight + 200)
-kCloudVariantCount = 1
+kCloudVariantCount = 2
 kCloudFrequency = 1 / 40 # 1 every 40 steps
 kCloudSize = (100, 50)
 kMinCloudScale = 1.5

@@ -76,14 +76,14 @@ def drawBackground(app):
     drawRect(-offset+30*math.cos(.8*now),-offset-20*math.sin(.5*now), width, height, fill=kBackgroundGradient4, opacity=30)
 
 def drawThrowVisualization(app):
-    drawFrisbee(app, Frisbee((*app.frisbeeInitPoint, 5), Vector2(1,0), 0, 0, app.initPitch, 0))
-    drawLabel(f'Pitch = {app.initPitch}', app.frisbeeInitPoint[0], app.frisbeeInitPoint[1]+30)
-    drawLabel(f'Up Speed = {app.upSpeed}', app.frisbeeInitPoint[0], app.frisbeeInitPoint[1]+40)
-    drawLabel(f'Changing: {"Pitch" if app.settingPitch else "Up Speed"}', app.frisbeeInitPoint[0], app.frisbeeInitPoint[1]+50)
+    drawFrisbee(app, Frisbee((*app.frisbeeInitPoint.tup(), 5), Vector2(1,0), 0, 0, app.initPitch, 0))
+    drawLabel(f'Pitch = {app.initPitch}', app.frisbeeInitPoint.x, app.frisbeeInitPoint.y+30)
+    drawLabel(f'Up Speed = {app.upSpeed}', app.frisbeeInitPoint.x, app.frisbeeInitPoint.y+40)
+    drawLabel(f'Changing: {"Pitch" if app.settingPitch else "Up Speed"}', app.frisbeeInitPoint.x, app.frisbeeInitPoint.y+50)
     if app.throwPoint:
-        drawLine(*app.frisbeeInitPoint, *app.throwPoint, fill=kFrisbeeColor, arrowEnd=True, opacity=40)
+        drawLine(*app.frisbeeInitPoint.tup(), *app.throwPoint.tup(), fill=kFrisbeeColor, arrowEnd=True, opacity=40)
         if app.curvePoint:
-            drawLine(*app.throwPoint, *app.curvePoint, fill=kFrisbeeColor, arrowEnd=True, opacity=40)
+            drawLine(*app.throwPoint.tup(), *app.curvePoint, fill=kFrisbeeColor, arrowEnd=True, opacity=40)
 
 def drawPlayers(app):
     for team in app.teams:

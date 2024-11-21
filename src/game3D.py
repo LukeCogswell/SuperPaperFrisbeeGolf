@@ -33,6 +33,26 @@ def drawGrass(app):
     drawRect(-offset+10*math.cos(.5*now), height, width, kHorizonHeight, fill=kBackgroundGradient3, opacity=30)
     drawRect(-offset+30*math.cos(.8*now), height, width, kHorizonHeight, fill=kBackgroundGradient4, opacity=30)
 
+def drawFrisbees(app):
+    for frisbee in app.frisbees:
+        xPos = frisbee.y * app.width / app.height 
+        yPos = app.height - frisbee.z - frisbee.x/app.width * kHorizonHeight
+        sizeMultiplier = min(1, (app.width/(frisbee.x)+.01))
+        width = kFrisbee3DSize
+        height = max(kFrisbee3DSize * math.sin(math.radians(frisbee.pitch)), 1)
 
+        if frisbee.pitch >= 0:
+            darkenBottom = False
+            if abs(frisbee.roll) > 5: 
+                fill = gradient('lightCyan', *[kFrisbeeColor]*int(60//abs(frisbee.roll)), 'skyBlue', 'steelBlue', start=('top' if frisbee.roll>0 else 'bottom'))
+            else: fill = kDiscGradient
+        else: 
+            fill = kDiscGradient
+            darkenBottom = True
+
+        drawOval(xPos, yPos, width * sizeMultiplier, height * sizeMultiplier, rotateAngle=frisbee.roll, fill=fill, borderWidth=kDiscBorderWidth, border=kDiscGradient)
+        if darkenBottom: drawOval(xPos, yPos, width * sizeMultiplier, height * sizeMultiplier, rotateAngle=frisbee.roll, opacity=30, fill='black', borderWidth=kDiscBorderWidth, border='gray')
+    
 def drawGame(app):
     drawBackground(app)
+    drawFrisbees(app)
