@@ -36,8 +36,8 @@ def drawGrass(app):
 def drawFrisbees(app):
     for frisbee in app.frisbees:
         xPos = frisbee.y * app.width / app.height 
-        yPos = app.height - frisbee.z - frisbee.x/app.width * kHorizonHeight
-        sizeMultiplier = min(1, (app.width/(frisbee.x)+.01))
+        yPos = app.height - frisbee.z - min(frisbee.x/app.width * kHorizonHeight, kHorizonHeight)
+        sizeMultiplier = max(0.01, min(1, (app.width/(frisbee.x)+.01)))
         width = kFrisbee3DSize
         height = max(kFrisbee3DSize * math.sin(math.radians(frisbee.pitch)), 1)
 
