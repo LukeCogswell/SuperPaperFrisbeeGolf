@@ -1,5 +1,5 @@
 from constants import *
-import math
+import math, random
 
 class Frisbee():
     def __init__(self, pos, direction, forwardSpeed, upSpeed, pitch, roll,):
@@ -285,3 +285,19 @@ class Player():
     def calculateGoalVelocity(self):
         goalVelocity = self.goalPos.subtracted(self.pos).clamped(kMaxPlayerSpeed)
         return goalVelocity
+
+class Cloud():
+    windSpeed = 1
+    def __init__(self, path, scale):
+        self.x = -100 * scale
+        self.y = random.randint(50, kMinCloudHeight)
+        self.filePath = path
+        self.scale = scale
+
+    def move(self):
+        self.x += Cloud.windSpeed * kMotionStepsPerSecond / self.scale
+        if self.x > (self.scale * 200) + kAppWidth:
+            self.remove()
+
+    def remove(self):
+        del(self)

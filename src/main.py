@@ -1,9 +1,7 @@
 from cmu_graphics import *
 from constants import *
 from classes import *
-import game2D
-import game3D
-import math
+import game2D, game3D, math, time, os
 
 def onAppStart(app):
     #DEFAULT SETTINGS
@@ -11,6 +9,9 @@ def onAppStart(app):
     app.paused = kAppInitPauseState
     app.stepsPerSecond = kStepsPerSecond
     app.isTopDown = True
+
+    #Environment
+    app.clouds = []
 
     #FRISBEE SETTINGS
     app.frisbees = []
@@ -39,9 +40,20 @@ def onStep(app):
 def takeStep(app):  
     for frisbee in app.frisbees:
         frisbee.takeFlightStep()
+    for cloud in app.clouds:
+        cloud.move()
     for team in app.teams:
         for player in team:
             player.takeMotionStep()
+    app.clouds.sort(key=lambda cloud:cloud.scale)
+    if not bool(random.randint(0, int(1 / kCloudFrequency))):
+        path = ('D://Coding/CMU Classes/15112/SuperPaperFrisbeeGolf/src/Images/Cloud'+str(random.randint(0, kCloudVariantCount-1))+'.png')
+        newCloud = Cloud(path, random.randint(kMinCloudScale*10, kMaxCloudScale*10)/10)
+        app.clouds.append(newCloud)
+
+def getAbsolutePath(relativeFilePath):
+    absolutePath = os.path.abspath(os.path.dirname(__file__))
+    return os.path.join(absolutePath, relativeFilePath)
 
 def onKeyPress(app, key):
     if key.isnumeric():
@@ -80,6 +92,8 @@ def onKeyPress(app, key):
             case 'down':
                 if app.settingPitch: app.initPitch -= 5
                 else: app.upSpeed -= 1
+            case 'm':
+                app.isTopDown = not app.isTopDown
             case 'escape':
                 app.quit()
 
@@ -149,11 +163,21 @@ def onMouseRelease(app, mouseX, mouseY):
         if len(app.frisbees) > 1:
             app.frisbees.pop(0)
 
+def drawFPS(app, timeStart):
+    now = time.time()
+    if now == timeStart:
+        fps = 'Unlimited'
+    else: 
+        fps = int(1 / (now - timeStart))
+    drawLabel(fps, app.width, 0, align='right-top')
+
 def redrawAll(app):
+    startTime = time.time()
     if app.isTopDown:
         game2D.drawGame(app)
     else:
         game3D.drawGame(app)
+    drawFPS(app, startTime)
 
 def main():
     runApp()
