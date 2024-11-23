@@ -10,6 +10,10 @@ def onAppStart(app):
     app.stepsPerSecond = kStepsPerSecond
     app.isTopDown = True
 
+    # COURSE
+    app.course = None
+    initCourse(app, 1000)
+
     #Environment
     app.clouds = []
     app.trees = []
@@ -64,6 +68,9 @@ def onKeyPress(app, key):
         case 'r':
             app.frisbees = []
             app.teams = [[],[]]
+            app.course = None
+            initCourse(app, app.width-400)
+            app.frisbeeInitPoint = Vector2(kFrisbeeSize*2, app.height/2)
         case 'space':
             app.paused = not app.paused
         case 'l':
@@ -132,6 +139,29 @@ def formOffense(app, style):
             formVertStack(app)
 # end removal code
 ###############################################################################
+
+def initCourse(app, length):
+    app.course = Course(length, kDefaultObstaclePeriod)
+    addObstacles(app.course)
+
+def addObstacles(course):
+    if course.obstacles != []: return
+    for i in range(course.numObstacles):
+        x = (i+1) * course.obstaclePeriod
+        y = random.random() * (kAppHeight - 2*kSideBuffer) + kSideBuffer
+        height = random.randint(0, kMaxObstacleHeight)
+        obstacleChoice = random.choice(kObstacleTypes)
+        match obstacleChoice:
+            case 'wall':
+                z = int(random.random() * kMaxWallGap)
+                width = random.randint(kMinWallWidth, kMaxWallWidth)
+                height = random.randint(kMinObstacleHeight, kMaxObstacleHeight-z)
+                newObstacle = Wall(x, y, z, width, height)
+            case 'tree':
+                newObstacle = Tree(x,y,height)
+            case _:
+                raise SillyException(f'Silly Goof! {obstacleChoice} is not in the match cases!')
+        course.obstacles.append(newObstacle)
 
 def onMouseDrag(app, mouseX, mouseY):
     app.curvePoint = (mouseX, mouseY)

@@ -7,7 +7,7 @@ kSpeedResistance = 0.1     # resistance to speed based on current speed - PERCEN
 kPitchResistance = 0.1     # resistance to speed based on current pitch - PERCENTAGE
 kRollFactor      = 0.05    # roll increase based on current roll - PERCENTAGE 
 kRollFactorReduction = 1/5 # roll increase reduction based on current roll - RATIO
-kleftSpeedFactor = 5.0     # side speed increase factor based on current roll - PERCENTAGE
+kleftSpeedFactor = 10.0     # side speed increase factor based on current roll - PERCENTAGE
 kGravity = -.4              # downward acceleration due to gravity - UNITS / STEP / STEP
 
 ## TO BE REMOVED - PLAYER CONTROL
@@ -25,14 +25,16 @@ kStepsPerSecond = 60
 kMotionStepsPerSecond = 5
 kMotionTimeFactor = kMotionStepsPerSecond / kStepsPerSecond
 
+# GENERAL CONSTANTS
+kZHeightFactor = 10
+
 # FRISBEE AESTHETICS
 kTrailLength = 5
 kTrailOpacity = 40
 kTrailWidth = 3
-kDiscBorderWidth = 4
+kDiscBorderWidth = 10
 kFrisbeeSize = 30
 kFloatFactor = 5 / 100
-kFrisbeeHeightFactor = 10
 kFrisbee3DSize = 2 * kFrisbeeSize
 kFrisbeeColor = 'lightBlue'
 kTrailColor = kFrisbeeColor
@@ -53,3 +55,16 @@ kCloudSize = (100, 50)
 kMinCloudScale = .7
 kMaxCloudScale = 3
 kWindSpeed = .5
+
+# OBSTACLES
+kObstacleTypes = ['wall', 'tree']
+kSideBuffer = 100
+kTreeVariantCount = 1
+kWallVariantCount = 1
+kDefaultObstaclePeriod = 200
+kMaxWallGap = 100
+kMinWallWidth = 100
+kMaxWallWidth = kAppHeight / 2
+kWallThickness = 30
+kMinObstacleHeight = 40
+kMaxObstacleHeight = 300

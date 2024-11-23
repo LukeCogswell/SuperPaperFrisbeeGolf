@@ -1,6 +1,6 @@
 from cmu_graphics import *
 from constants import *
-from classes import Frisbee, Vector2, Player
+from classes import Frisbee, Vector2, Obstacle, Wall, Tree
 import math, time
 
 kBackgroundGradient0 = gradient(*[kGrassLight, kGrassMedium, kGrassDark, kGrassMedium]*(kAppWidth//80), start='left')
@@ -109,9 +109,18 @@ def drawPlayers(app):
         for player in team:
             drawPlayer(app, player)
 
+def drawCourse(app):
+    for obstacle in app.course.obstacles:
+        match obstacle.type:
+            case 'wall':
+                drawRect(obstacle.x, obstacle.y, kWallThickness, obstacle.width)
+            case 'tree':
+                drawCircle(obstacle.x, obstacle.y, 30, fill='forestGreen')
+    drawCircle(app.course.goal.x, app.course.goal.y, 20, fill='red', borderWidth=5)
+
 def drawGame(app):
     drawBackground(app)
     if app.mousePos: drawCircle(*app.mousePos.tup(), 5, fill='red', border='black', borderWidth=2)
-    drawPlayers(app)
     if app.throwing: drawThrowVisualization(app)
+    drawCourse(app)
     for frisbee in app.frisbees: drawFrisbee(app, frisbee)

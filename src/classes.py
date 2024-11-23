@@ -305,5 +305,59 @@ class Cloud():
     def remove(self):
         del(self)
 
-class Tree():
-    pass
+class Course():
+    def __init__(self, length: int, obstaclePeriod:float):
+        self.length = length # top-down pixels
+        self.obstaclePeriod = obstaclePeriod # pixels between obstacles
+        self.numObstacles = length//(self.obstaclePeriod) - 2
+        self.goalPos = Vector2(length, kAppHeight/2)
+        self.goal = Goal(*self.goalPos.tup(), 0)
+        self.obstacles = []
+
+    def getVisibleObjects(self, playerPos: Vector2):
+        visibleObjects = []
+        for obstacle in self.obstacles:
+            if obstacle.x > playerPos.x:
+                visibleObjects.append(obstacle)
+        return visibleObjects
+    
+    def __repr__(self):
+        return f'Course(len={self.length}, #obstacles={self.numObstacles})'
+
+
+class Goal():
+    def __init__(self, x, y, z):
+        self.x = x
+        self.y = y
+        self.z = z
+    def __repr__(self):
+        return f'Goal(x, y, z = {self.x}, {self.y}, {self.z})'
+
+class Obstacle():
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+        self.type = None
+    
+    def __repr__(self):
+        return f'Obstacle({type(self)}, x={self.x}, y={self.y})'
+        
+class Wall(Obstacle):
+    def __init__(self, x, y, z, width, height):
+        super().__init__(x, y)
+        self.z = z
+        self.width = width
+        self.height = height
+        self.path3D = ('D://Coding/CMU Classes/15112/SuperPaperFrisbeeGolf/src/Images/Wall'+str(random.randint(0, kWallVariantCount-1))+'.png')
+        self.type = 'wall'
+
+class Tree(Obstacle):
+    def __init__(self, x, y, height):
+        super().__init__(x, y)
+        self.height = height
+        self.path3D = ('D://Coding/CMU Classes/15112/SuperPaperFrisbeeGolf/src/Images/Tree'+str(random.randint(0, kTreeVariantCount-1))+'.png')
+        self.type = 'tree'
+
+class SillyException(Exception):
+    def __init__(self, message):
+        super().__init__(message)

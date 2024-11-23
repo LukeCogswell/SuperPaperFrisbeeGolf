@@ -52,7 +52,7 @@ def drawGrass(app):
 def drawFrisbees(app):
     for frisbee in app.frisbees:
         xPos = frisbee.y * app.width / app.height 
-        yPos = app.height - frisbee.z*kFrisbeeHeightFactor - min(frisbee.x/app.width * kHorizonHeight, kHorizonHeight)
+        yPos = app.height - frisbee.z*kZHeightFactor - min(frisbee.x/app.width * kHorizonHeight, kHorizonHeight)
         sizeMultiplier = max(0.01, min(1, (2*(app.width-frisbee.x)/app.width+.1)))
         width = kFrisbee3DSize
         height = max(kFrisbee3DSize * math.sin(math.radians(frisbee.pitch)), 1)
@@ -69,6 +69,18 @@ def drawFrisbees(app):
         drawOval(xPos, yPos, width * sizeMultiplier, height * sizeMultiplier, rotateAngle=frisbee.roll, fill=fill, borderWidth=kDiscBorderWidth, border=kDiscGradient)
         if darkenBottom: drawOval(xPos, yPos, width * sizeMultiplier, height * sizeMultiplier, rotateAngle=frisbee.roll, opacity=30, fill='black', borderWidth=kDiscBorderWidth, border='gray')
     
+def drawCourse(app):
+    drawCircle(app.course.goal.y * (app.width / app.height), app.height - min(app.course.goal.x/app.width * kHorizonHeight, kHorizonHeight), 20, fill='red', borderWidth=5)
+    for obstacle in reversed(app.course.obstacles):
+        sizeMultiplier = max(0.01, min(1, (2*(app.width-obstacle.x)/app.width+.1)))
+        match obstacle.type:
+            case 'wall':
+                yPos = app.height-(app.height - obstacle.z*kZHeightFactor) - min(obstacle.x/app.width * kHorizonHeight, kHorizonHeight)
+                drawRect(obstacle.y * (app.width / app.height), yPos, obstacle.width*sizeMultiplier, obstacle.height*sizeMultiplier, fill=gradient('gray', 'black'), opacity=90)
+            case 'tree':
+                drawCircle(obstacle.y * (app.width / app.height), app.height - min(obstacle.x/app.width * kHorizonHeight, kHorizonHeight), 30, fill='forestGreen')
+    drawFrisbees(app)
+
 def drawGame(app):
     drawBackground(app)
-    drawFrisbees(app)
+    drawCourse(app)
