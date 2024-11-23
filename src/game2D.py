@@ -9,6 +9,25 @@ kBackgroundGradient2 = gradient(*[kGrassLight, kGrassMedium, kGrassDark, kGrassD
 kBackgroundGradient3 = gradient(*[kGrassLight, kGrassMedium, kGrassDark, kGrassMedium]*(kAppWidth//150), start='left-top')
 kBackgroundGradient4 = gradient(*[kGrassLight, kGrassMedium, kGrassDark, kGrassDark, kGrassMedium]*(kAppWidth//300), start='right-top')
 
+def keyPressed(app, key):
+    # if key.isnumeric():
+    #     if int(key)-1 <= len(app.teams[app.currTeamIndex]):
+    #         app.selectedPlayer = app.teams[app.currTeamIndex][int(key)-1]
+    # else:    
+    match key:
+        case 'p':
+            app.settingPitch = not app.settingPitch
+        case 't':
+            app.currTeamIndex = (app.currTeamIndex + 1) % len(kTeamColors)
+        case 'f':
+            app.throwing = not app.throwing
+        case 'up':
+            if app.settingPitch: app.initPitch += 5
+            else: app.upSpeed += 1
+        case 'down':
+            if app.settingPitch: app.initPitch -= 5
+            else: app.upSpeed -= 1
+
 def drawFrisbee(app, frisbee):
     # print(f'Drawing Frisbee...', end='')
     # startTime = time.time()

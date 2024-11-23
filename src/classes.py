@@ -53,7 +53,10 @@ class Frisbee():
         return roll, leftSpeed
     
     def getDownSpeedChange(self):
-        return kGravity - 3*abs(math.cos(math.radians(self.roll))) - max(self.forwardSpeed*(-self.pitch/50), -kGravity)
+        if self.downSpeed > 0:
+            return kGravity - 3*abs(math.cos(math.radians(self.roll))) - max(self.forwardSpeed*(-self.pitch/50), -kGravity)
+        else:
+            return (kFloatFactor * kGravity) - 3*abs(math.cos(math.radians(self.roll))) - max(self.forwardSpeed*(-self.pitch/50), -kGravity * kFloatFactor)
 
     def takeFlightStep(self):
         # print(f'Taking Flight Step...', end='')
@@ -287,17 +290,20 @@ class Player():
         return goalVelocity
 
 class Cloud():
-    windSpeed = 1
+    windSpeed = kWindSpeed
     def __init__(self, path, scale):
-        self.x = -100 * scale
-        self.y = random.randint(50, kMinCloudHeight)
+        self.x = -50 * scale
+        self.y = (1-random.random()**2) * (kMinCloudHeight - 50)
         self.filePath = path
         self.scale = scale
 
     def move(self):
-        self.x += Cloud.windSpeed * kMotionStepsPerSecond / self.scale
+        self.x += Cloud.windSpeed * kMotionStepsPerSecond * self.scale
         if self.x > (self.scale * 200) + kAppWidth:
             self.remove()
 
     def remove(self):
         del(self)
+
+class Tree():
+    pass

@@ -21,7 +21,7 @@ kRollControlMultiplier = 1 / 10
 kAimControlMultiplier = 1 / 4
 
 # APP SPEED
-kStepsPerSecond = 30 
+kStepsPerSecond = 60 
 kMotionStepsPerSecond = 5
 kMotionTimeFactor = kMotionStepsPerSecond / kStepsPerSecond
 
@@ -31,6 +31,8 @@ kTrailOpacity = 40
 kTrailWidth = 3
 kDiscBorderWidth = 4
 kFrisbeeSize = 30
+kFloatFactor = 5 / 100
+kFrisbeeHeightFactor = 10
 kFrisbee3DSize = 2 * kFrisbeeSize
 kFrisbeeColor = 'lightBlue'
 kTrailColor = kFrisbeeColor
@@ -41,10 +43,13 @@ kDiscGradient = gradient(*[kFrisbeeColor]*4, 'skyBlue', 'steelBlue', start='cent
 kGrassLight, kGrassMedium, kGrassDark = rgb(20, 150, 50), rgb(30, 125, 30), rgb(20, 100, 10)
 kSkyDark, kSkyMedium, kSkyLight = rgb(90, 130, 255), rgb(100, 150, 200), rgb(180, 220, 255)
 kHorizonHeight = 220
+kMountainPath = 'D://Coding/CMU Classes/15112/SuperPaperFrisbeeGolf/src/Images/Mountains.png'
+
 # CLOUDS
-kMinCloudHeight = kAppHeight - (kHorizonHeight + 200)
-kCloudVariantCount = 2
+kMinCloudHeight = kAppHeight - (kHorizonHeight + 330)
+kCloudVariantCount = 5
 kCloudFrequency = 1 / 40 # 1 every 40 steps
 kCloudSize = (100, 50)
-kMinCloudScale = 1.5
+kMinCloudScale = .7
 kMaxCloudScale = 3
+kWindSpeed = .5

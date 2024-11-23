@@ -12,6 +12,7 @@ def onAppStart(app):
 
     #Environment
     app.clouds = []
+    app.trees = []
 
     #FRISBEE SETTINGS
     app.frisbees = []
@@ -47,7 +48,6 @@ def takeStep(app):
     for team in app.teams:
         for player in team:
             player.takeMotionStep()
-    app.clouds.sort(key=lambda cloud:cloud.scale)
     if not bool(random.randint(0, int(1 / kCloudFrequency))):
         path = ('D://Coding/CMU Classes/15112/SuperPaperFrisbeeGolf/src/Images/Cloud'+str(random.randint(0, kCloudVariantCount-1))+'.png')
         newCloud = Cloud(path, random.randint(kMinCloudScale*10, kMaxCloudScale*10)/10)
@@ -58,46 +58,30 @@ def getAbsolutePath(relativeFilePath):
     return os.path.join(absolutePath, relativeFilePath)
 
 def onKeyPress(app, key):
-    if key.isnumeric():
-        if int(key)-1 <= len(app.teams[app.currTeamIndex]):
-            app.selectedPlayer = app.teams[app.currTeamIndex][int(key)-1]
-    else:    
-        match key:
-            case 's':
-                takeStep(app)
-            case 'r':
-                app.frisbees = []
-                app.teams = [[],[]]
-            case 'space':
-                app.paused = not app.paused
-            case 'l':
-                app.drawLabels = not app.drawLabels
-            case 'n':
-                app.frisbees.append(Frisbee((200,200,0), Vector2(1,1), 50, 15, 20, 45))
-            case 'p':
-                app.settingPitch = not app.settingPitch
-            case 't':
-                app.currTeamIndex = (app.currTeamIndex + 1) % len(kTeamColors)
-            case 'f':
-                app.throwing = not app.throwing
-            case 'v':
-                if app.frisbees != []:
-                    formOffense(app, 'vert')
-            case 'g':
-                spawnPlayerOnPoint(app, app.mousePos)
-            case 'up':
-                if app.settingPitch: app.initPitch += 5
-                else: app.upSpeed += 1
-            case 'backspace':
-                if app.frisbees != []:
-                    app.frisbees.pop(0)
-            case 'down':
-                if app.settingPitch: app.initPitch -= 5
-                else: app.upSpeed -= 1
-            case 'm':
-                app.isTopDown = not app.isTopDown
-            case 'escape':
-                app.quit()
+    match key:
+        case 's':
+            takeStep(app)
+        case 'r':
+            app.frisbees = []
+            app.teams = [[],[]]
+        case 'space':
+            app.paused = not app.paused
+        case 'l':
+            app.drawLabels = not app.drawLabels
+        case 'n':
+            app.frisbees.append(Frisbee((200,200,0), Vector2(1,1), 50, 15, 20, 45))
+        case 'backspace':
+            if app.frisbees != []:
+                app.frisbees.pop(0)
+        case 'm':
+            app.isTopDown = not app.isTopDown
+        case 'escape':
+            app.quit()
+        case _:
+            if app.isTopDown:
+                game2D.keyPressed(app, key)
+            else:
+                game3D.keyPressed(app, key)
 
 def onMousePress(app, mouseX, mouseY):
     if app.throwing:
