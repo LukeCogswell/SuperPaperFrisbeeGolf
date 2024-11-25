@@ -16,6 +16,9 @@ class Frisbee():
         self.y = pos[1]
         self.z = pos[2]
 
+    def __repr__(self):
+        return f'Frisbee(pos=({self.x}, {self.y}, {self.z}))'
+
     def stop(self):
         self.z = 0
         self.roll = 0
@@ -57,6 +60,38 @@ class Frisbee():
             return kGravity - 3*abs(math.cos(math.radians(self.roll))) - max(self.forwardSpeed*(-self.pitch/50), -kGravity)
         else:
             return (kFloatFactor * kGravity) - 3*abs(math.cos(math.radians(self.roll))) - max(self.forwardSpeed*(-self.pitch/50), -kGravity * kFloatFactor)
+
+    def checkScored(self, goal):
+        xCheck = abs(self.x-goal.x) <= kFrisbeeSize/2
+        yCheck = abs(self.y-goal.y) <= kFrisbeeSize/2
+        zCheck = abs(self.z-kScorableHeight) <= kScorableTolerance
+        return xCheck and yCheck and zCheck
+
+    def checkCollisions(self, course):
+        # Returns true if frisbee is colliding, false if not
+        for obstacle in course.obstacles:
+            # Checks x y and z to see if the frisbee is colliding with the obstacle (all hitboxes are cubes)
+            xCheck = abs(self.x - obstacle.x) <= kFrisbeeSize+obstacle.depth/2
+            yCheck = abs(self.y - obstacle.y) <= kFrisbeeSize+obstacle.width/2
+            zCheck = obstacle.z < self.z < (obstacle.z+obstacle.height)
+            
+            if zCheck and xCheck and yCheck:
+                self.collide(obstacle)
+                return True
+        return False
+
+    def getReflectionVector(self, obstacle):
+        # (2(N dot L) N - L) gives the reflected vector where L is the incident vector and N is the normal vector of the flat surface
+        collidingNormal = obstacle.getCollisionNormal(self)
+        incidentAngle = self.direction
+        return collidingNormal.multipliedBy(2).multipliedBy(incidentAngle.dotProduct(collidingNormal)).subtracted(incidentAngle)
+
+    def collide(self, obstacle):
+        if obstacle.isBouncy:
+            self.direction = self.getReflectionVector(obstacle)
+        else: 
+            self.forwardSpeed = -10
+            self.upSpeed = -4
 
     def takeFlightStep(self):
         # print(f'Taking Flight Step...', end='')
@@ -309,7 +344,7 @@ class Course():
     def __init__(self, length: int, obstaclePeriod:float):
         self.length = length # top-down pixels
         self.obstaclePeriod = obstaclePeriod # pixels between obstacles
-        self.numObstacles = length//(self.obstaclePeriod) - 2
+        self.numObstacles = length//(self.obstaclePeriod) - 1
         self.goalPos = Vector2(length, kAppHeight/2)
         self.goal = Goal(*self.goalPos.tup(), 0)
         self.obstacles = []
@@ -324,12 +359,12 @@ class Course():
     def __repr__(self):
         return f'Course(len={self.length}, #obstacles={self.numObstacles})'
 
-
 class Goal():
     def __init__(self, x, y, z):
         self.x = x
         self.y = y
         self.z = z
+
     def __repr__(self):
         return f'Goal(x, y, z = {self.x}, {self.y}, {self.z})'
 
@@ -341,22 +376,41 @@ class Obstacle():
     
     def __repr__(self):
         return f'Obstacle({type(self)}, x={self.x}, y={self.y})'
+    
+    def getCollisionNormal(self, frisbee):
+        if self.x-frisbee.x > kFrisbeeSize + self.depth/2:
+            return Vector2(-1,0)
+        elif self.x-frisbee.x < - kFrisbeeSize + self.depth+kFrisbeeSize/2:
+            return Vector2(1, 0)
+        elif self.y-frisbee.y < kFrisbeeSize + self.width/2:
+            return Vector2(0, -1)
+        else:
+            return Vector2(0, 1)
+        
         
 class Wall(Obstacle):
-    def __init__(self, x, y, z, width, height):
+    def __init__(self, x, y, z, width, height, isBouncy):
         super().__init__(x, y)
         self.z = z
         self.width = width
         self.height = height
+        self.depth = kObstacleThickness
+        self.isBouncy = isBouncy
         self.path3D = ('D://Coding/CMU Classes/15112/SuperPaperFrisbeeGolf/src/Images/Wall'+str(random.randint(0, kWallVariantCount-1))+'.png')
         self.type = 'wall'
+    def __repr__(self):
+        return f'Obstacle({type(self)}, x={int(self.x)}, y={int(self.y)}, z={int(self.z)}, height={int(self.height)})'
 
 class Tree(Obstacle):
     def __init__(self, x, y, height):
         super().__init__(x, y)
+        self.z = 0
+        self.isBouncy = False
         self.height = height
+        self.width = kObstacleThickness
         self.path3D = ('D://Coding/CMU Classes/15112/SuperPaperFrisbeeGolf/src/Images/Tree'+str(random.randint(0, kTreeVariantCount-1))+'.png')
         self.type = 'tree'
+        self.depth = 50
 
 class SillyException(Exception):
     def __init__(self, message):

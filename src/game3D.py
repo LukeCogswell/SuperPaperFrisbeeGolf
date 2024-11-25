@@ -25,7 +25,7 @@ def drawSky(app):
     drawRect(0, 0, app.width, app.height-kHorizonHeight, fill=kSkyGradient)
 
 def drawMountains(app):
-    drawImage(kMountainPath, app.width/2, app.height/2, width=app.width, height=app.height/1.2, align='center')
+    drawImage(kMountainPath, app.width/2, app.height/2, width=app.width, height=app.height-100, align='center')
 
 def drawClouds(app):
     app.clouds.sort(key=lambda cloud:cloud.scale)
@@ -51,7 +51,7 @@ def drawGrass(app):
 
 def drawFrisbees(app):
     for frisbee in app.frisbees:
-        xPos = frisbee.y * app.width / app.height 
+        xPos = frisbee.y * (app.width / app.height) 
         yPos = app.height - frisbee.z*kZHeightFactor - min(frisbee.x/app.width * kHorizonHeight, kHorizonHeight)
         sizeMultiplier = max(0.01, min(1, (2*(app.width-frisbee.x)/app.width+.1)))
         width = kFrisbee3DSize
@@ -75,10 +75,23 @@ def drawCourse(app):
         sizeMultiplier = max(0.01, min(1, (2*(app.width-obstacle.x)/app.width+.1)))
         match obstacle.type:
             case 'wall':
-                yPos = app.height-(app.height - obstacle.z*kZHeightFactor) - min(obstacle.x/app.width * kHorizonHeight, kHorizonHeight)
-                drawRect(obstacle.y * (app.width / app.height), yPos, obstacle.width*sizeMultiplier, obstacle.height*sizeMultiplier, fill=gradient('gray', 'black'), opacity=90)
+                xPos = obstacle.y * (app.width / app.height)
+                yPos = app.height-(obstacle.z*kZHeightFactor) - min(obstacle.x/app.width * kHorizonHeight, kHorizonHeight)
+                width = obstacle.width*sizeMultiplier*(app.width / app.height)
+                height = obstacle.height*sizeMultiplier*kZHeightFactor
+                if obstacle.isBouncy:
+                    fill=kBouncyColor
+                else:
+                    fill='black'
+                
+                # drawRect(xPos-(0.05*(xPos-app.width/2)), yPos-(0.01*yPos), width, height*.9, align='center')
+                drawRect(xPos, yPos, width, height, align='center', fill=fill)
             case 'tree':
-                drawCircle(obstacle.y * (app.width / app.height), app.height - min(obstacle.x/app.width * kHorizonHeight, kHorizonHeight), 30, fill='forestGreen')
+                width = 50*kTreeBaseSizeMultiplier * sizeMultiplier
+                height = 100*kTreeBaseSizeMultiplier*sizeMultiplier
+                xPos = obstacle.y * (app.width / app.height)
+                yPos = app.height - min(obstacle.x/app.width * kHorizonHeight, kHorizonHeight)
+                drawImage(obstacle.path3D, xPos, yPos, align='bottom', width=width, height=height)
     drawFrisbees(app)
 
 def drawGame(app):

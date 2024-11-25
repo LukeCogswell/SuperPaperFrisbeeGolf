@@ -1,4 +1,4 @@
-# FrisbeeFlight_15112_TP
+# SuperPaperFrisbeeGolf
 Frisbee Flight Simulator Game - CMU 15112 Term Project
 
 11/18/24 - State of the game

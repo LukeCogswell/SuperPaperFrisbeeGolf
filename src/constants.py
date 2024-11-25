@@ -19,6 +19,7 @@ kTeamColors = ['black', 'white']
 # AIM AND FIRE
 kRollControlMultiplier = 1 / 10
 kAimControlMultiplier = 1 / 4
+kFrisbeeThrowHeight = 5
 
 # APP SPEED
 kStepsPerSecond = 60 
@@ -50,21 +51,31 @@ kMountainPath = 'D://Coding/CMU Classes/15112/SuperPaperFrisbeeGolf/src/Images/M
 # CLOUDS
 kMinCloudHeight = kAppHeight - (kHorizonHeight + 330)
 kCloudVariantCount = 5
-kCloudFrequency = 1 / 40 # 1 every 40 steps
+kCloudFrequency = 1 / 60 # 1 every 40 steps
 kCloudSize = (100, 50)
 kMinCloudScale = .7
 kMaxCloudScale = 3
-kWindSpeed = .5
+kWindSpeed = .2
+
+#Scoring Constants
+kScorableHeight = kFrisbeeThrowHeight
+kScorableTolerance = 2
 
 # OBSTACLES
 kObstacleTypes = ['wall', 'tree']
 kSideBuffer = 100
-kTreeVariantCount = 1
+kTreeVariantCount = 2
 kWallVariantCount = 1
+kTreeBaseSizeMultiplier = 4
 kDefaultObstaclePeriod = 200
-kMaxWallGap = 100
+kMaxWallGap = 2
 kMinWallWidth = 100
 kMaxWallWidth = kAppHeight / 2
-kWallThickness = 30
-kMinObstacleHeight = 40
-kMaxObstacleHeight = 300
+kObstacleThickness = 30
+kMinObstacleHeight = 10
+kMaxObstacleHeight = 30
+
+# OBSTACLE AESTHETICS
+kWallGradientColors = ['peru','sienna','saddleBrown']
+kBouncyColor = 'orange'
+kBrickTexturePath = 'D://Coding/CMU Classes/15112/SuperPaperFrisbeeGolf/src/Images/Brick.png'

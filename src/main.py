@@ -13,6 +13,7 @@ def onAppStart(app):
     # COURSE
     app.course = None
     initCourse(app, 1000)
+    app.scored = False
 
     #Environment
     app.clouds = []
@@ -45,6 +46,12 @@ def onStep(app):
 def takeStep(app):  
     for frisbee in app.frisbees:
         frisbee.takeFlightStep()
+        if frisbee.checkScored(app.course.goal):
+            frisbee.stop()
+            app.scored = True
+            #TODO store score and exit course
+        else:
+            frisbee.checkCollisions(app.course)
         if not frisbee.inFlight:
             app.frisbeeInitPoint = Vector2(frisbee.x, frisbee.y)
     for cloud in app.clouds:
@@ -61,16 +68,19 @@ def getAbsolutePath(relativeFilePath):
     absolutePath = os.path.abspath(os.path.dirname(__file__))
     return os.path.join(absolutePath, relativeFilePath)
 
+def resetCourse(app):
+    app.frisbees = []
+    app.teams = [[],[]]
+    app.course = None
+    initCourse(app, app.width-400)
+    app.frisbeeInitPoint = Vector2(kFrisbeeSize*2, app.height/2)
+
 def onKeyPress(app, key):
     match key:
         case 's':
             takeStep(app)
         case 'r':
-            app.frisbees = []
-            app.teams = [[],[]]
-            app.course = None
-            initCourse(app, app.width-400)
-            app.frisbeeInitPoint = Vector2(kFrisbeeSize*2, app.height/2)
+            resetCourse(app)
         case 'space':
             app.paused = not app.paused
         case 'l':
@@ -91,13 +101,17 @@ def onKeyPress(app, key):
                 game3D.keyPressed(app, key)
 
 def onMousePress(app, mouseX, mouseY):
-    if app.throwing:
-        app.throwPoint = Vector2(mouseX, mouseY)
+    if app.scored:
+        app.scored = False
+        resetCourse(app)
     else:
-        app.goalPos = Vector2(mouseX, mouseY)
-        if app.selectedPlayer:
-            # playerNumber = getClosestOffensivePlayer(app)
-            app.selectedPlayer.futureGoalPositions.append(app.goalPos)
+        if app.throwing:
+            app.throwPoint = Vector2(mouseX, mouseY)
+        else:
+            app.goalPos = Vector2(mouseX, mouseY)
+            if app.selectedPlayer:
+                # playerNumber = getClosestOffensivePlayer(app)
+                app.selectedPlayer.futureGoalPositions.append(app.goalPos)
 
 def onMouseMove(app, mouseX, mouseY):
     app.mousePos = Vector2(mouseX, mouseY)
@@ -156,9 +170,9 @@ def addObstacles(course):
                 z = int(random.random() * kMaxWallGap)
                 width = random.randint(kMinWallWidth, kMaxWallWidth)
                 height = random.randint(kMinObstacleHeight, kMaxObstacleHeight-z)
-                newObstacle = Wall(x, y, z, width, height)
+                newObstacle = Wall(x, y, z, width, height, random.choice([True, False, False]))
             case 'tree':
-                newObstacle = Tree(x,y,height)
+                newObstacle = Tree(x,y,height*100*kTreeBaseSizeMultiplier/kZHeightFactor)
             case _:
                 raise SillyException(f'Silly Goof! {obstacleChoice} is not in the match cases!')
         course.obstacles.append(newObstacle)
@@ -167,12 +181,12 @@ def onMouseDrag(app, mouseX, mouseY):
     app.curvePoint = (mouseX, mouseY)
 
 def onMouseRelease(app, mouseX, mouseY):
-    if app.throwing:
+    if app.throwing and not app.scored and app.throwPoint:
         aimVector = app.throwPoint.subtracted(app.frisbeeInitPoint)
         rollVector = Vector2(app.throwPoint.x-mouseX, app.throwPoint.y-mouseY)
         rollDirection = rollVector.dotProduct(aimVector.leftVector())
         roll = -kRollControlMultiplier * math.copysign(rollVector.magnitude(), rollDirection)
-        newFrisbee = Frisbee((*app.frisbeeInitPoint.tup(), 5), aimVector.unitVector(), aimVector.magnitude() * kAimControlMultiplier, app.upSpeed, app.initPitch, roll)
+        newFrisbee = Frisbee((*app.frisbeeInitPoint.tup(), kFrisbeeThrowHeight), aimVector.unitVector(), aimVector.magnitude() * kAimControlMultiplier, app.upSpeed, app.initPitch, roll)
         app.frisbees.append(newFrisbee)
         app.throwPoint = None
         app.curvePoint = None
@@ -194,6 +208,8 @@ def redrawAll(app):
     else:
         game3D.drawGame(app)
     drawFPS(app, startTime)
+    if app.scored:
+        drawLabel('GOAL!', app.width/2, app.height/2, size=100, border='white', borderWidth=4)
 
 def main():
     runApp()

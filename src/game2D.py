@@ -113,7 +113,12 @@ def drawCourse(app):
     for obstacle in app.course.obstacles:
         match obstacle.type:
             case 'wall':
-                drawRect(obstacle.x, obstacle.y, kWallThickness, obstacle.width)
+                if obstacle.isBouncy:
+                    drawRect(obstacle.x, obstacle.y, kObstacleThickness, obstacle.width, align='center', border=kBouncyColor, borderWidth = 5)
+                else:
+                    drawRect(obstacle.x, obstacle.y, kObstacleThickness, obstacle.width, align='center')
+                if app.drawLabels:
+                    drawLabel(obstacle, obstacle.x, obstacle.y, fill='white')
             case 'tree':
                 drawCircle(obstacle.x, obstacle.y, 30, fill='forestGreen')
     drawCircle(app.course.goal.x, app.course.goal.y, 20, fill='red', borderWidth=5)
