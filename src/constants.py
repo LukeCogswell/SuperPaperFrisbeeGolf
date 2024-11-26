@@ -57,7 +57,7 @@ kWaterCornerPath = kOSFilePath+'/Images/WaterCorner.png'
 # CLOUDS
 kMinCloudHeight = kAppHeight - (kHorizonHeight + 330)
 kCloudVariantCount = 5
-kCloudFrequency = 1 / 60 # 1 every 40 steps
+kCloudFrequency = 1 / 80 # 1 every 40 steps
 kCloudSize = (100, 50)
 kMinCloudScale = .7
 kMaxCloudScale = 3

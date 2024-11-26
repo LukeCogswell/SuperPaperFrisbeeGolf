@@ -112,15 +112,6 @@ def drawCourse(app):
     drawFrisbees(app)
 
 def drawGame(app):
-    # start=time.time()
     drawBackground(app)
-    # end=time.time()
-    # print('BG: ',int((end-start)*1000), end='')
-    # start=time.time()
     drawCourse(app)
-    # end=time.time()
-    # print('Course: ',int((end-start)*1000), end='')
-    # start=time.time()
-    # drawScale(app)
-    # end=time.time()
-    # print('Scale: ',int((end-start)*1000))
+    drawScale(app)
