@@ -56,11 +56,11 @@ def takeStep(app):
             frisbee.checkCollisions(app.course)
         if not frisbee.inFlight:
             app.frisbeeInitPoint = Vector2(frisbee.x, frisbee.y)
-            if app.course:
-                if frisbee.x < app.course.goal.x:
-                    app.cameraX = frisbee.x-kCameraRenderBuffer
-                else:
-                    app.cameraX = app.course.goal.x-kCameraRenderBuffer
+        if app.course:
+            if frisbee.x < app.course.goal.x:
+                app.cameraX = frisbee.x-kCameraRenderBuffer
+            else:
+                app.cameraX = app.course.goal.x-kCameraRenderBuffer
     for cloud in app.clouds:
         cloud.move()
     for team in app.teams:
