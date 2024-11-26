@@ -385,8 +385,7 @@ class Obstacle():
         elif self.y-frisbee.y < kFrisbeeSize + self.width/2:
             return Vector2(0, -1)
         else:
-            return Vector2(0, 1)
-        
+            return Vector2(0, 1)       
         
 class Wall(Obstacle):
     def __init__(self, x, y, z, width, height, isBouncy):
@@ -396,7 +395,7 @@ class Wall(Obstacle):
         self.height = height
         self.depth = kObstacleThickness
         self.isBouncy = isBouncy
-        self.path3D = ('D://Coding/CMU Classes/15112/SuperPaperFrisbeeGolf/src/Images/Wall'+str(random.randint(0, kWallVariantCount-1))+'.png')
+        self.path3D = (kOSFilePath+'/Images/Wall'+str(random.randint(0, kWallVariantCount-1))+'.png')
         self.type = 'wall'
     def __repr__(self):
         return f'Obstacle({type(self)}, x={int(self.x)}, y={int(self.y)}, z={int(self.z)}, height={int(self.height)})'
@@ -408,7 +407,7 @@ class Tree(Obstacle):
         self.isBouncy = False
         self.height = height
         self.width = kObstacleThickness
-        self.path3D = ('D://Coding/CMU Classes/15112/SuperPaperFrisbeeGolf/src/Images/Tree'+str(random.randint(0, kTreeVariantCount-1))+'.png')
+        self.path3D = (kOSFilePath+'/Images/Tree'+str(random.randint(0, kTreeVariantCount-1))+'.png')
         self.type = 'tree'
         self.depth = 50
 

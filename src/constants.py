@@ -1,4 +1,5 @@
 from cmu_graphics import gradient, rgb
+import os
 kAppWidth, kAppHeight = 1600, 1000
 kAppInitPauseState = False
 
@@ -19,7 +20,7 @@ kTeamColors = ['black', 'white']
 # AIM AND FIRE
 kRollControlMultiplier = 1 / 10
 kAimControlMultiplier = 1 / 4
-kFrisbeeThrowHeight = 5
+kFrisbeeThrowHeight = 11
 
 # APP SPEED
 kStepsPerSecond = 60 
@@ -28,6 +29,8 @@ kMotionTimeFactor = kMotionStepsPerSecond / kStepsPerSecond
 
 # GENERAL CONSTANTS
 kZHeightFactor = 10
+kCameraRenderBuffer = 100
+kMinSize = 0.05
 
 # FRISBEE AESTHETICS
 kTrailLength = 5
@@ -46,7 +49,10 @@ kDiscGradient = gradient(*[kFrisbeeColor]*4, 'skyBlue', 'steelBlue', start='cent
 kGrassLight, kGrassMedium, kGrassDark = rgb(20, 150, 50), rgb(30, 125, 30), rgb(20, 100, 10)
 kSkyDark, kSkyMedium, kSkyLight = rgb(90, 130, 255), rgb(100, 150, 200), rgb(180, 220, 255)
 kHorizonHeight = 220
-kMountainPath = 'D://Coding/CMU Classes/15112/SuperPaperFrisbeeGolf/src/Images/Mountains.png'
+kOSFilePath = os.path.dirname(__file__)
+kMountainPath = kOSFilePath+'/Images/Mountains.png'
+kWaterPath = kOSFilePath+'/Images/Water.png'
+kWaterCornerPath = kOSFilePath+'/Images/WaterCorner.png'
 
 # CLOUDS
 kMinCloudHeight = kAppHeight - (kHorizonHeight + 330)
@@ -59,7 +65,7 @@ kWindSpeed = .2
 
 #Scoring Constants
 kScorableHeight = kFrisbeeThrowHeight
-kScorableTolerance = 2
+kScorableTolerance = 1
 
 # OBSTACLES
 kObstacleTypes = ['wall', 'tree']
@@ -68,14 +74,15 @@ kTreeVariantCount = 2
 kWallVariantCount = 1
 kTreeBaseSizeMultiplier = 4
 kDefaultObstaclePeriod = 200
-kMaxWallGap = 2
-kMinWallWidth = 100
-kMaxWallWidth = kAppHeight / 2
+kWallSizeMultiplier = 2
+kWallImageWidth = 100
+kWallImageHeight = 50
 kObstacleThickness = 30
 kMinObstacleHeight = 10
 kMaxObstacleHeight = 30
+kGoalPath = kOSFilePath + '/Images/Goal.png'
+kWallPath = kOSFilePath + '/Images/WoodWall.png'
 
 # OBSTACLE AESTHETICS
-kWallGradientColors = ['peru','sienna','saddleBrown']
 kBouncyColor = 'orange'
-kBrickTexturePath = 'D://Coding/CMU Classes/15112/SuperPaperFrisbeeGolf/src/Images/Brick.png'
+kWallColor = rgb(255 * .396, 255 * .298, 255 * .227)

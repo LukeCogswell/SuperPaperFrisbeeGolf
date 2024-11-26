@@ -14,6 +14,7 @@ def onAppStart(app):
     app.course = None
     initCourse(app, 1000)
     app.scored = False
+    app.cameraX = 0
 
     #Environment
     app.clouds = []
@@ -21,6 +22,7 @@ def onAppStart(app):
 
     #FRISBEE SETTINGS
     app.frisbees = []
+    app.newFrisbee = None
     app.frisbeeInitPoint = Vector2(kFrisbeeSize*2, app.height/2)
     app.upSpeed = 5
     app.initPitch = 10
@@ -54,13 +56,18 @@ def takeStep(app):
             frisbee.checkCollisions(app.course)
         if not frisbee.inFlight:
             app.frisbeeInitPoint = Vector2(frisbee.x, frisbee.y)
+            if app.course:
+                if frisbee.x < app.course.goal.x:
+                    app.cameraX = frisbee.x-kCameraRenderBuffer
+                else:
+                    app.cameraX = app.course.goal.x-kCameraRenderBuffer
     for cloud in app.clouds:
         cloud.move()
     for team in app.teams:
         for player in team:
             player.takeMotionStep()
     if not bool(random.randint(0, int(1 / kCloudFrequency))):
-        path = ('D://Coding/CMU Classes/15112/SuperPaperFrisbeeGolf/src/Images/Cloud'+str(random.randint(0, kCloudVariantCount-1))+'.png')
+        path = (kOSFilePath+'/Images/Cloud'+str(random.randint(0, kCloudVariantCount-1))+'.png')
         newCloud = Cloud(path, random.randint(kMinCloudScale*10, kMaxCloudScale*10)/10)
         app.clouds.append(newCloud)
 
@@ -74,14 +81,22 @@ def resetCourse(app):
     app.course = None
     initCourse(app, app.width-400)
     app.frisbeeInitPoint = Vector2(kFrisbeeSize*2, app.height/2)
+    app.cameraX = 0
+    app.scored=False
 
 def onKeyPress(app, key):
     match key:
+        case 'space':
+            if app.newFrisbee:
+                app.frisbees.append(app.newFrisbee)
+                app.newFrisbee = None
+                if len(app.frisbees) > 1:
+                    app.frisbees.pop(0)
         case 's':
             takeStep(app)
         case 'r':
             resetCourse(app)
-        case 'space':
+        case 't':
             app.paused = not app.paused
         case 'l':
             app.drawLabels = not app.drawLabels
@@ -167,9 +182,9 @@ def addObstacles(course):
         obstacleChoice = random.choice(kObstacleTypes)
         match obstacleChoice:
             case 'wall':
-                z = int(random.random() * kMaxWallGap)
-                width = random.randint(kMinWallWidth, kMaxWallWidth)
-                height = random.randint(kMinObstacleHeight, kMaxObstacleHeight-z)
+                z = 0
+                width = random.choice([i*kWallSizeMultiplier*kWallImageWidth/(kAppWidth / kAppHeight) for i in range(1,4)])
+                height = random.choice([i*kWallSizeMultiplier*kWallImageHeight/kZHeightFactor for i in range(1,5)])
                 newObstacle = Wall(x, y, z, width, height, random.choice([True, False, False]))
             case 'tree':
                 newObstacle = Tree(x,y,height*100*kTreeBaseSizeMultiplier/kZHeightFactor)
@@ -187,11 +202,9 @@ def onMouseRelease(app, mouseX, mouseY):
         rollDirection = rollVector.dotProduct(aimVector.leftVector())
         roll = -kRollControlMultiplier * math.copysign(rollVector.magnitude(), rollDirection)
         newFrisbee = Frisbee((*app.frisbeeInitPoint.tup(), kFrisbeeThrowHeight), aimVector.unitVector(), aimVector.magnitude() * kAimControlMultiplier, app.upSpeed, app.initPitch, roll)
-        app.frisbees.append(newFrisbee)
+        app.newFrisbee=newFrisbee
         app.throwPoint = None
         app.curvePoint = None
-        if len(app.frisbees) > 1:
-            app.frisbees.pop(0)
 
 def drawFPS(app, timeStart):
     now = time.time()
