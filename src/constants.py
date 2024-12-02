@@ -47,6 +47,7 @@ kDiscGradient = gradient(*[kFrisbeeColor]*4, 'skyBlue', 'steelBlue', start='cent
 kZHeightFactor = 10
 kCameraRenderBuffer = 100
 kMinSize = 0.05
+kOpeningScreenTimeFactor = 1
 kFrisbeeInitPos = (kFrisbeeSize*2, kAppHeight/2)
 
 # BACKGROUND COLORS
@@ -54,14 +55,16 @@ kGrassLight, kGrassMedium, kGrassDark = rgb(20, 150, 50), rgb(30, 125, 30), rgb(
 kSkyDark, kSkyMedium, kSkyLight = rgb(90, 130, 255), rgb(100, 150, 200), rgb(180, 220, 255)
 kHorizonHeight = 220
 kOSFilePath = os.path.dirname(__file__)
+kTrailPath = kOSFilePath + '/Images/FrisbeeTrail.png'
 kMountainPath = kOSFilePath+'/Images/Mountains.png'
+kWaterSize = 50
 kWaterPath = kOSFilePath+'/Images/Water.png'
 kWaterCornerPath = kOSFilePath+'/Images/WaterCorner.png'
 
 # CLOUDS
 kMinCloudHeight = kAppHeight - (kHorizonHeight + 330)
 kCloudVariantCount = 5
-kCloudFrequency = 1 / 80 # 1 every 40 steps
+kCloudFrequency = 1 / 40 # 1 every 40 steps
 kCloudSize = (100, 50)
 kMinCloudScale = .7
 kMaxCloudScale = 3
@@ -93,7 +96,7 @@ kUPPwrSettings = [0, 15, 6]
 kObstacleTypes = ['wall', 'tree']
 kSideBuffer = 100
 kVerticalBuffer = 0
-kTreeVariantCount = 2
+kTreeVariantCount = 1
 kWallVariantCount = 1
 kTreeBaseSizeMultiplier = 4
 kDefaultObstaclePeriod = 200

@@ -9,6 +9,7 @@ def onAppStart(app):
     app.paused = kAppInitPauseState
     app.stepsPerSecond = kStepsPerSecond
     app.isTopDown = True
+    app.isStarting = True
 
     #Scoring
     app.holeScore = 0
@@ -144,7 +145,9 @@ def onKeyPress(app, key):
                 game3D.keyPressed(app, key)
 
 def onMousePress(app, mouseX, mouseY):
-    if app.scored:
+    if app.isStarting:
+        app.isStarting = False
+    elif app.scored:
         app.scored = False
         resetCourse(app)
     else:
@@ -252,19 +255,32 @@ def drawScore(app):
     drawLabel(f'Hole Par: {app.course.calculatePar()}', kScoreTextBuffer, 2*kScoreTextBuffer+kScoreTextSize, align='left-top', size=kScoreTextSize)
     drawLabel(f'Hole Throws: {app.holeScore}', kScoreTextBuffer, 3*kScoreTextBuffer+2*kScoreTextSize, align='left-top', size=kScoreTextSize)
 
+def drawSplash(app):
+    drawRect(0,0,kAppWidth, kAppHeight, fill='burlyWood', border='darkGray', borderWidth=5)
+    drawRect(0+5,0+5,kAppWidth-10, kAppHeight-10, fill=None, border='silver', borderWidth=5)
+    labelRot = math.sin(time.time()*kOpeningScreenTimeFactor) * 20
+    drawImage(kGoalPath, 2*kAppWidth/3, kAppHeight/2, align='center', width=200, height=400)
+    fill = gradient('lightCyan', *[kFrisbeeColor]*int(60//30), 'skyBlue', 'steelBlue', start='top')
+    drawLabel('SUPER PAPER FRISBEE GOLF', kAppWidth/2, kAppHeight/2, rotateAngle = labelRot, size=60, fill='gray', border='darkGray', borderWidth=3)
+    drawOval(kAppWidth/3, kAppHeight/5, 100, 300, fill=fill, rotateAngle=-40,border=kDiscGradient, borderWidth=kDiscBorderWidth)
+    drawLabel('click anywhere to start', kAppWidth/2, kAppHeight-100, rotateAngle = -labelRot, size=15, fill='gray')
+
 def redrawAll(app):
-    startTime = time.time()
-    if app.isTopDown:
-        game2D.drawGame(app)
-        drawSliders(*app.sliders2D)
+    if app.isStarting:
+        drawSplash(app)
     else:
-        game3D.drawGame(app)
-        drawSliders(*app.sliders3D)
-    drawFPS(app, startTime)
-    drawScore(app)
-    if app.scored:
-        drawLabel('GOAL!', app.width/2, app.height/2, size=100, border='white', borderWidth=4)
-        drawLabel(f'Hole Score: {app.holeScore-app.course.calculatePar()}', app.width/2, app.height/2 + 100, size=100, border='white', borderWidth=4)
+        startTime = time.time()
+        if app.isTopDown:
+            game2D.drawGame(app)
+            drawSliders(*app.sliders2D)
+        else:
+            game3D.drawGame(app)
+            drawSliders(*app.sliders3D)
+        drawFPS(app, startTime)
+        drawScore(app)
+        if app.scored:
+            drawLabel('GOAL!', app.width/2, app.height/2, size=100, border='white', borderWidth=4)
+            drawLabel(f'Hole Score: {app.holeScore-app.course.calculatePar()}', app.width/2, app.height/2 + 100, size=100, border='white', borderWidth=4)
 
 def main():
     runApp()

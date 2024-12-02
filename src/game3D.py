@@ -23,7 +23,6 @@ def drawBackground(app):
     drawMountains(app)
     drawClouds(app)
     drawGrass(app)
-    drawWater(app)
 
 def drawSky(app):
     drawRect(0, 0, kAppWidth, kAppHeight-kHorizonHeight, fill=kSkyGradient)
@@ -35,9 +34,6 @@ def drawClouds(app):
     app.clouds.sort(key=lambda cloud:cloud.scale)
     for cloud in app.clouds:
         drawImage(cloud.filePath, cloud.x, cloud.y, align='center', width=kCloudSize[0]*cloud.scale, height=kCloudSize[1]*cloud.scale)
-
-def drawWater(app):
-    pass
 
 def getSizeMultiplier(app, xPos):
     return max(kMinSize, min(1, ((kAppWidth-(xPos-app.cameraX))/(kAppWidth))))
@@ -86,7 +82,7 @@ def drawFrisbee(app, frisbee):
 
 def drawCourse(app):
     if app.frisbees != []:
-        minRenderingXPos = app.frisbees[0].x
+        minRenderingXPos = app.cameraX + kCameraRenderBuffer
     else:
         minRenderingXPos = 0
     sizeMultiplier = getSizeMultiplier(app, app.course.goalPos.x)
