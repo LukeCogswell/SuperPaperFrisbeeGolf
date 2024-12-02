@@ -10,6 +10,10 @@ def onAppStart(app):
     app.stepsPerSecond = kStepsPerSecond
     app.isTopDown = True
 
+    #Scoring
+    app.holeScore = 0
+    app.courseScore = 0
+
     # COURSE
     app.course = None
     resetCourse(app)
@@ -31,8 +35,8 @@ def onAppStart(app):
     app.curvePoint = None
 
     #SLIDERS
-    app.sliders2D = [Slider('Power', 0, 100, 30), Slider('Roll', -90, 90, 0)]
-    app.sliders3D = [Slider('Pitch', -90, 90, 10), Slider('Up Power', 0, 15, 5)]
+    app.sliders2D = [Slider('Power', *kPwrSettings), Slider('Roll', *kRollSettings)]
+    app.sliders3D = [Slider('Pitch', *kPitchSettings), Slider('Up Power', *kUPPwrSettings)]
     app.isSliding = False
     app.sliderIndex = 0
 
@@ -57,11 +61,16 @@ def takeStep(app):
         if frisbee.checkScored(app.course.goal):
             frisbee.stop()
             app.scored = True
-            #TODO store score and exit course
+            app.courseScore += app.holeScore-app.course.calculatePar()
+            app.frisbees = []
         else:
             frisbee.checkCollisions(app.course)
         if not frisbee.inFlight:
-            app.frisbeeInitPoint = Vector2(frisbee.x, frisbee.y)
+            if 0 > frisbee.x or frisbee.x > kAppWidth or 0 > frisbee.y or frisbee.y > kAppHeight:
+                app.frisbeeInitPoint = Vector2(*kFrisbeeInitPos)
+            else:
+                app.frisbeeInitPoint = Vector2(frisbee.x, frisbee.y)
+            app.frisbees = []
         if app.course:
             if frisbee.x < app.course.goal.x:
                 app.cameraX = frisbee.x-kCameraRenderBuffer
@@ -89,18 +98,31 @@ def resetCourse(app):
     app.frisbeeInitPoint = Vector2(kFrisbeeSize*2, app.height/2)
     app.cameraX = 0
     app.scored=False
+    app.holeScore = 0
 
 def onKeyPress(app, key):
     match key:
         case 'space':
             if app.newFrisbee:
-                app.frisbees.append(Frisbee((app.frisbeeInitPoint.tup()[0], app.frisbeeInitPoint.tup()[1], kFrisbeeThrowHeight), app.newFrisbee.direction, app.sliders2D[0].percentage*app.sliders2D[0].max, app.sliders3D[1].percentage*app.sliders2D[0].max, app.sliders3D[0].percentage*app.sliders2D[0].max, app.sliders2D[0].percentage*app.sliders2D[1].max))
+                app.frisbees.append(\
+                    Frisbee(\
+                        (app.frisbeeInitPoint.tup()[0], app.frisbeeInitPoint.tup()[1], kFrisbeeThrowHeight),\
+                        app.newFrisbee.direction,\
+                        app.sliders2D[0].value(), \
+                        app.sliders3D[1].value(), \
+                        app.sliders3D[0].value(), \
+                        app.sliders2D[1].value()))
                 app.newFrisbee = None
+                app.holeScore += 1
                 if len(app.frisbees) > 1:
                     app.frisbees.pop(0)
         case 's':
             takeStep(app)
         case 'r':
+            app.frisbeeInitPoint = Vector2(*kFrisbeeInitPos)
+            app.frisbees = []
+            app.holeScore += 1
+        case 'n':
             resetCourse(app)
         case 't':
             app.paused = not app.paused
@@ -203,15 +225,12 @@ def drawFPS(app, timeStart):
         fps = int(1 / (now - timeStart))
     drawLabel(fps, app.width, 0, align='right-top')
 
-def getColorForPercentage(percentage):
-    return rgb(percentage*255, (1-percentage)*255, 100)
-
 def drawSliders(slider1, slider2):
     yPos = kAppHeight - kSliderSpacing
 
     #slider 1
     xPos = kAppWidth - 2*kSliderWidth - 2*kSliderSpacing
-    fill1 = getColorForPercentage(slider1.percentage)
+    fill1 = game2D.getColorForPercentage(slider1.percentage)
     drawRect(xPos, yPos, kSliderWidth, kSliderHeight, opacity=kSliderOpacity, borderWidth=kSliderBorderWidth, fill=None, align='left-bottom')
     drawRect(xPos, yPos, kSliderWidth, kSliderHeight*max(0.001, slider1.percentage), align='left-bottom', opacity=kSliderOpacity, fill=fill1)
     xPos += kSliderWidth/2
@@ -221,12 +240,17 @@ def drawSliders(slider1, slider2):
 
     #slider 2
     xPos = kAppWidth - kSliderWidth - kSliderSpacing
-    fill2 = getColorForPercentage(slider2.percentage)
+    fill2 = game2D.getColorForPercentage(slider2.percentage)
     drawRect(xPos, yPos, kSliderWidth, kSliderHeight, opacity=kSliderOpacity, borderWidth=kSliderBorderWidth, align='left-bottom', fill=None)
     drawRect(xPos, yPos, kSliderWidth, kSliderHeight*max(0.001, slider2.percentage), align='left-bottom', opacity=kSliderOpacity, fill=fill2)
     xPos += kSliderWidth/2
     drawLabel(int(slider2.value()), xPos, yPos-kSliderTextSize/2, size=kSliderTextSize)
     drawLabel(slider2.label, xPos, yPos+kSliderTextSize/2, size=kSliderTextSize)
+
+def drawScore(app):
+    drawLabel(f'Score: {app.courseScore}', kScoreTextBuffer, kScoreTextBuffer, align='left-top', size=kScoreTextSize)
+    drawLabel(f'Hole Par: {app.course.calculatePar()}', kScoreTextBuffer, 2*kScoreTextBuffer+kScoreTextSize, align='left-top', size=kScoreTextSize)
+    drawLabel(f'Hole Throws: {app.holeScore}', kScoreTextBuffer, 3*kScoreTextBuffer+2*kScoreTextSize, align='left-top', size=kScoreTextSize)
 
 def redrawAll(app):
     startTime = time.time()
@@ -237,8 +261,10 @@ def redrawAll(app):
         game3D.drawGame(app)
         drawSliders(*app.sliders3D)
     drawFPS(app, startTime)
+    drawScore(app)
     if app.scored:
         drawLabel('GOAL!', app.width/2, app.height/2, size=100, border='white', borderWidth=4)
+        drawLabel(f'Hole Score: {app.holeScore-app.course.calculatePar()}', app.width/2, app.height/2 + 100, size=100, border='white', borderWidth=4)
 
 def main():
     runApp()

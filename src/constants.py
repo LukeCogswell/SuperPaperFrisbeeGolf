@@ -28,16 +28,13 @@ kStepsPerSecond = 60
 kMotionStepsPerSecond = 5
 kMotionTimeFactor = kMotionStepsPerSecond / kStepsPerSecond
 
-# GENERAL CONSTANTS
-kZHeightFactor = 10
-kCameraRenderBuffer = 100
-kMinSize = 0.05
 
 # FRISBEE AESTHETICS
 kTrailLength = 5
 kTrailOpacity = 40
 kTrailWidth = 3
-kDiscBorderWidth = 10
+kDiscBorderWidth = 3
+kPowerWidthRatio = 1 / 20
 kFrisbeeSize = 30
 kFloatFactor = 5 / 100
 kFrisbee3DSize = 2 * kFrisbeeSize
@@ -45,6 +42,12 @@ kFrisbeeColor = 'lightBlue'
 kTrailColor = kFrisbeeColor
 kShadowColor = 'black'
 kDiscGradient = gradient(*[kFrisbeeColor]*4, 'skyBlue', 'steelBlue', start='center')
+
+# GENERAL CONSTANTS
+kZHeightFactor = 10
+kCameraRenderBuffer = 100
+kMinSize = 0.05
+kFrisbeeInitPos = (kFrisbeeSize*2, kAppHeight/2)
 
 # BACKGROUND COLORS
 kGrassLight, kGrassMedium, kGrassDark = rgb(20, 150, 50), rgb(30, 125, 30), rgb(20, 100, 10)
@@ -67,6 +70,8 @@ kWindSpeed = .2
 #Scoring Constants
 kScorableHeight = kFrisbeeThrowHeight
 kScorableTolerance = 5
+kScoreTextBuffer = 15
+kScoreTextSize = 20
 
 #Sliders
 kSliderWidth = 50
@@ -75,6 +80,14 @@ kSliderOpacity = 100
 kSliderSpacing = 40
 kSliderBorderWidth = 10
 kSliderTextSize = 20
+#Power min, max, default
+kPwrSettings = [0, 300, 100]
+#Roll
+kRollSettings = [-90, 90, 0]
+#Pitch
+kPitchSettings = [-45, 45, 10]
+#Up Power
+kUPPwrSettings = [0, 15, 6]
 
 # OBSTACLES
 kObstacleTypes = ['wall', 'tree']

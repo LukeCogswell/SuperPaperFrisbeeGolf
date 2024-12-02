@@ -58,27 +58,31 @@ def drawGrass(app):
 
 def drawFrisbees(app):
     for frisbee in app.frisbees:
-        xPos = frisbee.y * (kAppWidth / (kAppHeight-kVerticalBuffer)) 
-        yPos = (kAppHeight-kVerticalBuffer) - frisbee.z*kZHeightFactor - min((frisbee.x-app.cameraX)/kAppWidth * kHorizonHeight, kHorizonHeight)
+        drawFrisbee(app, frisbee)
 
-        sizeMultiplier = getSizeMultiplier(app, xPos)
+def drawFrisbee(app, frisbee):
+    xPos = frisbee.y * (kAppWidth / (kAppHeight-kVerticalBuffer)) 
+    yPos = (kAppHeight-kVerticalBuffer) - min((frisbee.x-app.cameraX)/kAppWidth * kHorizonHeight, kHorizonHeight) - frisbee.z*kZHeightFactor
+    shadowY = yPos + frisbee.z*kZHeightFactor
+    shadowX = xPos + frisbee.z*kZHeightFactor
+    sizeMultiplier = getSizeMultiplier(app, xPos)
 
-        width = kFrisbee3DSize
-        height = max(kFrisbee3DSize * math.sin(math.radians(frisbee.pitch)), 1)
+    width = kFrisbee3DSize
+    height = max(abs(kFrisbee3DSize * math.sin(math.radians(frisbee.pitch))), 1)
 
-        if frisbee.pitch >= 0:
-            darkenBottom = False
-            if abs(frisbee.roll) > 5: 
-                fill = gradient('lightCyan', *[kFrisbeeColor]*int(60//abs(frisbee.roll)), 'skyBlue', 'steelBlue', start=('top' if frisbee.roll>0 else 'bottom'))
-            else: fill = kDiscGradient
-        else: 
-            fill = kDiscGradient
-            darkenBottom = True
+    if frisbee.pitch >= 0:
+        darkenBottom = False
+        if abs(frisbee.roll) > 5: 
+            fill = gradient('lightCyan', *[kFrisbeeColor]*int(60//abs(frisbee.roll)), 'skyBlue', 'steelBlue', start=('top' if frisbee.roll>0 else 'bottom'))
+        else: fill = kDiscGradient
+    else: 
+        fill = kDiscGradient
+        darkenBottom = True
 
-        drawOval(xPos, yPos, width * sizeMultiplier, height * sizeMultiplier, rotateAngle=frisbee.roll, fill=fill, borderWidth=kDiscBorderWidth, border=kDiscGradient)
-        if darkenBottom: drawOval(xPos, yPos, width * sizeMultiplier, height * sizeMultiplier, rotateAngle=frisbee.roll, opacity=30, fill='black', borderWidth=kDiscBorderWidth, border='gray')
-        # if not frisbee.inFlight:
-        #     drawLine(xPos, yPos-100, xPos, yPos-50, lineWidth=5, opacity=50, fill='red', arrowEnd=True)
+    drawOval(xPos, yPos, width * sizeMultiplier, height * sizeMultiplier, rotateAngle=frisbee.roll, fill=fill, borderWidth=kDiscBorderWidth, border=kDiscGradient)
+    drawOval(shadowX, shadowY, width * sizeMultiplier, height * sizeMultiplier, rotateAngle=frisbee.roll, fill='black', opacity=30)
+    if darkenBottom: drawOval(xPos, yPos, width * sizeMultiplier, height * sizeMultiplier, rotateAngle=frisbee.roll, opacity=30, fill='black', borderWidth=kDiscBorderWidth, border='gray')
+
 
 def drawCourse(app):
     if app.frisbees != []:
@@ -123,7 +127,18 @@ def drawTree(app, tree, sizeMultiplier):
     yPos = (kAppHeight-kVerticalBuffer) - min((tree.x-app.cameraX)/kAppWidth * kHorizonHeight, kHorizonHeight)
     drawImage(tree.path3D, xPos, yPos, align='bottom', width=width, height=height)
 
+def drawThrowVisualization(app):
+    drawFrisbee(app, Frisbee(\
+                        (app.frisbeeInitPoint.tup()[0], app.frisbeeInitPoint.tup()[1], kFrisbeeThrowHeight),\
+                        app.newFrisbee.direction,\
+                        app.sliders2D[0].value(), \
+                        app.sliders3D[1].value(), \
+                        app.sliders3D[0].value(), \
+                        app.sliders2D[1].value()))
+
 def drawGame(app):
     drawBackground(app)
     drawCourse(app)
+    if app.newFrisbee:
+        drawThrowVisualization(app)
     drawScale(app)

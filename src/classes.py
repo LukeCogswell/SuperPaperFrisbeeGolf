@@ -71,8 +71,8 @@ class Frisbee():
         # Returns true if frisbee is colliding, false if not
         for obstacle in course.obstacles:
             # Checks x y and z to see if the frisbee is colliding with the obstacle (all hitboxes are cubes)
-            xCheck = abs(self.x - obstacle.x) <= kFrisbeeSize+obstacle.depth/2
-            yCheck = abs(self.y - obstacle.y) <= kFrisbeeSize+obstacle.width/2
+            xCheck = abs(self.x - obstacle.x) <= kFrisbeeSize/2+obstacle.depth/2
+            yCheck = abs(self.y - obstacle.y) <= kFrisbeeSize/2+obstacle.width/2
             zCheck = obstacle.z < self.z < (obstacle.z+obstacle.height)
             
             if zCheck and xCheck and yCheck:
@@ -351,7 +351,7 @@ class Course():
         self.length = length # top-down pixels
         self.obstaclePeriod = obstaclePeriod # pixels between obstacles
         self.numObstacles = length//(self.obstaclePeriod) - 1
-        self.goalPos = Vector2(length, random.random() * (kAppHeight))
+        self.goalPos = Vector2(length, random.random() * (kAppHeight-2*kSideBuffer)+kSideBuffer)
         self.goal = Goal(*self.goalPos.tup(), 0)
         self.obstacles = []
 
@@ -362,6 +362,38 @@ class Course():
                 visibleObjects.append(obstacle)
         return visibleObjects
     
+    def hasStraightLineToGoal(self):
+        def lineFunction(x):
+            return (self.goalPos.y-kFrisbeeInitPos[1]) / (self.goalPos.x - kFrisbeeInitPos[0]) * (x) + kFrisbeeInitPos[1]
+        for obstacle in self.obstacles:
+            if abs(lineFunction(obstacle.x) - obstacle.y) <= obstacle.width+kFrisbeeSize:
+                return False
+        return True
+
+    #Algorithm to calculate par for a course
+    def calculatePar(self):
+        if self.hasStraightLineToGoal(): return 1
+        throwsRequired = 2
+        for obstacle in self.obstacles:
+
+            # if the obstacle isn't tall enough to impede a throw, ignore it in the calculation
+            if obstacle.height <= kMinObstacleHeight:
+                continue
+
+            # if the obstacle is close to the disc starting position, add a shot to the counter
+            elif obstacle.x <= self.obstaclePeriod and abs(obstacle.y-kFrisbeeInitPos[1]) <= obstacle.width:
+                throwsRequired += 1
+                continue
+
+            # if the obstacle is close to the goal and directly in front of it, add a shot to the counter
+            elif obstacle.x >= self.obstaclePeriod*(self.numObstacles) and abs(obstacle.y-self.goalPos.y) <= obstacle.width:
+                throwsRequired += 1
+                continue
+
+
+        return throwsRequired
+
+
     def __repr__(self):
         return f'Course(len={self.length}, #obstacles={self.numObstacles})'
 
@@ -405,7 +437,7 @@ class Wall(Obstacle):
         else: self.path3D = (kOSFilePath+'/Images/WoodWall.png')
         self.type = 'wall'
     def __repr__(self):
-        return f'Obstacle({type(self)}, x={int(self.x)}, y={int(self.y)}, z={int(self.z)}, height={int(self.height)})'
+        return f'Obstacle({type(self)}, x={int(self.x)}, y={int(self.y)}, z={int(self.z)}, height={int(self.height)}, width={int(self.width)})'
 
 class Tree(Obstacle):
     def __init__(self, x, y, height):

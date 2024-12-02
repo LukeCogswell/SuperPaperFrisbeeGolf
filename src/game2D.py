@@ -94,13 +94,16 @@ def drawBackground(app):
     drawRect(-offset+10*math.cos(.5*now),-offset+40*math.sin(.5*now), width, height, fill=kBackgroundGradient3, opacity=30)
     drawRect(-offset+30*math.cos(.8*now),-offset-20*math.sin(.5*now), width, height, fill=kBackgroundGradient4, opacity=30)
 
+def getColorForPercentage(percentage):
+    return rgb(percentage*255, (1-percentage)*255, 100)
+
 def drawThrowVisualization(app):
-    directionVector = Vector2(100,0)
+    directionVector = Vector2(1,0)
     if app.throwPoint:
-        directionVector = app.throwPoint.subtracted(app.frisbeeInitPoint).unitVector().multipliedBy(kShotLineLength)
-    power = app.sliders2D[0].value()
-    drawLine(*app.frisbeeInitPoint.tup(), *app.frisbeeInitPoint.added(directionVector).tup(), lineWidth=max(power,1), fill=kFrisbeeColor, arrowEnd=True)
-    drawFrisbee(app, Frisbee((*app.frisbeeInitPoint.tup(), kFrisbeeThrowHeight), Vector2(1,0), 0, 0, app.sliders3D[0].value(), app.sliders2D[1].value()))
+        directionVector = app.throwPoint.subtracted(app.frisbeeInitPoint).unitVector().multipliedBy(Vector2(kShotLineLength, kShotLineLength))
+        power = app.sliders2D[0].value() * kPowerWidthRatio
+        drawLine(*app.frisbeeInitPoint.tup(), *app.frisbeeInitPoint.added(directionVector).tup(), lineWidth=max(power,1), fill=getColorForPercentage(app.sliders2D[0].percentage), arrowEnd=True)
+    drawFrisbee(app, Frisbee((*app.frisbeeInitPoint.tup(), kFrisbeeThrowHeight), directionVector, 0, 0, app.sliders3D[0].value(), app.sliders2D[1].value()))
 
 def drawPlayers(app):
     for team in app.teams:

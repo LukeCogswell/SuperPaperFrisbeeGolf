@@ -1,10 +1,9 @@
 # SuperPaperFrisbeeGolf
 Frisbee Flight Simulator Game - CMU 15112 Term Project
 
-11/25/24 - State of the game
+12/2/24 - State of the game
 
-The game is essentially a crude but playable game with 'full' functionality.
-(there are plenty of bugs and it needs tuning, but you can play frisbee courses and score the frisbee!)
+The game is functional, missing a few features, but you can play for a score and it is fairly intuitive
 
 throw frisbees by clicking for direction (power is based on distance clicked)
 clicking and dragging to the left or right adds curve to the frisbee
@@ -12,7 +11,8 @@ spacebar pauses the game
 's' steps one frame
 backspace removes a frisbee
 escape closes window
-'r' resets/randomizes the course
+'r' resets the throw position so you can try your shot over, but adds 1 to the shot counter
+'n' creates a new course, if you haven't completed the current course your score will not be added
 'm' swaps view between top-down and '3D' view
 black rectangles are simple wall obstacles
 orange rectangles are bouncy wall obstacles
@@ -21,5 +21,3 @@ throwing the frisbee into the goal at the right height will score it, allowing y
 
 'p' swaps between pitch control and initial up speed control
 up and down arrows increase or decrease initial pitch and up speed
-
-'n' creates a frisbee for debugging
