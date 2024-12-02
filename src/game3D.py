@@ -12,7 +12,11 @@ kBackgroundGradient3 = gradient(*[kGrassLight, kGrassMedium, kGrassDark, kGrassM
 kBackgroundGradient4 = gradient(*[kGrassLight, kGrassMedium, kGrassDark, kGrassDark, kGrassMedium]*(kAppWidth//300), start='right-top')
 
 def keyPressed(app, key):
-    pass
+    match key:
+        case 'left':
+            app.cameraX +=10
+        case 'right':
+            app.cameraX -= 10
 
 def drawBackground(app):
     drawSky(app)
@@ -25,7 +29,7 @@ def drawSky(app):
     drawRect(0, 0, kAppWidth, kAppHeight-kHorizonHeight, fill=kSkyGradient)
 
 def drawMountains(app):
-    drawImage(kMountainPath, kAppWidth/2, kAppHeight/2, width=kAppWidth, height=kAppHeight-100, align='center')
+    drawImage(kMountainPath, kAppWidth/2, (kAppHeight-kVerticalBuffer)/2.5, width=kAppWidth, height=(kAppHeight-kVerticalBuffer)-100, align='center')
 
 def drawClouds(app):
     app.clouds.sort(key=lambda cloud:cloud.scale)
@@ -36,16 +40,16 @@ def drawWater(app):
     pass
 
 def getSizeMultiplier(app, xPos):
-    return max(kMinSize, 2*min(1, ((kAppWidth-(xPos-app.cameraX))/kAppWidth)))
+    return max(kMinSize, min(1, ((kAppWidth-(xPos-app.cameraX))/(kAppWidth))))
 
 def drawScale(app):
-    for i in range(0, kAppHeight//kZHeightFactor):
+    for i in range(0, (kAppHeight-kVerticalBuffer)//kZHeightFactor):
         drawLine(kAppWidth, i*kZHeightFactor, kAppWidth-10, i*kZHeightFactor)
 
 def drawGrass(app):
     offset = 40
     width = kAppWidth + 2*offset
-    height = kAppHeight - kHorizonHeight
+    height = (kAppHeight-kVerticalBuffer) - kHorizonHeight
     now = time.time()
     drawRect(0, height, kAppWidth, kHorizonHeight, fill=kBackgroundGradient0, opacity=100)
     drawRect(-offset+10*math.cos(.2*now), height, width, kHorizonHeight, fill=kBackgroundGradient2, opacity=30)
@@ -54,8 +58,8 @@ def drawGrass(app):
 
 def drawFrisbees(app):
     for frisbee in app.frisbees:
-        xPos = frisbee.y * (kAppWidth / kAppHeight) 
-        yPos = kAppHeight - frisbee.z*kZHeightFactor - min((frisbee.x-app.cameraX)/kAppWidth * kHorizonHeight, kHorizonHeight)
+        xPos = frisbee.y * (kAppWidth / (kAppHeight-kVerticalBuffer)) 
+        yPos = (kAppHeight-kVerticalBuffer) - frisbee.z*kZHeightFactor - min((frisbee.x-app.cameraX)/kAppWidth * kHorizonHeight, kHorizonHeight)
 
         sizeMultiplier = getSizeMultiplier(app, xPos)
 
@@ -73,8 +77,8 @@ def drawFrisbees(app):
 
         drawOval(xPos, yPos, width * sizeMultiplier, height * sizeMultiplier, rotateAngle=frisbee.roll, fill=fill, borderWidth=kDiscBorderWidth, border=kDiscGradient)
         if darkenBottom: drawOval(xPos, yPos, width * sizeMultiplier, height * sizeMultiplier, rotateAngle=frisbee.roll, opacity=30, fill='black', borderWidth=kDiscBorderWidth, border='gray')
-        if not frisbee.inFlight:
-            drawLine(xPos, yPos-200, xPos, yPos, lineWidth=5, opacity=50, fill='red', arrowEnd=True)
+        # if not frisbee.inFlight:
+        #     drawLine(xPos, yPos-100, xPos, yPos-50, lineWidth=5, opacity=50, fill='red', arrowEnd=True)
 
 def drawCourse(app):
     if app.frisbees != []:
@@ -82,34 +86,42 @@ def drawCourse(app):
     else:
         minRenderingXPos = 0
     sizeMultiplier = getSizeMultiplier(app, app.course.goalPos.x)
-    drawImage(kGoalPath, app.course.goal.y * (kAppWidth / kAppHeight), kAppHeight - min((app.course.goal.x-app.cameraX)/kAppWidth * kHorizonHeight, kHorizonHeight), align='bottom', width=50*sizeMultiplier, height=100*sizeMultiplier)
+    drawImage(kGoalPath, app.course.goal.y * (kAppWidth / (kAppHeight-kVerticalBuffer)), (kAppHeight-kVerticalBuffer) - min((app.course.goal.x-app.cameraX)/kAppWidth * kHorizonHeight, kHorizonHeight), align='bottom', width=50*sizeMultiplier, height=100*sizeMultiplier)
     for obstacle in reversed(app.course.obstacles):
         if obstacle.x < minRenderingXPos: continue
         sizeMultiplier = getSizeMultiplier(app, obstacle.x)
         match obstacle.type:
             case 'wall':
-                centerX = obstacle.y * (kAppWidth / kAppHeight)
-                centerY = kAppHeight-(obstacle.z*kZHeightFactor) - min((obstacle.x-app.cameraX)/kAppWidth * kHorizonHeight, kHorizonHeight)
-                width = obstacle.width*sizeMultiplier*(kAppWidth / kAppHeight)
-                height = obstacle.height*sizeMultiplier*kZHeightFactor
-                if obstacle.isBouncy:
-                    fill=kBouncyColor
-                else:
-                    fill='black'
-                numHorizontalWalls = int(obstacle.width*(kAppWidth / kAppHeight)/kWallImageWidth/kWallSizeMultiplier)
-                numVerticalWalls = int(obstacle.height*kZHeightFactor/kWallImageHeight/kWallSizeMultiplier)
-                for i in range(numVerticalWalls):
-                    for j in range(numHorizontalWalls):
-                        leftX = centerX - (width/2) + width/numHorizontalWalls*j
-                        topY = centerY - (height/2) + height/numVerticalWalls*i
-                        drawImage(kWallPath, leftX, topY, width=width//numHorizontalWalls, height=height//numVerticalWalls, align='left-top')
+                drawWall(app, obstacle, sizeMultiplier)
             case 'tree':
-                width = 50*kTreeBaseSizeMultiplier * sizeMultiplier
-                height = 100*kTreeBaseSizeMultiplier*sizeMultiplier
-                xPos = obstacle.y * (kAppWidth / kAppHeight)
-                yPos = kAppHeight - min((obstacle.x-app.cameraX)/kAppWidth * kHorizonHeight, kHorizonHeight)
-                drawImage(obstacle.path3D, xPos, yPos, align='bottom', width=width, height=height)
+                drawTree(app, obstacle, sizeMultiplier)
     drawFrisbees(app)
+
+def drawWall(app, wall, sizeMultiplier):
+    width = wall.width*sizeMultiplier*(kAppWidth / (kAppHeight-kVerticalBuffer))
+    height = wall.height*sizeMultiplier*kZHeightFactor
+    centerX = wall.y * (kAppWidth / (kAppHeight-kVerticalBuffer))
+    # CENTER Y is the bottom point of the wall - half of the wall height
+    bottomY = (kAppHeight-kVerticalBuffer) - min((wall.x-app.cameraX)/kAppWidth * kHorizonHeight, kHorizonHeight)
+    centerY = bottomY - height/2
+    if wall.isBouncy:
+        fill=kBouncyColor
+    else:
+        fill='black'
+    numHorizontalWalls = int(wall.width*(kAppWidth / (kAppHeight-kVerticalBuffer))/kWallImageWidth/kWallSizeMultiplier)
+    numVerticalWalls = int(wall.height*kZHeightFactor/kWallImageHeight/kWallSizeMultiplier)
+    for i in range(numVerticalWalls):
+        for j in range(numHorizontalWalls):
+            leftX = centerX - (width/2) + width/numHorizontalWalls*j
+            topY = centerY - (height/2) + height/numVerticalWalls*i
+            drawImage(wall.path3D, leftX, topY, width=width//numHorizontalWalls, height=height//numVerticalWalls, align='left-top')
+
+def drawTree(app, tree, sizeMultiplier):
+    width = 50*kTreeBaseSizeMultiplier * sizeMultiplier
+    height = 100*kTreeBaseSizeMultiplier*sizeMultiplier
+    xPos = tree.y * (kAppWidth / (kAppHeight-kVerticalBuffer))
+    yPos = (kAppHeight-kVerticalBuffer) - min((tree.x-app.cameraX)/kAppWidth * kHorizonHeight, kHorizonHeight)
+    drawImage(tree.path3D, xPos, yPos, align='bottom', width=width, height=height)
 
 def drawGame(app):
     drawBackground(app)

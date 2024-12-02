@@ -12,7 +12,7 @@ def onAppStart(app):
 
     # COURSE
     app.course = None
-    initCourse(app, 1000)
+    resetCourse(app)
     app.scored = False
     app.cameraX = 0
 
@@ -29,6 +29,12 @@ def onAppStart(app):
     app.mousePos = None
     app.throwPoint = None
     app.curvePoint = None
+
+    #SLIDERS
+    app.sliders2D = [Slider('Power', 0, 100, 30), Slider('Roll', -90, 90, 0)]
+    app.sliders3D = [Slider('Pitch', -90, 90, 10), Slider('Up Power', 0, 15, 5)]
+    app.isSliding = False
+    app.sliderIndex = 0
 
     #PLAYER SETTINGS
     app.goalPos = Vector2(app.width - kFrisbeeSize*2, app.height/2)
@@ -88,7 +94,7 @@ def onKeyPress(app, key):
     match key:
         case 'space':
             if app.newFrisbee:
-                app.frisbees.append(app.newFrisbee)
+                app.frisbees.append(Frisbee((app.frisbeeInitPoint.tup()[0], app.frisbeeInitPoint.tup()[1], kFrisbeeThrowHeight), app.newFrisbee.direction, app.sliders2D[0].percentage*app.sliders2D[0].max, app.sliders3D[1].percentage*app.sliders2D[0].max, app.sliders3D[0].percentage*app.sliders2D[0].max, app.sliders2D[0].percentage*app.sliders2D[1].max))
                 app.newFrisbee = None
                 if len(app.frisbees) > 1:
                     app.frisbees.pop(0)
@@ -120,54 +126,31 @@ def onMousePress(app, mouseX, mouseY):
         app.scored = False
         resetCourse(app)
     else:
-        if app.throwing:
-            app.throwPoint = Vector2(mouseX, mouseY)
+        if clickedInSlider1(mouseX, mouseY):
+            app.isSliding = True
+            app.sliderIndex = 0
+        elif clickedInSlider2(mouseX, mouseY):
+            app.isSliding = True
+            app.sliderIndex = 1
         else:
-            app.goalPos = Vector2(mouseX, mouseY)
-            if app.selectedPlayer:
-                # playerNumber = getClosestOffensivePlayer(app)
-                app.selectedPlayer.futureGoalPositions.append(app.goalPos)
+            app.isSliding = False
+            if app.isTopDown:
+                if app.throwing:
+                    app.throwPoint = Vector2(mouseX, mouseY)
+                else:
+                    app.goalPos = Vector2(mouseX, mouseY)
+                    if app.selectedPlayer:
+                        # playerNumber = getClosestOffensivePlayer(app)
+                        app.selectedPlayer.futureGoalPositions.append(app.goalPos)
 
 def onMouseMove(app, mouseX, mouseY):
     app.mousePos = Vector2(mouseX, mouseY)
 
-###############################################################################
-# The following functions will all be removed.
-# They are remnants of Ultimate frisbee simulator which was my initial idea.
-# They are still here because it is kinda fun and might have use in the future for code reuse.
-def getClosestOffensivePlayer(app):
-    if app.teams[app.currTeamIndex] == []:
-        return None
-    closestPlayer = None
-    closestDistance = None
-    for player in app.teams[app.currTeamIndex]:
-        dis = player.pos.subtracted(app.goalPos).magnitude()
-        if closestDistance == None or dis < closestDistance:
-            closestDistance = dis
-            closestPlayer = player.number
-    return closestPlayer
+def clickedInSlider1(x, y):
+    return kAppWidth - 2*kSliderSpacing - kSliderWidth > x > kAppWidth - 2*kSliderSpacing - 2*kSliderWidth and kAppHeight-kSliderSpacing > y > kAppHeight-kSliderSpacing-kSliderHeight
 
-def spawnPlayerOnPoint(app, point):
-    if point:
-        app.teams[app.currTeamIndex].append(Player(Vector2(*point.tup()), len(app.teams[app.currTeamIndex])+1, app.currTeamIndex, bool(app.currTeamIndex%2), False))
-
-def formVertStack(app):
-    frontStackPos = Vector2(app.frisbees[0].x + 50, app.height/2)
-    handlerPos = Vector2(app.frisbees[0].x, app.frisbees[0].y)
-    resetPos = Vector2(handlerPos.x - 60, handlerPos.y + 60)
-    formationGoalPositions = [handlerPos, resetPos]
-    for i in range(5):
-        formationGoalPositions.append(frontStackPos.added(Vector2(80*i + (40 if i==6 else 0), 0)))
-    for j in range(len(app.teams[app.currTeamIndex])):
-        if not (j >= len(app.teams[app.currTeamIndex]) or j >= len(formationGoalPositions)):
-            app.teams[app.currTeamIndex][j].goalPos = formationGoalPositions[j]
-
-def formOffense(app, style):
-    match style:
-        case 'vert':
-            formVertStack(app)
-# end removal code
-###############################################################################
+def clickedInSlider2(x, y):
+    return kAppWidth-kSliderSpacing > x > kAppWidth-kSliderSpacing-kSliderWidth and kAppHeight-kSliderSpacing > y > kAppHeight-kSliderSpacing-kSliderHeight
 
 def initCourse(app, length):
     app.course = Course(length, kDefaultObstaclePeriod)
@@ -183,7 +166,7 @@ def addObstacles(course):
         match obstacleChoice:
             case 'wall':
                 z = 0
-                width = random.choice([i*kWallSizeMultiplier*kWallImageWidth/(kAppWidth / kAppHeight) for i in range(1,4)])
+                width = random.choice([i*kWallSizeMultiplier*kWallImageWidth/(kAppWidth / (kAppHeight-kVerticalBuffer)) for i in range(1,4)])
                 height = random.choice([i*kWallSizeMultiplier*kWallImageHeight/kZHeightFactor for i in range(1,5)])
                 newObstacle = Wall(x, y, z, width, height, random.choice([True, False, False]))
             case 'tree':
@@ -193,6 +176,13 @@ def addObstacles(course):
         course.obstacles.append(newObstacle)
 
 def onMouseDrag(app, mouseX, mouseY):
+    
+    if app.isSliding:
+        relativeMouseHeight = (mouseY-kSliderSpacing-(kAppHeight-kSliderSpacing-kSliderHeight)) / kSliderHeight
+        if app.isTopDown:
+            app.sliders2D[app.sliderIndex].percentage = max(0, min(1-relativeMouseHeight, 1))
+        else:
+            app.sliders3D[app.sliderIndex].percentage = max(0, min(1-relativeMouseHeight, 1))
     app.curvePoint = (mouseX, mouseY)
 
 def onMouseRelease(app, mouseX, mouseY):
@@ -203,7 +193,6 @@ def onMouseRelease(app, mouseX, mouseY):
         roll = -kRollControlMultiplier * math.copysign(rollVector.magnitude(), rollDirection)
         newFrisbee = Frisbee((*app.frisbeeInitPoint.tup(), kFrisbeeThrowHeight), aimVector.unitVector(), aimVector.magnitude() * kAimControlMultiplier, app.upSpeed, app.initPitch, roll)
         app.newFrisbee=newFrisbee
-        app.throwPoint = None
         app.curvePoint = None
 
 def drawFPS(app, timeStart):
@@ -214,12 +203,39 @@ def drawFPS(app, timeStart):
         fps = int(1 / (now - timeStart))
     drawLabel(fps, app.width, 0, align='right-top')
 
+def getColorForPercentage(percentage):
+    return rgb(percentage*255, (1-percentage)*255, 100)
+
+def drawSliders(slider1, slider2):
+    yPos = kAppHeight - kSliderSpacing
+
+    #slider 1
+    xPos = kAppWidth - 2*kSliderWidth - 2*kSliderSpacing
+    fill1 = getColorForPercentage(slider1.percentage)
+    drawRect(xPos, yPos, kSliderWidth, kSliderHeight, opacity=kSliderOpacity, borderWidth=kSliderBorderWidth, fill=None, align='left-bottom')
+    drawRect(xPos, yPos, kSliderWidth, kSliderHeight*max(0.001, slider1.percentage), align='left-bottom', opacity=kSliderOpacity, fill=fill1)
+    xPos += kSliderWidth/2
+    drawLabel(int(slider1.value()), xPos, yPos-kSliderTextSize/2, size=kSliderTextSize)
+    drawLabel(slider1.label, xPos, yPos+kSliderTextSize/2, size=kSliderTextSize)
+
+
+    #slider 2
+    xPos = kAppWidth - kSliderWidth - kSliderSpacing
+    fill2 = getColorForPercentage(slider2.percentage)
+    drawRect(xPos, yPos, kSliderWidth, kSliderHeight, opacity=kSliderOpacity, borderWidth=kSliderBorderWidth, align='left-bottom', fill=None)
+    drawRect(xPos, yPos, kSliderWidth, kSliderHeight*max(0.001, slider2.percentage), align='left-bottom', opacity=kSliderOpacity, fill=fill2)
+    xPos += kSliderWidth/2
+    drawLabel(int(slider2.value()), xPos, yPos-kSliderTextSize/2, size=kSliderTextSize)
+    drawLabel(slider2.label, xPos, yPos+kSliderTextSize/2, size=kSliderTextSize)
+
 def redrawAll(app):
     startTime = time.time()
     if app.isTopDown:
         game2D.drawGame(app)
+        drawSliders(*app.sliders2D)
     else:
         game3D.drawGame(app)
+        drawSliders(*app.sliders3D)
     drawFPS(app, startTime)
     if app.scored:
         drawLabel('GOAL!', app.width/2, app.height/2, size=100, border='white', borderWidth=4)

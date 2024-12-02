@@ -21,6 +21,7 @@ kTeamColors = ['black', 'white']
 kRollControlMultiplier = 1 / 10
 kAimControlMultiplier = 1 / 4
 kFrisbeeThrowHeight = 11
+kShotLineLength = 200
 
 # APP SPEED
 kStepsPerSecond = 60 
@@ -65,11 +66,20 @@ kWindSpeed = .2
 
 #Scoring Constants
 kScorableHeight = kFrisbeeThrowHeight
-kScorableTolerance = 1
+kScorableTolerance = 5
+
+#Sliders
+kSliderWidth = 50
+kSliderHeight = 500
+kSliderOpacity = 100
+kSliderSpacing = 40
+kSliderBorderWidth = 10
+kSliderTextSize = 20
 
 # OBSTACLES
 kObstacleTypes = ['wall', 'tree']
 kSideBuffer = 100
+kVerticalBuffer = 0
 kTreeVariantCount = 2
 kWallVariantCount = 1
 kTreeBaseSizeMultiplier = 4
@@ -80,8 +90,11 @@ kWallImageHeight = 50
 kObstacleThickness = 30
 kMinObstacleHeight = 10
 kMaxObstacleHeight = 30
+kTreeTopPath = kOSFilePath + '/Images/TreeTopDown.png'
 kGoalPath = kOSFilePath + '/Images/Goal.png'
+kGoalTopDownPath = kOSFilePath + '/Images/GoalTopdown.png'
 kWallPath = kOSFilePath + '/Images/WoodWall.png'
+kBouncyWallPath = kOSFilePath + '/Images/BouncyWall.png'
 
 # OBSTACLE AESTHETICS
 kBouncyColor = 'orange'

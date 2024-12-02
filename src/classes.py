@@ -267,6 +267,12 @@ class Vector3():
             return self.x * other.x + self.y * other.y + self.z*other.z
         return None
     
+    def tup(self):
+        return (self.x, self.y, self.z)
+
+    def in2D(self):
+        return Vector2(self.x, self.y)
+
     def crossProduct(self, other):
         if isinstance(other, Vector3):
             i =   self.y*other.z - self.z*other.y
@@ -345,7 +351,7 @@ class Course():
         self.length = length # top-down pixels
         self.obstaclePeriod = obstaclePeriod # pixels between obstacles
         self.numObstacles = length//(self.obstaclePeriod) - 1
-        self.goalPos = Vector2(length, kAppHeight/2)
+        self.goalPos = Vector2(length, random.random() * (kAppHeight))
         self.goal = Goal(*self.goalPos.tup(), 0)
         self.obstacles = []
 
@@ -395,7 +401,8 @@ class Wall(Obstacle):
         self.height = height
         self.depth = kObstacleThickness
         self.isBouncy = isBouncy
-        self.path3D = (kOSFilePath+'/Images/Wall'+str(random.randint(0, kWallVariantCount-1))+'.png')
+        if isBouncy: self.path3D = (kOSFilePath+'/Images/BouncyWall.png')
+        else: self.path3D = (kOSFilePath+'/Images/WoodWall.png')
         self.type = 'wall'
     def __repr__(self):
         return f'Obstacle({type(self)}, x={int(self.x)}, y={int(self.y)}, z={int(self.z)}, height={int(self.height)})'
@@ -410,6 +417,16 @@ class Tree(Obstacle):
         self.path3D = (kOSFilePath+'/Images/Tree'+str(random.randint(0, kTreeVariantCount-1))+'.png')
         self.type = 'tree'
         self.depth = 50
+
+class Slider():
+    def __init__(self, label, min, max, defaultValue):
+        self.min = min
+        self.max = max
+        self.percentage = (defaultValue-self.min) / (self.max - self.min)
+        self.label= label
+
+    def value(self):
+        return self.percentage * (self.max-self.min) + self.min
 
 class SillyException(Exception):
     def __init__(self, message):

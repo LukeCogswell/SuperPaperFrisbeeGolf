@@ -1,6 +1,6 @@
 from cmu_graphics import *
 from constants import *
-from classes import Frisbee, Vector2, Obstacle, Wall, Tree
+from classes import Frisbee, Vector3, Vector2, Obstacle, Wall, Tree
 import math, time
 
 kBackgroundGradient0 = gradient(*[kGrassLight, kGrassMedium, kGrassDark, kGrassMedium]*(kAppWidth//80), start='left')
@@ -95,14 +95,12 @@ def drawBackground(app):
     drawRect(-offset+30*math.cos(.8*now),-offset-20*math.sin(.5*now), width, height, fill=kBackgroundGradient4, opacity=30)
 
 def drawThrowVisualization(app):
-    drawFrisbee(app, Frisbee((*app.frisbeeInitPoint.tup(), 5), Vector2(1,0), 0, 0, app.initPitch, 0))
-    drawLabel(f'Pitch = {app.initPitch}', app.frisbeeInitPoint.x, app.frisbeeInitPoint.y+30)
-    drawLabel(f'Up Speed = {app.upSpeed}', app.frisbeeInitPoint.x, app.frisbeeInitPoint.y+40)
-    drawLabel(f'Changing: {"Pitch" if app.settingPitch else "Up Speed"}', app.frisbeeInitPoint.x, app.frisbeeInitPoint.y+50)
+    directionVector = Vector2(100,0)
     if app.throwPoint:
-        drawLine(*app.frisbeeInitPoint.tup(), *app.throwPoint.tup(), fill=kFrisbeeColor, arrowEnd=True, opacity=40)
-        if app.curvePoint:
-            drawLine(*app.throwPoint.tup(), *app.curvePoint, fill=kFrisbeeColor, arrowEnd=True, opacity=40)
+        directionVector = app.throwPoint.subtracted(app.frisbeeInitPoint).unitVector().multipliedBy(kShotLineLength)
+    power = app.sliders2D[0].value()
+    drawLine(*app.frisbeeInitPoint.tup(), *app.frisbeeInitPoint.added(directionVector).tup(), lineWidth=max(power,1), fill=kFrisbeeColor, arrowEnd=True)
+    drawFrisbee(app, Frisbee((*app.frisbeeInitPoint.tup(), kFrisbeeThrowHeight), Vector2(1,0), 0, 0, app.sliders3D[0].value(), app.sliders2D[1].value()))
 
 def drawPlayers(app):
     for team in app.teams:
@@ -120,8 +118,8 @@ def drawCourse(app):
                 if app.drawLabels:
                     drawLabel(obstacle, obstacle.x, obstacle.y, fill='white')
             case 'tree':
-                drawCircle(obstacle.x, obstacle.y, 30, fill='forestGreen')
-    drawCircle(app.course.goal.x, app.course.goal.y, 20, fill='red', borderWidth=5)
+                drawImage(kTreeTopPath, obstacle.x, obstacle.y, align='center', borderWidth=2)
+    drawImage(kGoalTopDownPath, app.course.goal.x, app.course.goal.y, align="center")
 
 def drawGame(app):
     drawBackground(app)
