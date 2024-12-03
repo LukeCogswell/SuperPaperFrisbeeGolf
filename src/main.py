@@ -77,6 +77,9 @@ def takeStep(app):
                 app.cameraX = frisbee.x-kCameraRenderBuffer
             else:
                 app.cameraX = app.course.goal.x-kCameraRenderBuffer
+    for obstacle in app.course.obstacles:
+        if obstacle.type == 'geyser':
+            obstacle.checkActivation(time.time())
     for cloud in app.clouds:
         cloud.move()
     for team in app.teams:
@@ -198,9 +201,12 @@ def addObstacles(course):
                 newObstacle = Wall(x, y, z, width, height, random.choice([True, False, False]))
             case 'tree':
                 newObstacle = Tree(x,y,height*100*kTreeBaseSizeMultiplier/kZHeightFactor)
+            case 'geyser':
+                newObstacle = Geyser(x, y, random.random() * (kMaxGeyserFrequencey-kMinGeyserFrequency) + kMinGeyserFrequency)
             case _:
                 raise SillyException(f'Silly Goof! {obstacleChoice} is not in the match cases!')
         course.obstacles.append(newObstacle)
+    
 
 def onMouseDrag(app, mouseX, mouseY):
     
@@ -239,7 +245,10 @@ def drawSliders(slider1, slider2):
     drawRect(xPos, yPos, kSliderWidth, kSliderHeight, opacity=kSliderOpacity, borderWidth=kSliderBorderWidth, fill=None, align='left-bottom')
     drawRect(xPos, yPos, kSliderWidth, kSliderHeight*max(0.001, slider1.percentage), align='left-bottom', opacity=kSliderOpacity, fill=fill1)
     xPos += kSliderWidth/2
-    drawLabel(int(slider1.value()), xPos, yPos-kSliderTextSize/2, size=kSliderTextSize)
+    if slider1.label == 'Power':
+        drawLabel(f'{int(100*slider1.percentage)}%', xPos, yPos-kSliderTextSize/2, size=kSliderTextSize)
+    else:
+        drawLabel(int(slider1.value()), xPos, yPos-kSliderTextSize/2, size=kSliderTextSize)
     drawLabel(slider1.label, xPos, yPos+kSliderTextSize/2, size=kSliderTextSize)
 
 
@@ -283,7 +292,8 @@ def redrawAll(app):
         drawScore(app)
         if app.scored:
             drawLabel('GOAL!', app.width/2, app.height/2, size=100, border='white', borderWidth=4)
-            drawLabel(f'Hole Score: {app.holeScore-app.course.calculatePar()}', app.width/2, app.height/2 + 100, size=100, border='white', borderWidth=4)
+            holeScore = app.holeScore-app.course.calculatePar()
+            drawLabel(f'Hole Score: {holeScore if holeScore != 0 else "Par!"}', app.width/2, app.height/2 + 100, size=100, border='white', borderWidth=4)
 
 def main():
     runApp()

@@ -81,12 +81,9 @@ def drawFrisbee(app, frisbee):
 
 
 def drawCourse(app):
-    if app.frisbees != []:
-        minRenderingXPos = app.cameraX + kCameraRenderBuffer
-    else:
-        minRenderingXPos = 0
+    minRenderingXPos = app.cameraX + kCameraRenderBuffer
     sizeMultiplier = getSizeMultiplier(app, app.course.goalPos.x)
-    drawImage(kGoalPath, app.course.goal.y * (kAppWidth / (kAppHeight-kVerticalBuffer)), (kAppHeight-kVerticalBuffer) - min((app.course.goal.x-app.cameraX)/kAppWidth * kHorizonHeight, kHorizonHeight), align='bottom', width=50*sizeMultiplier, height=100*sizeMultiplier)
+    drawImage(kGoalPath, app.course.goal.y * (kAppWidth / (kAppHeight-kVerticalBuffer)), (kAppHeight-kVerticalBuffer) - min((app.course.goal.x-app.cameraX)/kAppWidth * kHorizonHeight, kHorizonHeight), align='bottom', width=50*sizeMultiplier*2, height=100*sizeMultiplier*2)
     for obstacle in reversed(app.course.obstacles):
         if obstacle.x < minRenderingXPos: continue
         sizeMultiplier = getSizeMultiplier(app, obstacle.x)
@@ -95,7 +92,20 @@ def drawCourse(app):
                 drawWall(app, obstacle, sizeMultiplier)
             case 'tree':
                 drawTree(app, obstacle, sizeMultiplier)
+            case 'geyser':
+                drawGeyser(app, obstacle, sizeMultiplier)
     drawFrisbees(app)
+
+def drawGeyser(app, geyser, sizeMultiplier):
+    width = geyser.width*sizeMultiplier*(kAppWidth / (kAppHeight-kVerticalBuffer))
+    height = geyser.width/2 * sizeMultiplier
+    centerX = geyser.y * (kAppWidth / (kAppHeight-kVerticalBuffer))
+    bottomY = (kAppHeight-kVerticalBuffer) - min((geyser.x-app.cameraX)/kAppWidth * kHorizonHeight, kHorizonHeight)
+    centerY = bottomY - height/2
+    drawImage(kGeyserPath3D, centerX, centerY, align='center', width=width, height=height)
+    if geyser.isActive:
+        size = geyser.getSize(time.time())
+        drawImage(kGeyserSpray3DPath, centerX, bottomY, align='bottom', width=size, height=2*size)
 
 def drawWall(app, wall, sizeMultiplier):
     width = wall.width*sizeMultiplier*(kAppWidth / (kAppHeight-kVerticalBuffer))

@@ -15,6 +15,7 @@ class Frisbee():
         self.x = pos[0]
         self.y = pos[1]
         self.z = pos[2]
+        self.wind=None
 
     def __repr__(self):
         return f'Frisbee(pos=({self.x}, {self.y}, {self.z}))'
@@ -73,7 +74,10 @@ class Frisbee():
             # Checks x y and z to see if the frisbee is colliding with the obstacle (all hitboxes are cubes)
             xCheck = abs(self.x - obstacle.x) <= kFrisbeeSize/2+obstacle.depth/2
             yCheck = abs(self.y - obstacle.y) <= kFrisbeeSize/2+obstacle.width/2
-            zCheck = obstacle.z < self.z < (obstacle.z+obstacle.height)
+            if obstacle.type == 'geyser':
+                zCheck = obstacle.isActive
+            else:
+                zCheck = obstacle.z < self.z < (obstacle.z+obstacle.height)
             
             if zCheck and xCheck and yCheck:
                 self.collide(obstacle)
@@ -87,7 +91,10 @@ class Frisbee():
         return collidingNormal.multipliedBy(2).multipliedBy(incidentAngle.dotProduct(collidingNormal)).subtracted(incidentAngle)
 
     def collide(self, obstacle):
-        if obstacle.isBouncy:
+        if obstacle.type == 'geyser':
+            self.downSpeed += obstacle.power
+            WhooshSounds[random.randint(0, kWhooshes-1)].play()
+        elif obstacle.isBouncy:
             self.direction = self.getReflectionVector(obstacle)
             BoingSounds[random.randint(0, kBoings-1)].play()
         else: 
@@ -451,6 +458,34 @@ class Tree(Obstacle):
         self.path3D = (kOSFilePath+'/Images/Tree'+str(random.randint(0, kTreeVariantCount-1))+'.png')
         self.type = 'tree'
         self.depth = 50
+
+class Geyser(Obstacle):
+    def __init__(self, x, y, frequency):
+        super().__init__(x,y)
+        self.temporalOffset = random.random()*kMaxGeyserFrequencey
+        self.frequency = frequency
+        self.width = kObstacleThickness
+        self.depth = kObstacleThickness
+        self.height = 0
+        self.spriteRotation = random.random() * 360
+        self.isActive = False
+        self.power = random.random() * (kMaxGeyserPower-kMinGeyserPower) + kMinGeyserPower
+        self.type = 'geyser'
+    
+    def checkActivation(self, currTime):
+        activeLength = (1 / 3*self.frequency)
+        if currTime % (1 / self.frequency) <= activeLength:
+            self.isActive = True
+            self.height = kMaxObstacleHeight * (math.sin((currTime % activeLength) / activeLength * math.pi * 2) + 1) / 2
+        else:
+            self.height = 0
+            self.isActive = False
+
+    def getSize(self, currTime):
+        return max(0.1,self.height/kMaxObstacleHeight) * 50 * ((math.sin(currTime/100)**5)+2)
+
+    def __repr__(self):
+        return f'Obstacle({type(self)}, x={int(self.x)}, y={int(self.y)}, isActive={self.isActive}, height={int(self.height)})'
 
 class Slider():
     def __init__(self, label, min, max, defaultValue):

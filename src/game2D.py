@@ -122,6 +122,15 @@ def drawCourse(app):
                     drawLabel(obstacle, obstacle.x, obstacle.y, fill='white')
             case 'tree':
                 drawImage(kTreeTopPath, obstacle.x, obstacle.y, align='center', borderWidth=2)
+                if app.drawLabels:
+                    drawLabel(obstacle, obstacle.x, obstacle.y, fill='white')
+            case 'geyser':
+                drawImage(kGeyserTopDownPath, obstacle.x, obstacle.y, align='center')
+                if obstacle.isActive:
+                    size = obstacle.getSize(time.time())
+                    drawImage(kGeyserSprayTopDownPath, obstacle.x, obstacle.y, width = size, height = size,align='center')
+                if app.drawLabels:
+                    drawLabel(obstacle, obstacle.x, obstacle.y, fill='white')
     drawImage(kGoalTopDownPath, app.course.goal.x, app.course.goal.y, align="center")
 
 def drawGame(app):

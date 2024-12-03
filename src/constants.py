@@ -94,24 +94,32 @@ kPitchSettings = [-45, 45, 10]
 kUPPwrSettings = [0, 15, 6]
 
 # OBSTACLES
-kObstacleTypes = ['wall', 'tree']
+kObstacleTypes = ['wall', 'tree', 'geyser']
 kSideBuffer = 100
 kVerticalBuffer = 0
 kTreeVariantCount = 1
 kWallVariantCount = 1
 kTreeBaseSizeMultiplier = 4
-kDefaultObstaclePeriod = 200
+kDefaultObstaclePeriod = 150
 kWallSizeMultiplier = 2
 kWallImageWidth = 100
 kWallImageHeight = 50
 kObstacleThickness = 30
 kMinObstacleHeight = 10
 kMaxObstacleHeight = 30
+kMaxGeyserFrequencey = 100/2
+kMinGeyserFrequency = 100/10
+kMaxGeyserPower = 10
+kMinGeyserPower = 5
 kTreeTopPath = kOSFilePath + '/Images/TreeTopDown.png'
 kGoalPath = kOSFilePath + '/Images/Goal.png'
 kGoalTopDownPath = kOSFilePath + '/Images/GoalTopdown.png'
 kWallPath = kOSFilePath + '/Images/WoodWall.png'
 kBouncyWallPath = kOSFilePath + '/Images/BouncyWall.png'
+kGeyserPath3D = kOSFilePath + '/Images/Geyser3D.png'
+kGeyserTopDownPath = kOSFilePath + '/Images/GeyserTopDown.png'
+kGeyserSprayTopDownPath = kOSFilePath + '/Images/GeyserSprayTopDown.png'
+kGeyserSpray3DPath = kOSFilePath + '/Images/GeyserSpray.png'
 
 # OBSTACLE AESTHETICS
 kBouncyColor = 'orange'
