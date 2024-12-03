@@ -9,6 +9,7 @@ def onAppStart(app):
     app.paused = kAppInitPauseState
     app.stepsPerSecond = kStepsPerSecond
     app.isTopDown = True
+    app.showControls = False
     app.isStarting = True
     app.isTutorial = True
     app.tutorialStep = 0
@@ -17,6 +18,7 @@ def onAppStart(app):
     #Scoring
     app.holeScore = 0
     app.courseScore = 0
+    app.currHole = 0
 
     # COURSE
     app.course = None
@@ -72,6 +74,7 @@ def takeStep(app):
         if not frisbee.inFlight:
             if 0 > frisbee.x or frisbee.x > kAppWidth or 0 > frisbee.y or frisbee.y > kAppHeight:
                 app.frisbeeInitPoint = Vector2(*kFrisbeeInitPos)
+                frisbee.x = kFrisbeeInitPos[0]
             else:
                 app.frisbeeInitPoint = Vector2(frisbee.x, frisbee.y)
             app.frisbees = []
@@ -99,6 +102,10 @@ def getAbsolutePath(relativeFilePath):
     return os.path.join(absolutePath, relativeFilePath)
 
 def resetCourse(app):
+    app.currHole += 1
+    if app.currHole >= kMaxHoles:
+        app.isStarting = True
+        app.currHole = 1
     app.frisbees = []
     app.teams = [[],[]]
     app.course = None
@@ -138,6 +145,8 @@ def onKeyPress(app, key):
                         app.frisbees.pop(0)
             case 's':
                 takeStep(app)
+            case 'c':
+                app.showControls = not app.showControls
             case 'r':
                 app.frisbeeInitPoint = Vector2(*kFrisbeeInitPos)
                 app.frisbees = []
@@ -282,8 +291,9 @@ def drawSliders(slider1, slider2):
 
 def drawScore(app):
     drawLabel(f'Score: {app.courseScore}', kScoreTextBuffer, kScoreTextBuffer, align='left-top', size=kScoreTextSize)
-    drawLabel(f'Hole Par: {app.course.calculatePar()}', kScoreTextBuffer, 2*kScoreTextBuffer+kScoreTextSize, align='left-top', size=kScoreTextSize)
-    drawLabel(f'Hole Throws: {app.holeScore}', kScoreTextBuffer, 3*kScoreTextBuffer+2*kScoreTextSize, align='left-top', size=kScoreTextSize)
+    drawLabel(f'Hole: {app.currHole}', kScoreTextBuffer, 2*kScoreTextBuffer+kScoreTextSize, align='left-top', size=kScoreTextSize)
+    drawLabel(f'Hole Par: {app.course.calculatePar()}', kScoreTextBuffer, 3*kScoreTextBuffer+2*kScoreTextSize, align='left-top', size=kScoreTextSize)
+    drawLabel(f'Hole Throws: {app.holeScore}', kScoreTextBuffer, 4*kScoreTextBuffer+3*kScoreTextSize, align='left-top', size=kScoreTextSize)
 
 def drawSplash(app):
     game3D.drawBackground(app)
@@ -337,11 +347,18 @@ def drawTutorialStep(app):
             drawLabel('In the bottom right you have sliders to control the upwards power of your throw and', kAppWidth/4+kScoreTextBuffer, kAppHeight/4+kScoreTextBuffer, size=kScoreTextSize, align='left-top', fill=kTutorialTextColor)
             drawLabel('pitch of the frisbee. Positive pitch will let the frisbee float better as it flies,', kAppWidth/4+kScoreTextBuffer, kAppHeight/4+2*kScoreTextBuffer+kScoreTextSize, size=kScoreTextSize, align='left-top', fill=kTutorialTextColor)
             drawLabel('negative will quickly bring it down. Press \'space\' to throw. Good Luck!', kAppWidth/4+kScoreTextBuffer, kAppHeight/4+3*kScoreTextBuffer+2*kScoreTextSize, size=kScoreTextSize, align='left-top', fill=kTutorialTextColor)
-            drawLabel('Feel free to listen to the sound effects!', kAppWidth/4+kScoreTextBuffer, kAppHeight/4+4*kScoreTextBuffer+3*kScoreTextSize, size=kScoreTextSize, align='left-top', fill=kTutorialTextColor)
+            drawLabel('Watch out for the wind!', kAppWidth/4+kScoreTextBuffer, kAppHeight/4+4*kScoreTextBuffer+3*kScoreTextSize, size=kScoreTextSize, align='left-top', fill=kTutorialTextColor)
 
 def drawWind(app):
     drawLine(kSideBuffer, 200, kSideBuffer+app.wind.x*20, 200 + app.wind.y*20, arrowEnd = True, fill=game2D.getColorForPercentage(min(1, app.wind.magnitude() / 5)))
     drawLabel('Wind', kSideBuffer, 200, size=20)
+
+def drawControls(app):
+    if app.showControls:
+        drawLabel("'tab' to switch view, click to aim, 'space' to throw. Click and drag to adjust sliders, 'r' to reset throw", app.width/2, 30, size=20)
+    else:
+        drawLabel("'c' to show controls", app.width/2, 30, size=20)
+
 
 def redrawAll(app):
     if app.isStarting:
@@ -359,6 +376,8 @@ def redrawAll(app):
         drawFPS(app, startTime)
         drawScore(app)
         drawWind(app)
+        if app.showControls:
+            drawControls(app)
         if app.scored:
             drawLabel('GOAL!', kAppWidth/2, kAppHeight/2, size=100, border='white', borderWidth=4)
             holeScore = app.holeScore-app.course.calculatePar()

@@ -145,3 +145,4 @@ kTutorialColor = 'skyBlue'
 kTutorialTextColor = 'black'
 kTutorialSteps = 5
 kTutorialOpacity = 90
+kMaxHoles = 9
