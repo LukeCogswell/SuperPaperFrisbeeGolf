@@ -473,10 +473,10 @@ class Geyser(Obstacle):
         self.type = 'geyser'
     
     def checkActivation(self, currTime):
-        activeLength = (1 / 3*self.frequency)
+        activeLength = (1 / 3) * (1 / self.frequency)
         if currTime % (1 / self.frequency) <= activeLength:
             self.isActive = True
-            self.height = kMaxObstacleHeight * (math.sin((currTime % activeLength) / activeLength * math.pi * 2) + 1) / 2
+            self.height = kMaxObstacleHeight * (math.sin(((currTime+self.temporalOffset) % activeLength) / activeLength * math.pi * 2) + 1) / 2
         else:
             self.height = 0
             self.isActive = False

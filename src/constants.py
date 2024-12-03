@@ -138,3 +138,7 @@ Boing0 = Sound(kBoingPath+'0.mp3')
 Boing1 = Sound(kBoingPath+'1.mp3')
 BoingSounds = [Sound(kBoingPath+str(i)+'.mp3') for i in range(kBoings)]
 WhooshSounds = [Sound(kWhooshPath+str(i)+'.mp3') for i in range(kWhooshes)]
+
+#TUTORIAL
+kTutorialColor = 'peru'
+kTutorialSteps = 5
