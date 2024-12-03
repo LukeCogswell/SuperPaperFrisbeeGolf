@@ -110,7 +110,10 @@ def resetCourse(app):
 
 def onKeyPress(app, key):
     if key == 'escape':
-        app.quit()
+        if app.isTutorial:
+            app.isTutorial = False
+        else:
+            app.quit()
     elif app.isStarting:
         app.isStarting = False
     elif app.isTutorial:
