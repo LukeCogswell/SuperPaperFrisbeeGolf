@@ -69,6 +69,7 @@ kCloudSize = (100, 50)
 kMinCloudScale = .7
 kMaxCloudScale = 3
 kWindSpeed = .2
+kMaxCloudCount = 20
 
 #Scoring Constants
 kScorableHeight = kFrisbeeThrowHeight

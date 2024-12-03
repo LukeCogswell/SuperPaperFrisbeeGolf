@@ -341,7 +341,7 @@ class Cloud():
     def move(self):
         self.x += Cloud.windSpeed * kMotionStepsPerSecond * self.scale
         if self.x > (self.scale * 200) + kAppWidth:
-            self.remove()
+            self.x = -(self.scale * 200)
 
     def remove(self):
         del(self)

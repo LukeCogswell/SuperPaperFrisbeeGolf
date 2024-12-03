@@ -85,7 +85,8 @@ def takeStep(app):
     if not bool(random.randint(0, int(1 / kCloudFrequency))):
         path = (kOSFilePath+'/Images/Cloud'+str(random.randint(0, kCloudVariantCount-1))+'.png')
         newCloud = Cloud(path, random.randint(kMinCloudScale*10, kMaxCloudScale*10)/10)
-        app.clouds.append(newCloud)
+        if len(app.clouds) < kMaxCloudCount:
+            app.clouds.append(newCloud)
 
 def getAbsolutePath(relativeFilePath):
     absolutePath = os.path.abspath(os.path.dirname(__file__))
@@ -256,14 +257,15 @@ def drawScore(app):
     drawLabel(f'Hole Throws: {app.holeScore}', kScoreTextBuffer, 3*kScoreTextBuffer+2*kScoreTextSize, align='left-top', size=kScoreTextSize)
 
 def drawSplash(app):
-    drawRect(0,0,kAppWidth, kAppHeight, fill='burlyWood', border='darkGray', borderWidth=5)
-    drawRect(0+5,0+5,kAppWidth-10, kAppHeight-10, fill=None, border='silver', borderWidth=5)
+    game3D.drawBackground(app)
+    drawRect(0,0,kAppWidth, kAppHeight, fill=None, border='darkGray', borderWidth=10)
+    drawRect(10,10,kAppWidth-20, kAppHeight-20, fill=None, border='silver', borderWidth=10)
     labelRot = math.sin(time.time()*kOpeningScreenTimeFactor) * 20
-    drawImage(kGoalPath, 2*kAppWidth/3, kAppHeight/2, align='center', width=200, height=400)
+    drawImage(kGoalPath, 2*kAppWidth/3, 3*kAppHeight/4, align='center', width=200, height=400)
     fill = gradient('lightCyan', *[kFrisbeeColor]*int(60//30), 'skyBlue', 'steelBlue', start='top')
-    drawLabel('SUPER PAPER FRISBEE GOLF', kAppWidth/2, kAppHeight/2, rotateAngle = labelRot, size=60, fill='gray', border='darkGray', borderWidth=3)
-    drawOval(kAppWidth/3, kAppHeight/5, 100, 300, fill=fill, rotateAngle=-40,border=kDiscGradient, borderWidth=kDiscBorderWidth)
-    drawLabel('click anywhere to start', kAppWidth/2, kAppHeight-100, rotateAngle = -labelRot, size=15, fill='gray')
+    drawLabel('SUPER PAPER FRISBEE GOLF', kAppWidth/2, kAppHeight/4, rotateAngle = labelRot, size=60, fill='red', border='dimGray', borderWidth=3, bold=True)
+    drawOval(kAppWidth/3, 3*kAppHeight/5, 100, 300, fill=fill, rotateAngle=-40,border=kDiscGradient, borderWidth=kDiscBorderWidth)
+    drawLabel('click anywhere to start', kAppWidth/2, kAppHeight-100, rotateAngle = -labelRot, size=20, fill='red', border='dimGray', borderWidth=1)
 
 def redrawAll(app):
     if app.isStarting:
