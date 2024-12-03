@@ -113,11 +113,19 @@ class Frisbee():
                 self.downSpeed += self.getDownSpeedChange() *  kMotionTimeFactor
                 self.roll, self.leftSpeed = self.getLeftRollAndSpeed()
                 self.forwardSpeed -= self.getForwardResistance() *  kMotionTimeFactor
+                self.applyWind()
             self.trail.append((self.x, self.y))
         if (len(self.trail) > (kTrailLength * (kStepsPerSecond / 20)) or not self.inFlight) and self.trail != []:
             self.trail.pop(0)
         # endTime = time.time()
         # print(f'Done: Time= {endTime-startTime}s')
+    def applyWind(self):
+        if self.wind:
+            wind = self.wind.multipliedBy(self.z*kZWindFactor)
+            forwardWindSpeed = wind.dotProduct(self.direction) * math.sin(self.pitch)
+            leftWindSpeed = wind.dotProduct(self.leftDirection) * math.sin(self.roll)
+            self.forwardSpeed += forwardWindSpeed
+            leftWindSpeed += leftWindSpeed
 
     def getLabel(self):
         return f'z={int(self.z)}|Roll={int(self.roll)}|leftSpeed={int(self.leftSpeed)}|leftDirection={self.leftDirection}'

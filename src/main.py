@@ -12,6 +12,7 @@ def onAppStart(app):
     app.isStarting = True
     app.isTutorial = True
     app.tutorialStep = 0
+    app.wind = Vector2(0,0)
 
     #Scoring
     app.holeScore = 0
@@ -126,6 +127,7 @@ def onKeyPress(app, key):
                             app.sliders3D[1].value(), \
                             app.sliders3D[0].value(), \
                             app.sliders2D[1].value()))
+                    app.frisbees[-1].wind = app.wind
                     app.newFrisbee = None
                     app.holeScore += 1
                     WhooshSounds[random.randint(0, kWhooshes-1)].play()
@@ -198,6 +200,7 @@ def clickedInSlider2(x, y):
 def initCourse(app, length):
     app.course = Course(length, kDefaultObstaclePeriod)
     addObstacles(app.course)
+    app.wind = Vector2((random.random()-.5) * 10, (random.random()-.5) * 10)
 
 def addObstacles(course):
     if course.obstacles != []: return
@@ -316,7 +319,6 @@ def drawTutorialStep(app):
             drawLabel('Click to change the direction of your throw.', kAppWidth/4+kScoreTextBuffer, kAppHeight/4+kScoreTextBuffer, size=kScoreTextSize, align='left-top', fill=kTutorialTextColor)
             drawLabel('In the bottom right you have sliders to control the power and roll of your throw. Adjusting', kAppWidth/4+kScoreTextBuffer, kAppHeight/4+2*kScoreTextBuffer+kScoreTextSize, size=kScoreTextSize, align='left-top', fill=kTutorialTextColor)
             drawLabel('the roll will cause the frisbee to curve left or right. To adjust, click and drag the bar.', kAppWidth/4+kScoreTextBuffer, kAppHeight/4+3*kScoreTextBuffer+2*kScoreTextSize, size=kScoreTextSize, align='left-top', fill=kTutorialTextColor)
-            
 
         case 3:
             game3D.drawGame(app)
@@ -333,8 +335,10 @@ def drawTutorialStep(app):
             drawLabel('pitch of the frisbee. Positive pitch will let the frisbee float better as it flies,', kAppWidth/4+kScoreTextBuffer, kAppHeight/4+2*kScoreTextBuffer+kScoreTextSize, size=kScoreTextSize, align='left-top', fill=kTutorialTextColor)
             drawLabel('negative will quickly bring it down. Press \'space\' to throw. Good Luck!', kAppWidth/4+kScoreTextBuffer, kAppHeight/4+3*kScoreTextBuffer+2*kScoreTextSize, size=kScoreTextSize, align='left-top', fill=kTutorialTextColor)
             drawLabel('Feel free to listen to the sound effects!', kAppWidth/4+kScoreTextBuffer, kAppHeight/4+4*kScoreTextBuffer+3*kScoreTextSize, size=kScoreTextSize, align='left-top', fill=kTutorialTextColor)
-            
 
+def drawWind(app):
+    drawLine(kSideBuffer, 200, kSideBuffer+app.wind.x*20, 200 + app.wind.y*20, arrowEnd = True, fill=game2D.getColorForPercentage(min(1, app.wind.magnitude() / 5)))
+    drawLabel('Wind', kSideBuffer, 200, size=20)
 
 def redrawAll(app):
     if app.isStarting:
@@ -351,6 +355,7 @@ def redrawAll(app):
             drawSliders(*app.sliders3D)
         drawFPS(app, startTime)
         drawScore(app)
+        drawWind(app)
         if app.scored:
             drawLabel('GOAL!', kAppWidth/2, kAppHeight/2, size=100, border='white', borderWidth=4)
             holeScore = app.holeScore-app.course.calculatePar()

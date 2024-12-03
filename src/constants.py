@@ -111,6 +111,7 @@ kMaxGeyserFrequencey = 1/4
 kMinGeyserFrequency = 1/10
 kMaxGeyserPower = 10
 kMinGeyserPower = 5
+kZWindFactor = 1 / 100
 kTreeTopPath = kOSFilePath + '/Images/TreeTopDown.png'
 kGoalPath = kOSFilePath + '/Images/Goal.png'
 kGoalTopDownPath = kOSFilePath + '/Images/GoalTopdown.png'
