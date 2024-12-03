@@ -462,7 +462,6 @@ class Tree(Obstacle):
 class Geyser(Obstacle):
     def __init__(self, x, y, frequency):
         super().__init__(x,y)
-        self.temporalOffset = random.random()*kMaxGeyserFrequencey
         self.frequency = frequency
         self.width = kObstacleThickness
         self.depth = kObstacleThickness
@@ -476,13 +475,13 @@ class Geyser(Obstacle):
         activeLength = (1 / 3) * (1 / self.frequency)
         if currTime % (1 / self.frequency) <= activeLength:
             self.isActive = True
-            self.height = kMaxObstacleHeight * (math.sin(((currTime+self.temporalOffset) % activeLength) / activeLength * math.pi * 2) + 1) / 2
+            self.height = kMaxObstacleHeight * (math.sin( ((currTime) % activeLength) / activeLength * math.pi)) * 2
         else:
             self.height = 0
             self.isActive = False
 
     def getSize(self, currTime):
-        return max(0.1,self.height/kMaxObstacleHeight) * 50 * ((math.sin(currTime/100)**5)+2)
+        return max(0.1,self.height/kMaxObstacleHeight) * 50 #* ((math.sin(currTime/100)**5)+2)
 
     def __repr__(self):
         return f'Obstacle({type(self)}, x={int(self.x)}, y={int(self.y)}, isActive={self.isActive}, height={int(self.height)})'

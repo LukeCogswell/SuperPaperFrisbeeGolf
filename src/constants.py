@@ -107,8 +107,8 @@ kWallImageHeight = 50
 kObstacleThickness = 30
 kMinObstacleHeight = 10
 kMaxObstacleHeight = 30
-kMaxGeyserFrequencey = 100/2
-kMinGeyserFrequency = 100/10
+kMaxGeyserFrequencey = 1/4
+kMinGeyserFrequency = 1/10
 kMaxGeyserPower = 10
 kMinGeyserPower = 5
 kTreeTopPath = kOSFilePath + '/Images/TreeTopDown.png'
@@ -140,5 +140,7 @@ BoingSounds = [Sound(kBoingPath+str(i)+'.mp3') for i in range(kBoings)]
 WhooshSounds = [Sound(kWhooshPath+str(i)+'.mp3') for i in range(kWhooshes)]
 
 #TUTORIAL
-kTutorialColor = 'peru'
+kTutorialColor = 'skyBlue'
+kTutorialTextColor = 'black'
 kTutorialSteps = 5
+kTutorialOpacity = 90
