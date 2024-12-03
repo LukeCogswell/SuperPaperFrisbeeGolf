@@ -201,9 +201,9 @@ def clickedInSlider2(x, y):
     return kAppWidth-kSliderSpacing > x > kAppWidth-kSliderSpacing-kSliderWidth and kAppHeight-kSliderSpacing > y > kAppHeight-kSliderSpacing-kSliderHeight
 
 def initCourse(app, length):
-    app.course = Course(length, kDefaultObstaclePeriod)
-    addObstacles(app.course)
     app.wind = Vector2((random.random()-.5) * 10, (random.random()-.5) * 10)
+    app.course = Course(length, kDefaultObstaclePeriod, app.wind)
+    addObstacles(app.course)
 
 def addObstacles(course):
     if course.obstacles != []: return

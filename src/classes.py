@@ -364,13 +364,14 @@ class Cloud():
         del(self)
 
 class Course():
-    def __init__(self, length: int, obstaclePeriod:float):
+    def __init__(self, length: int, obstaclePeriod:float, wind):
         self.length = length # top-down pixels
         self.obstaclePeriod = obstaclePeriod # pixels between obstacles
         self.numObstacles = length//(self.obstaclePeriod) - 1
         self.goalPos = Vector2(length, random.random() * (kAppHeight-2*kSideBuffer)+kSideBuffer)
         self.goal = Goal(*self.goalPos.tup(), 0)
         self.obstacles = []
+        self.wind = wind
 
     def getVisibleObjects(self, playerPos: Vector2):
         visibleObjects = []
@@ -408,7 +409,7 @@ class Course():
                 continue
 
 
-        return throwsRequired
+        return throwsRequired + int(self.wind.magnitude() > 3)
 
 
     def __repr__(self):
