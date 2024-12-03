@@ -116,6 +116,7 @@ def onKeyPress(app, key):
                         app.sliders2D[1].value()))
                 app.newFrisbee = None
                 app.holeScore += 1
+                WhooshSounds[random.randint(0, kWhooshes-1)].play()
                 if len(app.frisbees) > 1:
                     app.frisbees.pop(0)
         case 's':

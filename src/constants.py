@@ -1,4 +1,4 @@
-from cmu_graphics import gradient, rgb
+from cmu_graphics import gradient, rgb, Sound
 import os
 kAppWidth, kAppHeight = 1600, 1000
 kAppInitPauseState = False
@@ -116,3 +116,17 @@ kBouncyWallPath = kOSFilePath + '/Images/BouncyWall.png'
 # OBSTACLE AESTHETICS
 kBouncyColor = 'orange'
 kWallColor = rgb(255 * .396, 255 * .298, 255 * .227)
+
+#SOUND EFFECTS WOO! - All voiced by yours truly ;)
+kBonkPath = kOSFilePath + '/Sounds/Bonk.mp3'
+kBoingPath = kOSFilePath + '/Sounds/Boing'
+kWhooshPath = kOSFilePath + '/Sounds/Whoosh'
+# number of each sound effect
+kBonks = 1
+kBoings = 2
+kWhooshes = 5
+BonkSound = Sound(kBonkPath)
+Boing0 = Sound(kBoingPath+'0.mp3')
+Boing1 = Sound(kBoingPath+'1.mp3')
+BoingSounds = [Sound(kBoingPath+str(i)+'.mp3') for i in range(kBoings)]
+WhooshSounds = [Sound(kWhooshPath+str(i)+'.mp3') for i in range(kWhooshes)]

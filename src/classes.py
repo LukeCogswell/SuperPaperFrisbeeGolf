@@ -89,7 +89,9 @@ class Frisbee():
     def collide(self, obstacle):
         if obstacle.isBouncy:
             self.direction = self.getReflectionVector(obstacle)
+            BoingSounds[random.randint(0, kBoings-1)].play()
         else: 
+            BonkSound.play()
             self.forwardSpeed = -10
             self.upSpeed = -4
 
