@@ -390,7 +390,6 @@ class Course():
 
     #Algorithm to calculate par for a course
     def calculatePar(self):
-        if self.hasStraightLineToGoal(): return 1
         throwsRequired = 2
         for obstacle in self.obstacles:
 
@@ -408,6 +407,9 @@ class Course():
                 throwsRequired += 1
                 continue
 
+        if self.hasStraightLineToGoal(): throwsRequired = 1
+
+        if self.length > kMinCourseLength: throwsRequired += self.length//(kMinCourseLength)
 
         return throwsRequired + int(self.wind.magnitude() > 3)
 

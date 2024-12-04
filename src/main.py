@@ -77,7 +77,7 @@ def takeStep(app):
         else:
             frisbee.checkCollisions(app.course)
         if not frisbee.inFlight:
-            if 0 > frisbee.x or frisbee.x > kAppWidth or 0 > frisbee.y or frisbee.y > kAppHeight:
+            if 0 > frisbee.x or frisbee.x > kAppWidth*(app.course.length//kMinCourseLength) or 0 > frisbee.y or frisbee.y > kAppHeight:
                 app.frisbeeInitPoint = Vector2(*kFrisbeeInitPos)
                 frisbee.x = kFrisbeeInitPos[0]
             else:
@@ -114,7 +114,7 @@ def resetCourse(app):
     app.frisbees = []
     app.teams = [[],[]]
     app.course = None
-    initCourse(app, kAppWidth-400)
+    initCourse(app, random.randint(1, 3) * kMinCourseLength)
     app.frisbeeInitPoint = Vector2(kFrisbeeSize*2, kAppHeight/2)
     app.cameraX = 0
     app.scored=False
@@ -274,24 +274,24 @@ def drawSliders(slider1, slider2):
     #slider 1
     xPos = kAppWidth - 2*kSliderWidth - 2*kSliderSpacing
     fill1 = game2D.getColorForPercentage(slider1.percentage)
-    drawRect(xPos, yPos, kSliderWidth, kSliderHeight, opacity=kSliderOpacity, borderWidth=kSliderBorderWidth, fill=None, align='left-bottom')
     drawRect(xPos, yPos, kSliderWidth, kSliderHeight*max(0.001, slider1.percentage), align='left-bottom', opacity=kSliderOpacity, fill=fill1)
+    drawRect(xPos, yPos, kSliderWidth, kSliderHeight, opacity=kSliderOpacity, border='black', borderWidth=kSliderBorderWidth, fill=None, align='left-bottom')
     xPos += kSliderWidth/2
     if slider1.label == 'Power':
-        drawLabel(f'{int(100*slider1.percentage)}%', xPos, yPos-kSliderTextSize/2, size=kSliderTextSize)
+        drawLabel(f'{int(100*slider1.percentage)}%', xPos, yPos-kSliderTextSize, size=kSliderTextSize)
     else:
-        drawLabel(int(slider1.value()), xPos, yPos-kSliderTextSize/2, size=kSliderTextSize)
+        drawLabel(int(slider1.value()), xPos, yPos-kSliderTextSize, size=kSliderTextSize)
     drawLabel(slider1.label, xPos, yPos+kSliderTextSize/2, size=kSliderTextSize)
 
 
     #slider 2
     xPos = kAppWidth - kSliderWidth - kSliderSpacing
     fill2 = game2D.getColorForPercentage(slider2.percentage)
-    drawRect(xPos, yPos, kSliderWidth, kSliderHeight, opacity=kSliderOpacity, borderWidth=kSliderBorderWidth, align='left-bottom', fill=None)
     drawRect(xPos, yPos, kSliderWidth, kSliderHeight*max(0.001, slider2.percentage), align='left-bottom', opacity=kSliderOpacity, fill=fill2)
+    drawRect(xPos, yPos, kSliderWidth, kSliderHeight, opacity=kSliderOpacity, border='black', borderWidth=kSliderBorderWidth, align='left-bottom', fill=None)
     xPos += kSliderWidth/2
-    drawLabel(int(slider2.value()), xPos, yPos-kSliderTextSize/2, size=kSliderTextSize)
-    drawLabel(slider2.label, xPos, yPos+kSliderTextSize/2, size=kSliderTextSize)
+    drawLabel(int(slider2.value()), xPos, yPos-kSliderTextSize, size=kSliderTextSize)
+    drawLabel(slider2.label, xPos, yPos+kSliderTextSize, size=kSliderTextSize)
 
 def drawScore(app):
     drawLabel(f'Score: {app.courseScore}', kScoreTextBuffer, kScoreTextBuffer, align='left-top', size=kScoreTextSize)
