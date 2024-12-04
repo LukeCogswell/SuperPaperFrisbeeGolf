@@ -3,22 +3,22 @@ from constants import *
 from classes import Frisbee, Vector3, Vector2, Obstacle, Wall, Tree
 import math, time
 
-kBackgroundGradient0 = gradient(*[kGrassLight, kGrassMedium, kGrassDark, kGrassMedium]*(kAppWidth//80), start='left')
+kBackgroundGradient0 = gradient(*[kGrassLight, kGrassMedium, kGrassDark, kGrassMedium]*((kAppWidth//80)+1), start='left')
 kBackgroundGradient1 = gradient(*[kGrassLight, kGrassMedium, kGrassDark, kGrassMedium]*(kAppWidth//80), start='center')
 kBackgroundGradient2 = gradient(*[kGrassLight, kGrassMedium, kGrassDark, kGrassDark, kGrassMedium]*(kAppWidth//200), start='top')
 kBackgroundGradient3 = gradient(*[kGrassLight, kGrassMedium, kGrassDark, kGrassMedium]*(kAppWidth//150), start='left-top')
 kBackgroundGradient4 = gradient(*[kGrassLight, kGrassMedium, kGrassDark, kGrassDark, kGrassMedium]*(kAppWidth//300), start='right-top')
 
-def keyPressed(app, key):   
-    match key: # fine control of pitch and upSpeed ##DEPRECATED## TODO: (update to adjust sliders if ever bored) 
-        case 'p':
-            app.settingPitch = not app.settingPitch
-        case 'up':
-            if app.settingPitch: app.initPitch += 5
-            else: app.upSpeed += 1
-        case 'down':
-            if app.settingPitch: app.initPitch -= 5
-            else: app.upSpeed -= 1
+# def keyPressed(app, key):   
+    # match key: # Adjust camera position to see the whole course
+    #     case 'up':
+    #         app.cameraX += 10
+    #     case 'down':
+    #         app.cameraX -= 10
+    #     case 'right':
+    #         app.cameraX += 10
+    #     case 'left':
+    #         app.cameraX -= 10
 
 def drawFrisbee(app, frisbee):
     sizeMultiplier = max(1, (frisbee.z/40 + 1))
@@ -27,32 +27,37 @@ def drawFrisbee(app, frisbee):
     rotAngle = frisbee.direction.getAngle()
 
     ## FRISBEE TRAIL ##
-    drawTrail(frisbee, height)
+    drawTrail(app, frisbee, height)
     
     ## SHADOW ##
-    drawOval(frisbee.x + frisbee.z, frisbee.y + frisbee.z, width, height, fill=kShadowColor, rotateAngle=rotAngle, opacity=50)
+    drawOval(frisbee.x - app.cameraX + frisbee.z, frisbee.y + frisbee.z, width, height, fill=kShadowColor, rotateAngle=rotAngle, opacity=50)
     
     ## FRISBEE
     #adding gradient color to imitate shadow as the disc adjusts angles
     if abs(frisbee.roll) > 5: fill = gradient('lightCyan', *[kFrisbeeColor]*int(60//abs(frisbee.roll)), 'skyBlue', 'steelBlue', start=('top' if frisbee.roll>0 else 'bottom'))
     else: fill = kDiscGradient
-    drawOval(frisbee.x, frisbee.y, width * sizeMultiplier, height * sizeMultiplier, fill=fill, rotateAngle=rotAngle, borderWidth=kDiscBorderWidth, border=kDiscGradient)
+    drawOval(frisbee.x - app.cameraX, frisbee.y, width * sizeMultiplier, height * sizeMultiplier, fill=fill, rotateAngle=rotAngle, borderWidth=kDiscBorderWidth, border=kDiscGradient)
     
     ## LABEL ##
     if app.drawLabels:
-        drawLine(frisbee.x, frisbee.y, frisbee.x + 100*frisbee.direction.x, frisbee.y + 100*frisbee.direction.y, arrowEnd=True,fill='red', opacity=30)
-        drawLine(frisbee.x, frisbee.y, frisbee.x + 100*frisbee.leftDirection.x, frisbee.y + 100*frisbee.leftDirection.y, arrowEnd=True,fill='lime', opacity=30)
-        drawLabel(frisbee.getLabel(), frisbee.x, frisbee.y+20) # draws frisbee label if labels are on
+        drawLine(frisbee.x - app.cameraX, frisbee.y, frisbee.x + 100*frisbee.direction.x, frisbee.y + 100*frisbee.direction.y, arrowEnd=True,fill='red', opacity=30)
+        drawLine(frisbee.x - app.cameraX, frisbee.y, frisbee.x + 100*frisbee.leftDirection.x, frisbee.y + 100*frisbee.leftDirection.y, arrowEnd=True,fill='lime', opacity=30)
+        drawLabel(frisbee.getLabel(), frisbee.x - app.cameraX, frisbee.y+20) # draws frisbee label if labels are on
+    # endTime = time.time()
+    # print(f'Done: Time= {endTime-startTime}s')
 
 ## FRISBEE TRAIL ##
-def drawTrail(frisbee, frisbeeWidth):
+def drawTrail(app, frisbee, frisbeeWidth):
     if len(frisbee.trail) >= 2:
         prevPoint = frisbee.trail[0]
+        prevPoint = prevPoint[0] - app.cameraX, prevPoint[1]
         for i in range(len(frisbee.trail)-1):
             currPoint = frisbee.trail[i+1]
+            currPoint = currPoint[0] - app.cameraX, currPoint[1]
             width = kTrailWidth*(i+1)*((frisbee.z+1) / 30) * (frisbeeWidth / kFrisbeeSize)
             drawLine(*prevPoint, *currPoint, lineWidth=width, fill=kTrailColor, opacity=kTrailOpacity, dashes=True)
             prevPoint = frisbee.trail[i+1]
+            prevPoint = prevPoint[0] - app.cameraX, prevPoint[1]
 
 ## OLD PLAYER CODE - REMOVE ##
 # def drawPlayerRoute(player):
@@ -78,7 +83,8 @@ def drawTrail(frisbee, frisbeeWidth):
 
 ## GRASS ##
 def drawBackground(app):
-    drawRect(0,0, app.width, app.height, fill=kBackgroundGradient0)
+    cameraOffset = app.cameraX % 80
+    drawRect(-cameraOffset,0, app.width+80, app.height, fill=kBackgroundGradient0)
     offset = 40
     width = app.width + 2*offset
     height = app.height + 2*offset
@@ -97,8 +103,10 @@ def drawThrowVisualization(app):
     if app.throwPoint:
         directionVector = app.throwPoint.subtracted(app.frisbeeInitPoint).unitVector().multipliedBy(Vector2(kShotLineLength, kShotLineLength))
         power = app.sliders2D[0].value() * kPowerWidthRatio
-        drawLine(*app.frisbeeInitPoint.tup(), *app.frisbeeInitPoint.added(directionVector).tup(), lineWidth=max(power,1), fill=getColorForPercentage(app.sliders2D[0].percentage), arrowEnd=True)
-    drawFrisbee(app, Frisbee((*app.frisbeeInitPoint.tup(), kFrisbeeThrowHeight), directionVector, 0, 0, app.sliders3D[0].value(), app.sliders2D[1].value()))
+        lineEnd = app.frisbeeInitPoint.added(directionVector).tup()
+        lineEnd = lineEnd[0] - app.cameraX, lineEnd[1]
+        drawLine(app.frisbeeInitPoint.tup()[0]-app.cameraX, app.frisbeeInitPoint.tup()[1], *lineEnd, lineWidth=max(power,1), fill=getColorForPercentage(app.sliders2D[0].percentage), arrowEnd=True)
+    drawFrisbee(app, Frisbee((app.frisbeeInitPoint.x, app.frisbeeInitPoint.y, kFrisbeeThrowHeight), directionVector, 0, 0, app.sliders3D[0].value(), app.sliders2D[1].value()))
 
 ## COURSE ## 
 def drawCourse(app):
@@ -106,23 +114,23 @@ def drawCourse(app):
         match obstacle.type:
             case 'wall':
                 if obstacle.isBouncy:
-                    drawRect(obstacle.x, obstacle.y, kObstacleThickness, obstacle.width, align='center', border=kBouncyColor, borderWidth = 5)
+                    drawRect(obstacle.x - app.cameraX, obstacle.y, kObstacleThickness, obstacle.width, align='center', border=kBouncyColor, borderWidth = 5)
                 else:
-                    drawRect(obstacle.x, obstacle.y, kObstacleThickness, obstacle.width, align='center', fill=kWallColor)
+                    drawRect(obstacle.x - app.cameraX, obstacle.y, kObstacleThickness, obstacle.width, align='center', fill=kWallColor)
                 if app.drawLabels:
-                    drawLabel(obstacle, obstacle.x, obstacle.y, fill='white')
+                    drawLabel(obstacle - app.cameraX, obstacle.x, obstacle.y, fill='white')
             case 'tree':
-                drawImage(kTreeTopPath, obstacle.x, obstacle.y, align='center', borderWidth=2)
+                drawImage(kTreeTopPath, obstacle.x - app.cameraX, obstacle.y, align='center', borderWidth=2)
                 if app.drawLabels:
-                    drawLabel(obstacle, obstacle.x, obstacle.y, fill='white')
+                    drawLabel(obstacle, obstacle.x - app.cameraX, obstacle.y, fill='white')
             case 'geyser':
-                drawImage(kGeyserTopDownPath, obstacle.x, obstacle.y, align='center')
+                drawImage(kGeyserTopDownPath, obstacle.x - app.cameraX, obstacle.y, align='center')
                 if obstacle.isActive:
                     size = obstacle.getSize(time.time())
-                    drawImage(kGeyserSprayTopDownPath, obstacle.x, obstacle.y, width = size, height = size,align='center')
+                    drawImage(kGeyserSprayTopDownPath, obstacle.x - app.cameraX, obstacle.y, width = size, height = size,align='center')
                 if app.drawLabels:
-                    drawLabel(obstacle, obstacle.x, obstacle.y, fill='white')
-    drawImage(kGoalTopDownPath, app.course.goal.x, app.course.goal.y, align="center")
+                    drawLabel(obstacle, obstacle.x - app.cameraX, obstacle.y, fill='white')
+    drawImage(kGoalTopDownPath, app.course.goal.x - app.cameraX, app.course.goal.y, align="center")
 
 ## BASE DRAW FUNCTION CALLED BY MAIN ##
 def drawGame(app):

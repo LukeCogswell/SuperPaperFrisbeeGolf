@@ -407,9 +407,13 @@ class Course():
                 throwsRequired += 1
                 continue
 
-        if self.hasStraightLineToGoal(): throwsRequired = 1
-        return throwsRequired + int(max(self.wind.magnitude() - 3, 0)/2 + 0.5)
+        if self.hasStraightLineToGoal(): 
+            throwsRequired = 1
+            return throwsRequired + int(max(self.wind.magnitude() - 3, 0)/2 + 0.5)
 
+        if self.length > kMinCourseLength: throwsRequired += (self.length//(kMinCourseLength))
+
+        return throwsRequired + int(self.wind.magnitude() > 3)
 
     def __repr__(self):
         return f'Course(len={self.length}, #obstacles={self.numObstacles})'
