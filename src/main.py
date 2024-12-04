@@ -80,8 +80,8 @@ def takeStep(app):
         if not frisbee.inFlight:
             # if the frisbee is out of bounds, reset the throwing position to the start of the course otherwise set the new frisbee throwing position to the frisbee's landing point
             if 0 > frisbee.x or frisbee.x > kAppWidth*(app.course.length//kMinCourseLength) or 0 > frisbee.y or frisbee.y > kAppHeight:
-                app.frisbeeInitPoint = Vector2(*kFrisbeeInitPos)
-                frisbee.x = kFrisbeeInitPos[0]
+                frisbee.x = app.frisbeeInitPoint.x
+                frisbee.y = app.frisbeeInitPoint.y
             else:
                 app.frisbeeInitPoint = Vector2(frisbee.x, frisbee.y)
             #remove the frisbee from the game because it is no longer needed
@@ -147,7 +147,7 @@ def onKeyPress(app, key):
     else:   
         match key:
             case 'space': # shoot the frisbee
-                if app.newFrisbee or (app.frisbeeInitPoint and app.throwPoint):
+                if app.frisbees == [] and (app.newFrisbee or (app.frisbeeInitPoint and app.throwPoint)):
                     if app.newFrisbee:
                         direction = app.newFrisbee.direction
                     else:
@@ -180,19 +180,37 @@ def onKeyPress(app, key):
                 app.isTutorial = True
             case 'l': # debug keystroke to show details for objects
                 app.drawLabels = not app.drawLabels
+            case 'tab': # swap view
+                app.isTopDown = not app.isTopDown
+            case 'up' | 'right':
+                if app.course:
+                    app.cameraX += 10
+                    if app.cameraX > kAppWidth*(app.course.length//kMinCourseLength-1): app.cameraX = kAppWidth*(app.course.length//kMinCourseLength-1)
+            case 'down' | 'left':
+                app.cameraX -= 10
+                if app.cameraX < 0: app.cameraX = 0
+            case _: # check perspective specific keystrokes - currently none active
+                pass
+                # if app.isTopDown:
+                #     game2D.keyPressed(app, key)
+                # else:
+                #     game3D.keyPressed(app, key)
             # case 'n': # debug frisbee for flight patterns
             #     app.frisbees.append(Frisbee((200,200,0), Vector2(1,1), 50, 15, 20, 45))
             # case 'backspace': # debug remove a frisbee
             #     if app.frisbees != []:
             #         app.frisbees.pop(0)
-            case 'tab': # swap view
-                app.isTopDown = not app.isTopDown
-            case _: # check perspective specific keystrokes
-                if app.isTopDown:
-                    game2D.keyPressed(app, key)
-                else:
-                    game3D.keyPressed(app, key)
 
+def onKeyHold(app, keys):
+    if not (app.isStarting or app.isCourseOver):
+        if ('down' in keys or 'left' in keys) and not ('up' in keys or 'right' in keys):
+            app.cameraX -= 30
+            if app.cameraX < 0: app.cameraX = 0
+        elif not ('down' in keys or 'left' in keys) and ('up' in keys or 'right' in keys):
+            if app.course:
+                app.cameraX += 30
+                if app.cameraX > kAppWidth*(app.course.length//kMinCourseLength-1): app.cameraX = kAppWidth*(app.course.length//kMinCourseLength-1)
+        
 def advanceTutorial(app):
     app.tutorialStep += 1
     if app.tutorialStep >= kTutorialSteps:
@@ -211,7 +229,7 @@ def onMousePress(app, mouseX, mouseY):
             app.isSliding = False
             if app.throwing:
                 if app.isTopDown:
-                    app.throwPoint = Vector2(mouseX, mouseY)
+                    app.throwPoint = Vector2(mouseX+app.cameraX, mouseY)
                     aimVector = app.throwPoint.subtracted(app.frisbeeInitPoint).unitVector()
                     roll = app.sliders2D[1].value()
                     newFrisbee = Frisbee((*app.frisbeeInitPoint.tup(), kFrisbeeThrowHeight), aimVector.unitVector(), aimVector.magnitude() * kAimControlMultiplier, app.upSpeed, app.initPitch, roll)
@@ -332,7 +350,7 @@ def drawSplash(app):
     game3D.drawTree(app, Tree(700, kAppHeight/4, 300), 1)
     game3D.drawTree(app, Tree(700, kAppHeight/6, 300), 1.15)
     game3D.drawTree(app, Tree(700, 100, 300), 1.3)
-    game3D.drawGeyser(app, app.splashGeyser, 2)
+    game3D.drawGeyser(app, app.splashGeyser, 1)
     game3D.drawTree(app, Tree(700, 5*kAppHeight/7, 300), 1.5)
     game3D.drawTree(app, Tree(600, 3*kAppHeight/4, 300), 1)
     drawBorder(0, 0, kAppWidth, kAppHeight, 10)
@@ -389,8 +407,20 @@ def drawTutorialStep(app):
             drawBorder(kAppWidth/2, kAppHeight/4, kAppWidth/2, 3*kAppHeight/16, kTutorialBorderWidth, align='top')
             drawLabel('In the bottom right you have sliders to control the upwards power of your throw and', kAppWidth/4+kScoreTextBuffer, kAppHeight/4+kScoreTextBuffer, size=kScoreTextSize, align='left-top', fill=kTutorialTextColor)
             drawLabel('pitch of the frisbee. Positive pitch will let the frisbee float better as it flies,', kAppWidth/4+kScoreTextBuffer, kAppHeight/4+2*kScoreTextBuffer+kScoreTextSize, size=kScoreTextSize, align='left-top', fill=kTutorialTextColor)
-            drawLabel('negative will quickly bring it down. Press \'space\' to throw. Good Luck!', kAppWidth/4+kScoreTextBuffer, kAppHeight/4+3*kScoreTextBuffer+2*kScoreTextSize, size=kScoreTextSize, align='left-top', fill=kTutorialTextColor)
+            drawLabel('negative will quickly bring it down. Press \'space\' to throw. ', kAppWidth/4+kScoreTextBuffer, kAppHeight/4+3*kScoreTextBuffer+2*kScoreTextSize, size=kScoreTextSize, align='left-top', fill=kTutorialTextColor)
             drawLabel('Watch out for the wind! (wind will influence the disc more if it is tilted)', kAppWidth/4+kScoreTextBuffer, kAppHeight/4+4*kScoreTextBuffer+3*kScoreTextSize, size=kScoreTextSize, align='left-top', fill=kTutorialTextColor)
+
+        case 5:
+            game2D.drawGame(app)
+            drawSliders(*app.sliders2D)
+            drawScore(app)
+            drawRect(kAppWidth/2, kAppHeight/4, kAppWidth/2, 3*kAppHeight/16,  fill=kTutorialColor, opacity=kTutorialOpacity, align='top')
+            drawBorder(kAppWidth/2, kAppHeight/4, kAppWidth/2, 3*kAppHeight/16, kTutorialBorderWidth, align='top')
+            drawLabel('In the bottom left you will find the wind indicator, this will show you the direction', kAppWidth/4+kScoreTextBuffer, kAppHeight/4+kScoreTextBuffer, size=kScoreTextSize, align='left-top', fill=kTutorialTextColor)
+            drawLabel('and power of the wind. Red is the strongest wind, green is the weakest. Some courses are', kAppWidth/4+kScoreTextBuffer, kAppHeight/4+2*kScoreTextBuffer+kScoreTextSize, size=kScoreTextSize, align='left-top', fill=kTutorialTextColor)
+            drawLabel('too long to fit on your screen, use the arrow keys in either view to pan left and right.', kAppWidth/4+kScoreTextBuffer, kAppHeight/4+3*kScoreTextBuffer+2*kScoreTextSize, size=kScoreTextSize, align='left-top', fill=kTutorialTextColor)
+            drawLabel('Your score is in the top left and will update after each hole.', kAppWidth/4+kScoreTextBuffer, kAppHeight/4+4*kScoreTextBuffer+3*kScoreTextSize, size=kScoreTextSize, align='left-top', fill=kTutorialTextColor)
+
 
 def drawWind(app):
     x, y = kWindPos

@@ -11,12 +11,16 @@ kBackgroundGradient2 = gradient(*[kGrassLight, kGrassMedium, kGrassDark, kGrassD
 kBackgroundGradient3 = gradient(*[kGrassLight, kGrassMedium, kGrassDark, kGrassMedium]*(kAppWidth//150), start='left-top')
 kBackgroundGradient4 = gradient(*[kGrassLight, kGrassMedium, kGrassDark, kGrassDark, kGrassMedium]*(kAppWidth//300), start='right-top')
 
-def keyPressed(app, key):
-    match key:
-        case 'left':
-            app.cameraX +=10
-        case 'right':
-            app.cameraX -= 10
+# def keyPressed(app, key):
+    # match key: # Adjust camera position to see the whole course
+    #     case 'up':
+    #         app.cameraX += 10
+    #     case 'down':
+    #         app.cameraX -= 10
+    #     case 'right':
+    #         app.cameraX += 10
+    #     case 'left':
+    #         app.cameraX -= 10
 
 def drawBackground(app):
     drawSky(app)
@@ -107,7 +111,7 @@ def drawGeyser(app, geyser, sizeMultiplier):
     drawImage(kGeyserPath3D, centerX, centerY, align='center', width=width, height=height)
     if geyser.isActive:
         size = geyser.getSize(time.time())
-        drawImage(kGeyserSpray3DPath, centerX, bottomY-5, align='bottom', width=size, height=2*size)
+        drawImage(kGeyserSpray3DPath, centerX, bottomY-5, align='bottom', width=size*sizeMultiplier, height=2*size*sizeMultiplier)
 
 def drawWall(app, wall, sizeMultiplier):
     width = wall.width*sizeMultiplier*(kAppWidth / (kAppHeight-kVerticalBuffer))

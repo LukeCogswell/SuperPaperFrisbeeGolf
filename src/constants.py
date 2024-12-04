@@ -147,7 +147,7 @@ WhooshSounds = [Sound(kWhooshPath+str(i)+'.mp3') for i in range(kWhooshes)]
 #TUTORIAL
 kTutorialColor = 'skyBlue'
 kTutorialTextColor = 'black'
-kTutorialSteps = 5
+kTutorialSteps = 6
 kTutorialOpacity = 90
 kMaxHoles = 9
 kTutorialBorderWidth = 4
