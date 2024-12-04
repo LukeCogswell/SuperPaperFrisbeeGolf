@@ -83,7 +83,7 @@ kSliderWidth = 50
 kSliderHeight = 500
 kSliderOpacity = 100
 kSliderSpacing = 40
-kSliderBorderWidth = 10
+kSliderBorderWidth = 2
 kSliderTextSize = 20
 #Power min, max, default
 kPwrSettings = [0, 300, 100]
@@ -95,6 +95,8 @@ kPitchSettings = [-45, 45, 10]
 kUPPwrSettings = [0, 15, 6]
 
 # OBSTACLES
+kMinCourseLength = kAppWidth-400
+kMaxCourseLength = kMinCourseLength * 3
 kObstacleTypes = ['wall', 'tree', 'geyser']
 kSideBuffer = 100
 kVerticalBuffer = 0
