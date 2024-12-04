@@ -3,6 +3,10 @@ import os
 kAppWidth, kAppHeight = 1600, 1000
 kAppInitPauseState = False
 
+#RAndom seed
+kRandomSeed = 1
+# 1 is a good seed for tutorial - has all obstacles and is short
+
 ## FRISBEE FLIGHT
 kSpeedResistance = 0.1     # resistance to speed based on current speed - PERCENTAGE
 kPitchResistance = 0.1     # resistance to speed based on current pitch - PERCENTAGE
@@ -92,7 +96,7 @@ kPwrSettings = [0, 300, 100]
 #Roll
 kRollSettings = [-60, 60, 0]
 #Pitch
-kPitchSettings = [-45, 45, 10]
+kPitchSettings = [-15, 45, 10]
 #Up Power
 kUPPwrSettings = [0, 15, 6]
 

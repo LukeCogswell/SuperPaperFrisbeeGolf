@@ -187,6 +187,7 @@ def onKeyPress(app, key):
                 app.frisbeeInitPoint = Vector2(*kFrisbeeInitPos)
                 app.frisbees = []
                 app.holeScore += 1
+                app.cameraX = 0
             case 'n': # debug keystroke for finding new courses
                 resetCourse(app)
             case 't': # play tutorial again
@@ -431,17 +432,17 @@ def drawTutorialStep(app):
             drawRect(kAppWidth/2, kAppHeight/4, kAppWidth/2, 3*kAppHeight/16,  fill=kTutorialColor, opacity=kTutorialOpacity, align='top')
             drawBorder(kAppWidth/2, kAppHeight/4, kAppWidth/2, 3*kAppHeight/16, kTutorialBorderWidth, align='top')
             drawLabel('In the bottom left you will find the wind indicator, this will show you the direction', kAppWidth/4+kScoreTextBuffer, kAppHeight/4+kScoreTextBuffer, size=kScoreTextSize, align='left-top', fill=kTutorialTextColor)
-            drawLabel('and power of the wind. Red is the strongest wind, green is the weakest. Some courses are', kAppWidth/4+kScoreTextBuffer, kAppHeight/4+2*kScoreTextBuffer+kScoreTextSize, size=kScoreTextSize, align='left-top', fill=kTutorialTextColor)
-            drawLabel('too long to fit on your screen, use the arrow keys in either view to pan left and right.', kAppWidth/4+kScoreTextBuffer, kAppHeight/4+3*kScoreTextBuffer+2*kScoreTextSize, size=kScoreTextSize, align='left-top', fill=kTutorialTextColor)
-            drawLabel('Your score is in the top left and will update after each hole.', kAppWidth/4+kScoreTextBuffer, kAppHeight/4+4*kScoreTextBuffer+3*kScoreTextSize, size=kScoreTextSize, align='left-top', fill=kTutorialTextColor)
+            drawLabel('and power of the wind. Red is the strongest wind, green is the weakest. Some courses', kAppWidth/4+kScoreTextBuffer, kAppHeight/4+2*kScoreTextBuffer+kScoreTextSize, size=kScoreTextSize, align='left-top', fill=kTutorialTextColor)
+            drawLabel('are too long to fit on your screen, use the arrow keys in either view to pan left', kAppWidth/4+kScoreTextBuffer, kAppHeight/4+3*kScoreTextBuffer+2*kScoreTextSize, size=kScoreTextSize, align='left-top', fill=kTutorialTextColor)
+            drawLabel('and right. Your score is in the top left and will update after each hole.', kAppWidth/4+kScoreTextBuffer, kAppHeight/4+4*kScoreTextBuffer+3*kScoreTextSize, size=kScoreTextSize, align='left-top', fill=kTutorialTextColor)
 
 
 def drawWind(app):
     drawWindLines(app)
+    x, y = kWindPos
+    drawLine(x, y, x+app.wind.x*20, y + app.wind.y*20, arrowEnd = True, fill=game2D.getColorForPercentage(min(1, app.wind.magnitude() / 5)))
+    drawLabel('Wind', x, y, size=20, border='white', borderWidth=2)
     if app.drawLabels:
-        x, y = kWindPos
-        drawLine(x, y, x+app.wind.x*20, y + app.wind.y*20, arrowEnd = True, fill=game2D.getColorForPercentage(min(1, app.wind.magnitude() / 5)))
-        # drawLabel('Wind', x, y, size=20, border='white', borderWidth=2)
         drawLabel(int(10*app.course.wind.magnitude())/10, x, y+25, size=20)
 
 def drawWindLines(app):

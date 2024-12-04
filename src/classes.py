@@ -1,6 +1,8 @@
 from constants import *
 import math, random
 
+random.seed(kRandomSeed)
+
 class Frisbee():
     def __init__(self, pos, direction, forwardSpeed, upSpeed, pitch, roll,):
         self.direction = direction.unitVector() # 2D UNIT VECTOR
