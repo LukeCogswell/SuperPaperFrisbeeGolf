@@ -40,8 +40,8 @@ def drawFrisbee(app, frisbee):
     
     ## LABEL ##
     if app.drawLabels:
-        drawLine(frisbee.x - app.cameraX, frisbee.y, frisbee.x + 100*frisbee.direction.x, frisbee.y + 100*frisbee.direction.y, arrowEnd=True,fill='red', opacity=30)
-        drawLine(frisbee.x - app.cameraX, frisbee.y, frisbee.x + 100*frisbee.leftDirection.x, frisbee.y + 100*frisbee.leftDirection.y, arrowEnd=True,fill='lime', opacity=30)
+        drawLine(frisbee.x - app.cameraX, frisbee.y, frisbee.x - app.cameraX + 100*frisbee.direction.x, frisbee.y + 100*frisbee.direction.y, arrowEnd=True,fill='red', opacity=30)
+        drawLine(frisbee.x - app.cameraX, frisbee.y, frisbee.x - app.cameraX + 100*frisbee.leftDirection.x, frisbee.y + 100*frisbee.leftDirection.y, arrowEnd=True,fill='lime', opacity=30)
         drawLabel(frisbee.getLabel(), frisbee.x - app.cameraX, frisbee.y+20) # draws frisbee label if labels are on
     # endTime = time.time()
     # print(f'Done: Time= {endTime-startTime}s')
@@ -118,7 +118,7 @@ def drawCourse(app):
                 else:
                     drawRect(obstacle.x - app.cameraX, obstacle.y, kObstacleThickness, obstacle.width, align='center', fill=kWallColor)
                 if app.drawLabels:
-                    drawLabel(obstacle.x - app.cameraX, obstacle.x, obstacle.y, fill='white')
+                    drawLabel(obstacle, obstacle.x - app.cameraX, obstacle.y, fill='white')
             case 'tree':
                 drawImage(kTreeTopPath, obstacle.x - app.cameraX, obstacle.y, align='center', borderWidth=2)
                 if app.drawLabels:
