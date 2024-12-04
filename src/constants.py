@@ -49,6 +49,7 @@ kCameraRenderBuffer = 100
 kMinSize = 0.05
 kOpeningScreenTimeFactor = 1
 kFrisbeeInitPos = (kFrisbeeSize*2, kAppHeight/2)
+kWindPos = (100, kAppHeight-100)
 
 # BACKGROUND COLORS
 kGrassLight, kGrassMedium, kGrassDark = rgb(20, 150, 50), rgb(30, 125, 30), rgb(20, 100, 10)
@@ -102,8 +103,6 @@ kWallVariantCount = 1
 kTreeBaseSizeMultiplier = 4
 kDefaultObstaclePeriod = 150
 kWallSizeMultiplier = 2
-kWallImageWidth = 100
-kWallImageHeight = 50
 kObstacleThickness = 30
 kMinObstacleHeight = 10
 kMaxObstacleHeight = 30
@@ -112,6 +111,12 @@ kMinGeyserFrequency = 1/10
 kMaxGeyserPower = 10
 kMinGeyserPower = 5
 kZWindFactor = 1 / 10
+
+# OBSTACLE AESTHETICS
+kBouncyColor = 'orange'
+kWallColor = rgb(255 * .396, 255 * .298, 255 * .227)
+kWallImageWidth = 100
+kWallImageHeight = 50
 kTreeTopPath = kOSFilePath + '/Images/TreeTopDown.png'
 kGoalPath = kOSFilePath + '/Images/Goal.png'
 kGoalTopDownPath = kOSFilePath + '/Images/GoalTopdown.png'
@@ -121,10 +126,6 @@ kGeyserPath3D = kOSFilePath + '/Images/Geyser3D.png'
 kGeyserTopDownPath = kOSFilePath + '/Images/GeyserTopDown.png'
 kGeyserSprayTopDownPath = kOSFilePath + '/Images/GeyserSprayTopDown.png'
 kGeyserSpray3DPath = kOSFilePath + '/Images/GeyserSpray.png'
-
-# OBSTACLE AESTHETICS
-kBouncyColor = 'orange'
-kWallColor = rgb(255 * .396, 255 * .298, 255 * .227)
 
 #SOUND EFFECTS WOO! - All voiced by yours truly ;)
 kBonkPath = kOSFilePath + '/Sounds/Bonk.mp3'
@@ -146,3 +147,4 @@ kTutorialTextColor = 'black'
 kTutorialSteps = 5
 kTutorialOpacity = 90
 kMaxHoles = 9
+kTutorialBorderWidth = 4

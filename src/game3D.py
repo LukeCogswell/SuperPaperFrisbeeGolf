@@ -147,4 +147,4 @@ def drawGame(app):
     drawCourse(app)
     if app.newFrisbee:
         drawThrowVisualization(app)
-    drawScale(app)
+    # drawScale(app)

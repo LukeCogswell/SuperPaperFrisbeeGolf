@@ -12,6 +12,7 @@ def onAppStart(app):
     app.showControls = False
     app.isStarting = True
     app.isTutorial = True
+    app.isCourseOver = False
     app.tutorialStep = 0
     app.wind = Vector2(0,0)
 
@@ -48,12 +49,9 @@ def onAppStart(app):
 
     #PLAYER SETTINGS
     app.goalPos = Vector2(kAppWidth - kFrisbeeSize*2, kAppHeight/2)
-    app.teams = [[],[]]
-    app.currTeamIndex = 0
     
     # DEBUG SETTINGS
     app.throwing = True
-    app.selectedPlayer = None
     app.settingPitch = False
     app.drawLabels = False
 
@@ -69,47 +67,54 @@ def onStep(app):
 def takeStep(app):  
     for frisbee in app.frisbees:
         frisbee.takeFlightStep()
+        # check if the frisbee is scored in the goal, if so add the hole's score to the total score
         if frisbee.checkScored(app.course.goal):
             frisbee.stop()
             app.scored = True
             app.courseScore += app.holeScore-app.course.calculatePar()
             app.frisbees = []
         else:
+            # check for collisions with obstacles
             frisbee.checkCollisions(app.course)
+            # if the frisbee is no longer in flight, check its position to make sure it landed in bounds
         if not frisbee.inFlight:
+            # if the frisbee is out of bounds, reset the throwing position to the start of the course otherwise set the new frisbee throwing position to the frisbee's landing point
             if 0 > frisbee.x or frisbee.x > kAppWidth or 0 > frisbee.y or frisbee.y > kAppHeight:
                 app.frisbeeInitPoint = Vector2(*kFrisbeeInitPos)
                 frisbee.x = kFrisbeeInitPos[0]
             else:
                 app.frisbeeInitPoint = Vector2(frisbee.x, frisbee.y)
+            #remove the frisbee from the game because it is no longer needed
             app.frisbees = []
+        # update the camera x position for the 3d view for rendering
         if app.course:
             if frisbee.x < app.course.goal.x:
                 app.cameraX = frisbee.x-kCameraRenderBuffer
             else:
+                #always keep the goal in view
                 app.cameraX = app.course.goal.x-kCameraRenderBuffer
+    # update geysers
     for obstacle in app.course.obstacles:
         if obstacle.type == 'geyser':
             obstacle.checkActivation(time.time())
+    # update clouds
     for cloud in app.clouds:
         cloud.move()
-    for team in app.teams:
-        for player in team:
-            player.takeMotionStep()
+    #spawn new clouds at a random height if the random int is 0 
+    # (this makes cloud spawning irregular but should keep them spawning with a defined frequency)
     if not bool(random.randint(0, int(1 / kCloudFrequency))):
         path = (kOSFilePath+'/Images/Cloud'+str(random.randint(0, kCloudVariantCount-1))+'.png')
         newCloud = Cloud(path, random.randint(kMinCloudScale*10, kMaxCloudScale*10)/10)
+        #only if the number of clouds on screen is low enough to we actually add a cloud
         if len(app.clouds) < kMaxCloudCount:
             app.clouds.append(newCloud)
 
-def getAbsolutePath(relativeFilePath):
-    absolutePath = os.path.abspath(os.path.dirname(__file__))
-    return os.path.join(absolutePath, relativeFilePath)
-
+# reset course settings and create a new one
 def resetCourse(app):
     app.currHole += 1
-    if app.currHole >= kMaxHoles:
-        app.isStarting = True
+    # if user has completed all {kMaxHoles} holes then display score on screen and prepare for a replay 
+    if app.currHole > kMaxHoles:
+        app.isCourseOver = True
         app.currHole = 1
     app.frisbees = []
     app.teams = [[],[]]
@@ -121,18 +126,27 @@ def resetCourse(app):
     app.holeScore = 0
 
 def onKeyPress(app, key):
+    #quit the application or the tutorial if ever clicked
     if key == 'escape':
         if app.isTutorial:
             app.isTutorial = False
         else:
             app.quit()
+    #any key will advance the tutorial, exit the splash screen, or start a new course when the first one is over
     elif app.isStarting:
         app.isStarting = False
     elif app.isTutorial:
         advanceTutorial(app)
+    elif app.isCourseOver:
+        if key == 'space':
+            app.isCourseOver = False
+            app.isStarting = True
+    elif app.scored:
+        app.scored = False
+        resetCourse(app)
     else:   
         match key:
-            case 'space':
+            case 'space': # shoot the frisbee
                 if app.newFrisbee or (app.frisbeeInitPoint and app.throwPoint):
                     if app.newFrisbee:
                         direction = app.newFrisbee.direction
@@ -152,28 +166,28 @@ def onKeyPress(app, key):
                     WhooshSounds[random.randint(0, kWhooshes-1)].play()
                     if len(app.frisbees) > 1:
                         app.frisbees.pop(0)
-            case 's':
+            case 's': # debug keystroke
                 takeStep(app)
-            case 'c':
+            case 'c': # show controls for ingame help
                 app.showControls = not app.showControls
-            case 'r':
+            case 'r': # reset your throws in case you end up in a really bad position - tradeoff is it adds one to your throw count (no abusing this!)
                 app.frisbeeInitPoint = Vector2(*kFrisbeeInitPos)
                 app.frisbees = []
                 app.holeScore += 1
-            case 'n':
+            case 'n': # debug keystroke for finding new courses
                 resetCourse(app)
-            case 't':
+            case 't': # play tutorial again
                 app.isTutorial = True
-            case 'l':
+            case 'l': # debug keystroke to show details for objects
                 app.drawLabels = not app.drawLabels
-            case 'n':
-                app.frisbees.append(Frisbee((200,200,0), Vector2(1,1), 50, 15, 20, 45))
-            case 'backspace':
-                if app.frisbees != []:
-                    app.frisbees.pop(0)
-            case 'tab':
+            # case 'n': # debug frisbee for flight patterns
+            #     app.frisbees.append(Frisbee((200,200,0), Vector2(1,1), 50, 15, 20, 45))
+            # case 'backspace': # debug remove a frisbee
+            #     if app.frisbees != []:
+            #         app.frisbees.pop(0)
+            case 'tab': # swap view
                 app.isTopDown = not app.isTopDown
-            case _:
+            case _: # check perspective specific keystrokes
                 if app.isTopDown:
                     game2D.keyPressed(app, key)
                 else:
@@ -186,12 +200,7 @@ def advanceTutorial(app):
         app.tutorialStep = 0
 
 def onMousePress(app, mouseX, mouseY):
-    if app.isStarting:
-        app.isStarting = False
-    elif app.scored:
-        app.scored = False
-        resetCourse(app)
-    else:
+    if not app.isStarting:
         if clickedInSlider1(mouseX, mouseY):
             app.isSliding = True
             app.sliderIndex = 0
@@ -220,6 +229,7 @@ def initCourse(app, length):
 
 def addObstacles(course):
     if course.obstacles != []: return
+    ## RANDOM OBSTACLE POSITIONS, HEIGHTS, TYPES, ETC ##
     for i in range(course.numObstacles):
         x = (i+1) * course.obstaclePeriod
         y = random.random() * (kAppHeight - 2*kSideBuffer) + kSideBuffer
@@ -239,26 +249,25 @@ def addObstacles(course):
                 raise SillyException(f'Silly Goof! {obstacleChoice} is not in the match cases!')
         course.obstacles.append(newObstacle)
     
-
+## SLIDER CONTROL ## 
 def onMouseDrag(app, mouseX, mouseY):
-    
     if app.isSliding:
         relativeMouseHeight = (mouseY-kSliderSpacing-(kAppHeight-kSliderSpacing-kSliderHeight)) / kSliderHeight
         if app.isTopDown:
             app.sliders2D[app.sliderIndex].percentage = max(0, min(1-relativeMouseHeight, 1))
         else:
             app.sliders3D[app.sliderIndex].percentage = max(0, min(1-relativeMouseHeight, 1))
-    app.curvePoint = (mouseX, mouseY)
+    # app.curvePoint = (mouseX, mouseY)
 
-def onMouseRelease(app, mouseX, mouseY):
-    if app.throwing and not app.scored and app.throwPoint:
-        aimVector = app.throwPoint.subtracted(app.frisbeeInitPoint)
-        rollVector = Vector2(app.throwPoint.x-mouseX, app.throwPoint.y-mouseY)
-        rollDirection = rollVector.dotProduct(aimVector.leftVector())
-        roll = -kRollControlMultiplier * math.copysign(rollVector.magnitude(), rollDirection)
-        newFrisbee = Frisbee((*app.frisbeeInitPoint.tup(), kFrisbeeThrowHeight), aimVector.unitVector(), aimVector.magnitude() * kAimControlMultiplier, app.upSpeed, app.initPitch, roll)
-        app.newFrisbee=newFrisbee
-        app.curvePoint = None
+# def onMouseRelease(app, mouseX, mouseY):
+#     if app.throwing and not app.scored and app.throwPoint:
+#         aimVector = app.throwPoint.subtracted(app.frisbeeInitPoint)
+#         rollVector = Vector2(app.throwPoint.x-mouseX, app.throwPoint.y-mouseY)
+#         rollDirection = rollVector.dotProduct(aimVector.leftVector())
+#         roll = -kRollControlMultiplier * math.copysign(rollVector.magnitude(), rollDirection)
+#         newFrisbee = Frisbee((*app.frisbeeInitPoint.tup(), kFrisbeeThrowHeight), aimVector.unitVector(), aimVector.magnitude() * kAimControlMultiplier, app.upSpeed, app.initPitch, roll)
+#         app.newFrisbee=newFrisbee
+#         app.curvePoint = None
 
 def drawFPS(app, timeStart):
     now = time.time()
@@ -293,11 +302,26 @@ def drawSliders(slider1, slider2):
     drawLabel(int(slider2.value()), xPos, yPos-kSliderTextSize/2, size=kSliderTextSize)
     drawLabel(slider2.label, xPos, yPos+kSliderTextSize/2, size=kSliderTextSize)
 
+def drawGameOver(app):
+    drawRect(0, 0, kAppWidth, kAppHeight, fill=kTutorialColor)
+    drawBorder(0, 0, kAppWidth, kAppHeight, 10)
+    drawLabel(f'Congrats on completing {kMaxHoles} holes!', kAppWidth/2, kAppHeight/3, size=75, fill=kTutorialTextColor)
+    drawLabel(f'Your score was: {app.courseScore}', kAppWidth/2, kAppHeight/2, size=75, fill=kTutorialTextColor)
+    drawLabel(f"To play another {kMaxHoles}, press 'space'", kAppWidth/2, 2*kAppHeight/3, size=75, fill=kTutorialTextColor, border='black', borderWidth=2)
+
 def drawScore(app):
+    drawRect(0,0,165,120,fill=kTutorialColor)
+    drawBorder(0,0,165, 120, 3)
     drawLabel(f'Score: {app.courseScore}', kScoreTextBuffer, kScoreTextBuffer, align='left-top', size=kScoreTextSize)
-    drawLabel(f'Hole: {app.currHole}', kScoreTextBuffer, 2*kScoreTextBuffer+kScoreTextSize, align='left-top', size=kScoreTextSize)
-    drawLabel(f'Hole Par: {app.course.calculatePar()}', kScoreTextBuffer, 3*kScoreTextBuffer+2*kScoreTextSize, align='left-top', size=kScoreTextSize)
-    drawLabel(f'Hole Throws: {app.holeScore}', kScoreTextBuffer, 4*kScoreTextBuffer+3*kScoreTextSize, align='left-top', size=kScoreTextSize)
+    drawLabel(f'Hole: {app.currHole} Par: {app.course.calculatePar()}', kScoreTextBuffer, 2*kScoreTextBuffer+kScoreTextSize, align='left-top', size=kScoreTextSize)
+    drawLabel(f'Hole Throws: {app.holeScore}', kScoreTextBuffer, 3*kScoreTextBuffer+2*kScoreTextSize, align='left-top', size=kScoreTextSize)
+
+def drawBorder(posX, posY, width, height, borderWidth, align='left-top'):
+    drawRect(posX,posY,width, height, fill=None, border='darkGray', borderWidth=borderWidth, align=align)
+    if align=='top': 
+        drawRect(posX,posY+borderWidth,width-2*borderWidth, height-2*borderWidth, fill=None, border='silver', borderWidth=borderWidth, align=align)
+    else:
+        drawRect(posX+borderWidth,posY+borderWidth,width-2*borderWidth, height-2*borderWidth, fill=None, border='silver', borderWidth=borderWidth, align=align)
 
 def drawSplash(app):
     game3D.drawBackground(app)
@@ -307,27 +331,28 @@ def drawSplash(app):
     game3D.drawGeyser(app, app.splashGeyser, 2)
     game3D.drawTree(app, Tree(700, 5*kAppHeight/7, 300), 1.5)
     game3D.drawTree(app, Tree(600, 3*kAppHeight/4, 300), 1)
-    drawRect(0,0,kAppWidth, kAppHeight, fill=None, border='darkGray', borderWidth=10)
-    drawRect(10,10,kAppWidth-20, kAppHeight-20, fill=None, border='silver', borderWidth=10)
+    drawBorder(0, 0, kAppWidth, kAppHeight, 10)
     labelRot = math.sin(time.time()*kOpeningScreenTimeFactor) * 20
     drawImage(kGoalPath, 2*kAppWidth/3, 3*kAppHeight/4, align='center', width=200, height=400)
     fill = gradient('lightCyan', *[kFrisbeeColor]*int(60//30), 'skyBlue', 'steelBlue', start='top')
     drawLabel('SUPER PAPER FRISBEE GOLF', kAppWidth/2, kAppHeight/4, rotateAngle = labelRot, size=60, fill='red', border='dimGray', borderWidth=3, bold=True)
     drawOval(kAppWidth/3, 3*kAppHeight/5, 100, 300, fill=fill, rotateAngle=-40,border=kDiscGradient, borderWidth=kDiscBorderWidth)
-    drawLabel('click anywhere to start', kAppWidth/2, kAppHeight-100, rotateAngle = -labelRot, size=20, fill='red', border='dimGray', borderWidth=1)
+    drawLabel('press any key to start', kAppWidth/2, kAppHeight-100, rotateAngle = -labelRot, size=20, fill='red', border='dimGray', borderWidth=1)
 
 # tutorial draw steps
 def drawTutorialStep(app):
     match app.tutorialStep:
         case 0:
             game2D.drawGame(app)
-            drawRect(kAppWidth/2, kAppHeight/4, kAppWidth/2, kAppHeight/8,  fill=kTutorialColor, border='darkGray', borderWidth=10, opacity=kTutorialOpacity, align='top')
+            drawRect(kAppWidth/2, kAppHeight/4, kAppWidth/2, kAppHeight/8,  fill=kTutorialColor, opacity=kTutorialOpacity, align='top')
+            drawBorder(kAppWidth/2, kAppHeight/4, kAppWidth/2, kAppHeight/8, kTutorialBorderWidth, align='top')
             drawLabel('Welcome to Super Paper Frisbee Golf! Your goal is to throw the frisbee across the field', kAppWidth/4+kScoreTextBuffer, kAppHeight/4+kScoreTextBuffer, size=kScoreTextSize, align='left-top', fill=kTutorialTextColor)
             drawLabel('into the red goal on the right in fewer throws than the par. Be careful of the obstacles!', kAppWidth/4+kScoreTextBuffer, kAppHeight/4+2*kScoreTextBuffer+kScoreTextSize, size=kScoreTextSize, align='left-top', fill=kTutorialTextColor)
             drawLabel('Press any key to continue.', kAppWidth/4+kScoreTextBuffer, kAppHeight/4+3*kScoreTextBuffer+2*kScoreTextSize, size=kScoreTextSize, align='left-top', fill=kTutorialTextColor)
         case 1:
             game2D.drawGame(app)
-            drawRect(kAppWidth/2, kAppHeight/4, kAppWidth/2, kAppHeight/4,  fill=kTutorialColor, border='darkGray', borderWidth=10, opacity=kTutorialOpacity, align='top')
+            drawRect(kAppWidth/2, kAppHeight/4, kAppWidth/2, kAppHeight/4,  fill=kTutorialColor, opacity=kTutorialOpacity, align='top')
+            drawBorder(kAppWidth/2, kAppHeight/4, kAppWidth/2, kAppHeight/4, kTutorialBorderWidth, align='top')
             drawLabel('The following are the obstacles to avoid, each with different properties.', kAppWidth/4+kScoreTextBuffer, kAppHeight/4+kScoreTextBuffer, size=kScoreTextSize, align='left-top', fill=kTutorialTextColor)
             drawLabel('walls and trees will stop your frisbee, while orange bouncy walls will reflect the frisbee.', kAppWidth/4+kScoreTextBuffer, kAppHeight/4+2*kScoreTextBuffer+kScoreTextSize, size=kScoreTextSize, align='left-top', fill=kTutorialTextColor)
             drawLabel('Geysers will not impede your frisbee, but will shoot it upwards if the geyser is active.', kAppWidth/4+kScoreTextBuffer, kAppHeight/4+3*kScoreTextBuffer+2*kScoreTextSize, size=kScoreTextSize, align='left-top', fill=kTutorialTextColor)
@@ -339,14 +364,16 @@ def drawTutorialStep(app):
         case 2:
             game2D.drawGame(app)
             drawSliders(*app.sliders2D)
-            drawRect(kAppWidth/2, kAppHeight/4, kAppWidth/2, kAppHeight/8,  fill=kTutorialColor, border='darkGray', borderWidth=10, opacity=kTutorialOpacity, align='top')
+            drawRect(kAppWidth/2, kAppHeight/4, kAppWidth/2, kAppHeight/8,  fill=kTutorialColor, opacity=kTutorialOpacity, align='top')
+            drawBorder(kAppWidth/2, kAppHeight/4, kAppWidth/2, kAppHeight/8, kTutorialBorderWidth, align='top')
             drawLabel('Click to change the direction of your throw.', kAppWidth/4+kScoreTextBuffer, kAppHeight/4+kScoreTextBuffer, size=kScoreTextSize, align='left-top', fill=kTutorialTextColor)
             drawLabel('In the bottom right you have sliders to control the power and roll of your throw. Adjusting', kAppWidth/4+kScoreTextBuffer, kAppHeight/4+2*kScoreTextBuffer+kScoreTextSize, size=kScoreTextSize, align='left-top', fill=kTutorialTextColor)
             drawLabel('the roll will cause the frisbee to curve left or right. To adjust, click and drag the bar.', kAppWidth/4+kScoreTextBuffer, kAppHeight/4+3*kScoreTextBuffer+2*kScoreTextSize, size=kScoreTextSize, align='left-top', fill=kTutorialTextColor)
 
         case 3:
             game3D.drawGame(app)
-            drawRect(kAppWidth/2, kAppHeight/4, kAppWidth/2, kAppHeight/8,  fill=kTutorialColor, border='darkGray', borderWidth=10, opacity=kTutorialOpacity, align='top')
+            drawRect(kAppWidth/2, kAppHeight/4, kAppWidth/2, kAppHeight/8,  fill=kTutorialColor, opacity=kTutorialOpacity, align='top')
+            drawBorder(kAppWidth/2, kAppHeight/4, kAppWidth/2, kAppHeight/8, kTutorialBorderWidth, align='top')
             drawLabel('Welcome to the 3D view! Here you can see how high obstacles are (some walls are', kAppWidth/4+kScoreTextBuffer, kAppHeight/4+kScoreTextBuffer, size=kScoreTextSize, align='left-top', fill=kTutorialTextColor)
             drawLabel('short enough to throw over). ', kAppWidth/4+kScoreTextBuffer, kAppHeight/4+2*kScoreTextBuffer+kScoreTextSize, size=kScoreTextSize, align='left-top', fill=kTutorialTextColor)
             drawLabel('To switch between views press \'tab\'. Every course is completely randomly generated.', kAppWidth/4+kScoreTextBuffer, kAppHeight/4+3*kScoreTextBuffer+2*kScoreTextSize, size=kScoreTextSize, align='left-top', fill=kTutorialTextColor)
@@ -354,15 +381,17 @@ def drawTutorialStep(app):
         case 4:
             game3D.drawGame(app)
             drawSliders(*app.sliders3D)
-            drawRect(kAppWidth/2, kAppHeight/4, kAppWidth/2, 3*kAppHeight/16,  fill=kTutorialColor, border='darkGray', borderWidth=10, opacity=kTutorialOpacity, align='top')
+            drawRect(kAppWidth/2, kAppHeight/4, kAppWidth/2, 3*kAppHeight/16,  fill=kTutorialColor, opacity=kTutorialOpacity, align='top')
+            drawBorder(kAppWidth/2, kAppHeight/4, kAppWidth/2, 3*kAppHeight/16, kTutorialBorderWidth, align='top')
             drawLabel('In the bottom right you have sliders to control the upwards power of your throw and', kAppWidth/4+kScoreTextBuffer, kAppHeight/4+kScoreTextBuffer, size=kScoreTextSize, align='left-top', fill=kTutorialTextColor)
             drawLabel('pitch of the frisbee. Positive pitch will let the frisbee float better as it flies,', kAppWidth/4+kScoreTextBuffer, kAppHeight/4+2*kScoreTextBuffer+kScoreTextSize, size=kScoreTextSize, align='left-top', fill=kTutorialTextColor)
             drawLabel('negative will quickly bring it down. Press \'space\' to throw. Good Luck!', kAppWidth/4+kScoreTextBuffer, kAppHeight/4+3*kScoreTextBuffer+2*kScoreTextSize, size=kScoreTextSize, align='left-top', fill=kTutorialTextColor)
-            drawLabel('Watch out for the wind!', kAppWidth/4+kScoreTextBuffer, kAppHeight/4+4*kScoreTextBuffer+3*kScoreTextSize, size=kScoreTextSize, align='left-top', fill=kTutorialTextColor)
+            drawLabel('Watch out for the wind! (wind will influence the disc more if it is tilted)', kAppWidth/4+kScoreTextBuffer, kAppHeight/4+4*kScoreTextBuffer+3*kScoreTextSize, size=kScoreTextSize, align='left-top', fill=kTutorialTextColor)
 
 def drawWind(app):
-    drawLine(kSideBuffer, 200, kSideBuffer+app.wind.x*20, 200 + app.wind.y*20, arrowEnd = True, fill=game2D.getColorForPercentage(min(1, app.wind.magnitude() / 5)))
-    drawLabel('Wind', kSideBuffer, 200, size=20)
+    x, y = kWindPos
+    drawLine(x, y, x+app.wind.x*20, y + app.wind.y*20, arrowEnd = True, fill=game2D.getColorForPercentage(min(1, app.wind.magnitude() / 5)))
+    drawLabel('Wind', x, y, size=20, border='white', borderWidth=2)
 
 def drawControls(app):
     if app.showControls:
@@ -376,6 +405,8 @@ def redrawAll(app):
         drawSplash(app)
     elif app.isTutorial:
         drawTutorialStep(app)
+    elif app.isCourseOver:
+        drawGameOver(app)
     else:
         startTime = time.time()
         if app.isTopDown:
