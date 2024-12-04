@@ -126,6 +126,7 @@ kGeyserPath3D = kOSFilePath + '/Images/Geyser3D.png'
 kGeyserTopDownPath = kOSFilePath + '/Images/GeyserTopDown.png'
 kGeyserSprayTopDownPath = kOSFilePath + '/Images/GeyserSprayTopDown.png'
 kGeyserSpray3DPath = kOSFilePath + '/Images/GeyserSpray.png'
+kDistanceParallaxFactor = 2
 
 #SOUND EFFECTS WOO! - All voiced by yours truly ;)
 kBonkPath = kOSFilePath + '/Sounds/Bonk.mp3'

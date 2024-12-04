@@ -83,7 +83,8 @@ def drawFrisbee(app, frisbee):
 def drawCourse(app):
     minRenderingXPos = app.cameraX + kCameraRenderBuffer
     sizeMultiplier = getSizeMultiplier(app, app.course.goalPos.x)
-    drawImage(kGoalPath, app.course.goal.y * (kAppWidth / (kAppHeight-kVerticalBuffer)), (kAppHeight-kVerticalBuffer) - min((app.course.goal.x-app.cameraX)/kAppWidth * kHorizonHeight, kHorizonHeight), align='bottom', width=50*sizeMultiplier*2, height=100*sizeMultiplier*2)
+    # drawImage(kGoalPath, app.course.goal.y * (kAppWidth / (kAppHeight-kVerticalBuffer)), (kAppHeight-kVerticalBuffer) - min((app.course.goal.x-app.cameraX)/kAppWidth * kHorizonHeight, kHorizonHeight), align='bottom', width=50*sizeMultiplier*2, height=100*sizeMultiplier*2)
+    drawImage(kGoalPath, getAdjustedXForDistance(*app.course.goalPos.tup()), (kAppHeight-kVerticalBuffer) - min((app.course.goal.x-app.cameraX)/kAppWidth * kHorizonHeight, kHorizonHeight), align='bottom', width=50*sizeMultiplier*2, height=100*sizeMultiplier*2)
     for obstacle in reversed(app.course.obstacles):
         if obstacle.x < minRenderingXPos: continue
         sizeMultiplier = getSizeMultiplier(app, obstacle.x)
@@ -100,6 +101,7 @@ def drawGeyser(app, geyser, sizeMultiplier):
     width = geyser.width*sizeMultiplier*(kAppWidth / (kAppHeight-kVerticalBuffer))
     height = geyser.width/2 * sizeMultiplier
     centerX = geyser.y * (kAppWidth / (kAppHeight-kVerticalBuffer))
+    centerX = getAdjustedXForDistance(geyser.x, geyser.y)
     bottomY = (kAppHeight-kVerticalBuffer) - min((geyser.x-app.cameraX)/kAppWidth * kHorizonHeight, kHorizonHeight)
     centerY = bottomY - height/2
     drawImage(kGeyserPath3D, centerX, centerY, align='center', width=width, height=height)
@@ -111,6 +113,7 @@ def drawWall(app, wall, sizeMultiplier):
     width = wall.width*sizeMultiplier*(kAppWidth / (kAppHeight-kVerticalBuffer))
     height = wall.height*sizeMultiplier*kZHeightFactor
     centerX = wall.y * (kAppWidth / (kAppHeight-kVerticalBuffer))
+    centerX = getAdjustedXForDistance(wall.x, wall.y)
     # CENTER Y is the bottom point of the wall - half of the wall height
     bottomY = (kAppHeight-kVerticalBuffer) - min((wall.x-app.cameraX)/kAppWidth * kHorizonHeight, kHorizonHeight)
     centerY = bottomY - height/2
@@ -130,8 +133,18 @@ def drawTree(app, tree, sizeMultiplier):
     width = 50*kTreeBaseSizeMultiplier * sizeMultiplier
     height = 100*kTreeBaseSizeMultiplier*sizeMultiplier
     xPos = tree.y * (kAppWidth / (kAppHeight-kVerticalBuffer))
+    xPos = getAdjustedXForDistance(tree.x, tree.y)
     yPos = (kAppHeight-kVerticalBuffer) - min((tree.x-app.cameraX)/kAppWidth * kHorizonHeight, kHorizonHeight)
     drawImage(tree.path3D, xPos, yPos, align='bottom', width=width, height=height)
+
+def getAdjustedXForDistance(x, y):
+    if y == kAppHeight/2:
+        return y * (kAppWidth / kAppHeight)
+    elif y > kAppHeight/2:
+        return y * (kAppWidth / kAppHeight) - kDistanceParallaxFactor*x/(y-kAppHeight/2)
+    else:
+        return y * (kAppWidth / kAppHeight) + kDistanceParallaxFactor*x/(kAppHeight/2 - y)
+
 
 def drawThrowVisualization(app):
     drawFrisbee(app, Frisbee(\

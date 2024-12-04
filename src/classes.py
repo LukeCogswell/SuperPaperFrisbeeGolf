@@ -384,7 +384,7 @@ class Course():
         def lineFunction(x):
             return (self.goalPos.y-kFrisbeeInitPos[1]) / (self.goalPos.x - kFrisbeeInitPos[0]) * (x) + kFrisbeeInitPos[1]
         for obstacle in self.obstacles:
-            if abs(lineFunction(obstacle.x) - obstacle.y) <= obstacle.width/2+kFrisbeeSize and obstacle.height > kMinObstacleHeight:
+            if abs(lineFunction(obstacle.x) - obstacle.y) <= obstacle.width/2+1.5*kFrisbeeSize and obstacle.height > kMinObstacleHeight and obstacle.type != 'geyser':
                 return False
         return True
 
@@ -408,7 +408,7 @@ class Course():
                 continue
 
         if self.hasStraightLineToGoal(): throwsRequired = 1
-        return throwsRequired + int(max(self.wind.magnitude() - 3, 0)/2)
+        return throwsRequired + int(max(self.wind.magnitude() - 3, 0)/2 + 0.5)
 
 
     def __repr__(self):
