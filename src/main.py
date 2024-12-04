@@ -152,14 +152,14 @@ def onKeyPress(app, key):
                         direction = app.newFrisbee.direction
                     else:
                         direction = app.throwPoint.subtracted(app.frisbeeInitPoint)
-                    app.frisbees.append(\
-                        Frisbee(\
-                            (app.frisbeeInitPoint.tup()[0], app.frisbeeInitPoint.tup()[1], kFrisbeeThrowHeight),\
-                            direction,\
-                            app.sliders2D[0].value(), \
-                            app.sliders3D[1].value(), \
-                            app.sliders3D[0].value(), \
-                            app.sliders2D[1].value()))
+                    app.frisbees.append(
+                        Frisbee(
+                            (app.frisbeeInitPoint.tup()[0], app.frisbeeInitPoint.tup()[1], kFrisbeeThrowHeight),
+                            direction,
+                            app.sliders2D[0].value(), 
+                            app.sliders3D[1].value(), 
+                            app.sliders3D[0].value(),
+                            app.sliders2D[1].value())) # pos, direction, forwardSpeed, upSpeed, pitch, roll
                     app.frisbees[-1].wind = app.wind
                     app.newFrisbee = None
                     app.holeScore += 1
@@ -212,6 +212,10 @@ def onMousePress(app, mouseX, mouseY):
             if app.throwing:
                 if app.isTopDown:
                     app.throwPoint = Vector2(mouseX, mouseY)
+                    aimVector = app.throwPoint.subtracted(app.frisbeeInitPoint).unitVector()
+                    roll = app.sliders2D[1].value()
+                    newFrisbee = Frisbee((*app.frisbeeInitPoint.tup(), kFrisbeeThrowHeight), aimVector.unitVector(), aimVector.magnitude() * kAimControlMultiplier, app.upSpeed, app.initPitch, roll)
+                    app.newFrisbee=newFrisbee
 
 def onMouseMove(app, mouseX, mouseY):
     app.mousePos = Vector2(mouseX, mouseY)
@@ -261,12 +265,12 @@ def onMouseDrag(app, mouseX, mouseY):
 
 # def onMouseRelease(app, mouseX, mouseY):
 #     if app.throwing and not app.scored and app.throwPoint:
-#         aimVector = app.throwPoint.subtracted(app.frisbeeInitPoint)
-#         rollVector = Vector2(app.throwPoint.x-mouseX, app.throwPoint.y-mouseY)
-#         rollDirection = rollVector.dotProduct(aimVector.leftVector())
-#         roll = -kRollControlMultiplier * math.copysign(rollVector.magnitude(), rollDirection)
-#         newFrisbee = Frisbee((*app.frisbeeInitPoint.tup(), kFrisbeeThrowHeight), aimVector.unitVector(), aimVector.magnitude() * kAimControlMultiplier, app.upSpeed, app.initPitch, roll)
-#         app.newFrisbee=newFrisbee
+        # aimVector = app.throwPoint.subtracted(app.frisbeeInitPoint)
+        # rollVector = Vector2(app.throwPoint.x-mouseX, app.throwPoint.y-mouseY)
+        # rollDirection = rollVector.dotProduct(aimVector.leftVector())
+        # roll = -kRollControlMultiplier * math.copysign(rollVector.magnitude(), rollDirection)
+        # newFrisbee = Frisbee((*app.frisbeeInitPoint.tup(), kFrisbeeThrowHeight), aimVector.unitVector(), aimVector.magnitude() * kAimControlMultiplier, app.upSpeed, app.initPitch, roll)
+        # app.newFrisbee=newFrisbee
 #         app.curvePoint = None
 
 def drawFPS(app, timeStart):
@@ -392,6 +396,8 @@ def drawWind(app):
     x, y = kWindPos
     drawLine(x, y, x+app.wind.x*20, y + app.wind.y*20, arrowEnd = True, fill=game2D.getColorForPercentage(min(1, app.wind.magnitude() / 5)))
     drawLabel('Wind', x, y, size=20, border='white', borderWidth=2)
+    if app.drawLabels:
+        drawLabel(int(10*app.course.wind.magnitude())/10, x, y+25, size=20)
 
 def drawControls(app):
     if app.showControls:

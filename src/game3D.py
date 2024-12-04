@@ -136,7 +136,7 @@ def drawTree(app, tree, sizeMultiplier):
 def drawThrowVisualization(app):
     drawFrisbee(app, Frisbee(\
                         (app.frisbeeInitPoint.tup()[0], app.frisbeeInitPoint.tup()[1], kFrisbeeThrowHeight),\
-                        app.newFrisbee.direction,\
+                        Vector2(1,0),\
                         app.sliders2D[0].value(), \
                         app.sliders3D[1].value(), \
                         app.sliders3D[0].value(), \

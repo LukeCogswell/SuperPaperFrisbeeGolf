@@ -244,7 +244,7 @@ class Vector2():
     def leftVector(self):
         # gets vector of equal magnitude 90 degrees to the left of input 2D vector
         # used for frisbee curve
-        return Vector2(-self.y, self.x)
+        return Vector2(-self.y, self.x).unitVector()
     
     def getAngle(self):
         if self.magnitude() == 0: return 0 #Defaults to return 0 degrees for a magnitude of zero
@@ -306,46 +306,46 @@ class Vector3():
         else:
             print(f'ERROR: cannot compute distance between Vector 2 and {type(other)}')
 
-class Player():
-    def __init__(self, vec2, number, team, isDefending, hasFrisbee):
-        self.pos = vec2
-        self.goalPos = vec2
-        self.futureGoalPositions = []
-        self.velocity = Vector2(0,0)
-        self.goalVelocity = Vector2(0,0)
-        self.number = number
-        self.team = team
-        self.defending = isDefending
-        self.hasFrisbee = hasFrisbee
+# class Player():
+#     def __init__(self, vec2, number, team, isDefending, hasFrisbee):
+#         self.pos = vec2
+#         self.goalPos = vec2
+#         self.futureGoalPositions = []
+#         self.velocity = Vector2(0,0)
+#         self.goalVelocity = Vector2(0,0)
+#         self.number = number
+#         self.team = team
+#         self.defending = isDefending
+#         self.hasFrisbee = hasFrisbee
 
-    def __eq__(self, other):
-        if isinstance(other, Player):
-            return self.number == other.number and self.team == other.team
-        return False
+#     def __eq__(self, other):
+#         if isinstance(other, Player):
+#             return self.number == other.number and self.team == other.team
+#         return False
     
-    def turnover(self):
-        self.defending = not self.defending
+#     def turnover(self):
+#         self.defending = not self.defending
 
-    def accelerate(self):
-        if self.velocity != self.goalVelocity:
-            differenceVelocity = self.goalVelocity.subtracted(self.velocity)
-            clampedDifferenceVelocity = differenceVelocity.clamped(kMaxPlayerAcceleration)
-            self.velocity.add(clampedDifferenceVelocity)
+#     def accelerate(self):
+#         if self.velocity != self.goalVelocity:
+#             differenceVelocity = self.goalVelocity.subtracted(self.velocity)
+#             clampedDifferenceVelocity = differenceVelocity.clamped(kMaxPlayerAcceleration)
+#             self.velocity.add(clampedDifferenceVelocity)
 
-    def move(self):
-        self.pos.add(self.velocity.multipliedBy(kMotionTimeFactor))
+#     def move(self):
+#         self.pos.add(self.velocity.multipliedBy(kMotionTimeFactor))
 
-    def takeMotionStep(self):
-        if self.pos.subtracted(self.goalPos).magnitude() <= kPositionAccuracy:
-            if self.futureGoalPositions != []:
-                self.goalPos = self.futureGoalPositions.pop(0)
-        self.goalVelocity = self.calculateGoalVelocity()
-        self.accelerate()
-        self.move()
+#     def takeMotionStep(self):
+#         if self.pos.subtracted(self.goalPos).magnitude() <= kPositionAccuracy:
+#             if self.futureGoalPositions != []:
+#                 self.goalPos = self.futureGoalPositions.pop(0)
+#         self.goalVelocity = self.calculateGoalVelocity()
+#         self.accelerate()
+#         self.move()
 
-    def calculateGoalVelocity(self):
-        goalVelocity = self.goalPos.subtracted(self.pos).clamped(kMaxPlayerSpeed)
-        return goalVelocity
+#     def calculateGoalVelocity(self):
+#         goalVelocity = self.goalPos.subtracted(self.pos).clamped(kMaxPlayerSpeed)
+#         return goalVelocity
 
 class Cloud():
     windSpeed = kWindSpeed
@@ -384,32 +384,31 @@ class Course():
         def lineFunction(x):
             return (self.goalPos.y-kFrisbeeInitPos[1]) / (self.goalPos.x - kFrisbeeInitPos[0]) * (x) + kFrisbeeInitPos[1]
         for obstacle in self.obstacles:
-            if abs(lineFunction(obstacle.x) - obstacle.y) <= obstacle.width+kFrisbeeSize:
+            if abs(lineFunction(obstacle.x) - obstacle.y) <= obstacle.width/2+kFrisbeeSize and obstacle.height > kMinObstacleHeight:
                 return False
         return True
 
     #Algorithm to calculate par for a course
     def calculatePar(self):
-        if self.hasStraightLineToGoal(): return 1
         throwsRequired = 2
         for obstacle in self.obstacles:
 
             # if the obstacle isn't tall enough to impede a throw, ignore it in the calculation
-            if obstacle.height <= kMinObstacleHeight:
+            if obstacle.height <= kMinObstacleHeight or obstacle.type == 'geyser':
                 continue
 
             # if the obstacle is close to the disc starting position, add a shot to the counter
-            elif obstacle.x <= self.obstaclePeriod and abs(obstacle.y-kFrisbeeInitPos[1]) <= obstacle.width:
+            elif obstacle.x <= self.obstaclePeriod and abs(obstacle.y-kFrisbeeInitPos[1]) <= obstacle.width/2:
                 throwsRequired += 1
                 continue
 
             # if the obstacle is close to the goal and directly in front of it, add a shot to the counter
-            elif obstacle.x >= self.obstaclePeriod*(self.numObstacles) and abs(obstacle.y-self.goalPos.y) <= obstacle.width:
+            elif obstacle.x >= self.obstaclePeriod*(self.numObstacles) and abs(obstacle.y-self.goalPos.y) <= obstacle.width/2:
                 throwsRequired += 1
                 continue
 
-
-        return throwsRequired + int(self.wind.magnitude() > 3)
+        if self.hasStraightLineToGoal(): throwsRequired = 1
+        return throwsRequired + int(max(self.wind.magnitude() - 3, 0)/2)
 
 
     def __repr__(self):

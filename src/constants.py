@@ -88,7 +88,7 @@ kSliderTextSize = 20
 #Power min, max, default
 kPwrSettings = [0, 300, 100]
 #Roll
-kRollSettings = [-90, 90, 0]
+kRollSettings = [-60, 60, 0]
 #Pitch
 kPitchSettings = [-45, 45, 10]
 #Up Power
