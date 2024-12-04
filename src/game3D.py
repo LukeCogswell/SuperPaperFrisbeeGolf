@@ -105,7 +105,7 @@ def drawGeyser(app, geyser, sizeMultiplier):
     drawImage(kGeyserPath3D, centerX, centerY, align='center', width=width, height=height)
     if geyser.isActive:
         size = geyser.getSize(time.time())
-        drawImage(kGeyserSpray3DPath, centerX, bottomY, align='bottom', width=size, height=2*size)
+        drawImage(kGeyserSpray3DPath, centerX, bottomY-5, align='bottom', width=size, height=2*size)
 
 def drawWall(app, wall, sizeMultiplier):
     width = wall.width*sizeMultiplier*(kAppWidth / (kAppHeight-kVerticalBuffer))

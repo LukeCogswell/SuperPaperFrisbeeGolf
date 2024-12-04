@@ -57,6 +57,11 @@ def onAppStart(app):
     app.settingPitch = False
     app.drawLabels = False
 
+    #Splash Settings
+    app.splashGeyser = Geyser(500, kAppHeight/2, kMinGeyserFrequency)
+    app.splashGeyser.isActive = True
+    app.splashGeyser.height = kMaxObstacleHeight * 4
+
 def onStep(app):
     if not app.paused:
         takeStep(app)
@@ -128,11 +133,15 @@ def onKeyPress(app, key):
     else:   
         match key:
             case 'space':
-                if app.newFrisbee:
+                if app.newFrisbee or (app.frisbeeInitPoint and app.throwPoint):
+                    if app.newFrisbee:
+                        direction = app.newFrisbee.direction
+                    else:
+                        direction = app.throwPoint.subtracted(app.frisbeeInitPoint)
                     app.frisbees.append(\
                         Frisbee(\
                             (app.frisbeeInitPoint.tup()[0], app.frisbeeInitPoint.tup()[1], kFrisbeeThrowHeight),\
-                            app.newFrisbee.direction,\
+                            direction,\
                             app.sliders2D[0].value(), \
                             app.sliders3D[1].value(), \
                             app.sliders3D[0].value(), \
@@ -191,14 +200,9 @@ def onMousePress(app, mouseX, mouseY):
             app.sliderIndex = 1
         else:
             app.isSliding = False
-            if app.isTopDown:
-                if app.throwing:
+            if app.throwing:
+                if app.isTopDown:
                     app.throwPoint = Vector2(mouseX, mouseY)
-                else:
-                    app.goalPos = Vector2(mouseX, mouseY)
-                    if app.selectedPlayer:
-                        # playerNumber = getClosestOffensivePlayer(app)
-                        app.selectedPlayer.futureGoalPositions.append(app.goalPos)
 
 def onMouseMove(app, mouseX, mouseY):
     app.mousePos = Vector2(mouseX, mouseY)
@@ -297,6 +301,12 @@ def drawScore(app):
 
 def drawSplash(app):
     game3D.drawBackground(app)
+    game3D.drawTree(app, Tree(700, kAppHeight/4, 300), 1)
+    game3D.drawTree(app, Tree(700, kAppHeight/6, 300), 1.15)
+    game3D.drawTree(app, Tree(700, 100, 300), 1.3)
+    game3D.drawGeyser(app, app.splashGeyser, 2)
+    game3D.drawTree(app, Tree(700, 5*kAppHeight/7, 300), 1.5)
+    game3D.drawTree(app, Tree(600, 3*kAppHeight/4, 300), 1)
     drawRect(0,0,kAppWidth, kAppHeight, fill=None, border='darkGray', borderWidth=10)
     drawRect(10,10,kAppWidth-20, kAppHeight-20, fill=None, border='silver', borderWidth=10)
     labelRot = math.sin(time.time()*kOpeningScreenTimeFactor) * 20
@@ -306,6 +316,7 @@ def drawSplash(app):
     drawOval(kAppWidth/3, 3*kAppHeight/5, 100, 300, fill=fill, rotateAngle=-40,border=kDiscGradient, borderWidth=kDiscBorderWidth)
     drawLabel('click anywhere to start', kAppWidth/2, kAppHeight-100, rotateAngle = -labelRot, size=20, fill='red', border='dimGray', borderWidth=1)
 
+# tutorial draw steps
 def drawTutorialStep(app):
     match app.tutorialStep:
         case 0:
@@ -370,12 +381,12 @@ def redrawAll(app):
         if app.isTopDown:
             game2D.drawGame(app)
             drawSliders(*app.sliders2D)
+            drawWind(app)
         else:
             game3D.drawGame(app)
             drawSliders(*app.sliders3D)
         drawFPS(app, startTime)
         drawScore(app)
-        drawWind(app)
         if app.showControls:
             drawControls(app)
         if app.scored:
