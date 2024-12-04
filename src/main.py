@@ -30,6 +30,8 @@ def onAppStart(app):
     #Environment
     app.clouds = []
     app.trees = []
+    app.windLines = []
+    makeWindLines(app)
 
     #FRISBEE SETTINGS
     app.frisbees = []
@@ -59,6 +61,11 @@ def onAppStart(app):
     app.splashGeyser = Geyser(500, kAppHeight/2, kMinGeyserFrequency)
     app.splashGeyser.isActive = True
     app.splashGeyser.height = kMaxObstacleHeight * 4
+
+def makeWindLines(app):
+    for _ in range(kWindLineCount):
+        x, y = random.random() * kAppWidth, random.random() * kAppHeight
+        app.windLines.append(Vector2(x,y))
 
 def onStep(app):
     if not app.paused:
@@ -100,6 +107,12 @@ def takeStep(app):
     # update clouds
     for cloud in app.clouds:
         cloud.move()
+    #update wind lines
+    for line in app.windLines:
+        newX, newY = line.x + 10*app.wind.x, line.y + 10*app.wind.y
+        newX %= kAppWidth
+        newY %= kAppHeight
+        line.x, line.y = newX, newY
     #spawn new clouds at a random height if the random int is 0 
     # (this makes cloud spawning irregular but should keep them spawning with a defined frequency)
     if not bool(random.randint(0, int(1 / kCloudFrequency))):
@@ -414,6 +427,7 @@ def drawTutorialStep(app):
             game2D.drawGame(app)
             drawSliders(*app.sliders2D)
             drawScore(app)
+            drawWind(app)
             drawRect(kAppWidth/2, kAppHeight/4, kAppWidth/2, 3*kAppHeight/16,  fill=kTutorialColor, opacity=kTutorialOpacity, align='top')
             drawBorder(kAppWidth/2, kAppHeight/4, kAppWidth/2, 3*kAppHeight/16, kTutorialBorderWidth, align='top')
             drawLabel('In the bottom left you will find the wind indicator, this will show you the direction', kAppWidth/4+kScoreTextBuffer, kAppHeight/4+kScoreTextBuffer, size=kScoreTextSize, align='left-top', fill=kTutorialTextColor)
@@ -423,11 +437,17 @@ def drawTutorialStep(app):
 
 
 def drawWind(app):
-    x, y = kWindPos
-    drawLine(x, y, x+app.wind.x*20, y + app.wind.y*20, arrowEnd = True, fill=game2D.getColorForPercentage(min(1, app.wind.magnitude() / 5)))
-    drawLabel('Wind', x, y, size=20, border='white', borderWidth=2)
+    drawWindLines(app)
     if app.drawLabels:
+        x, y = kWindPos
+        drawLine(x, y, x+app.wind.x*20, y + app.wind.y*20, arrowEnd = True, fill=game2D.getColorForPercentage(min(1, app.wind.magnitude() / 5)))
+        # drawLabel('Wind', x, y, size=20, border='white', borderWidth=2)
         drawLabel(int(10*app.course.wind.magnitude())/10, x, y+25, size=20)
+
+def drawWindLines(app):
+    for line in app.windLines:
+        x, y = line.x, line.y
+        drawLine(x, y, x+app.wind.x*20, y + app.wind.y*20, fill='white', opacity=kWindLineOpacity)
 
 def drawControls(app):
     if app.showControls:

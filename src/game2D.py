@@ -118,7 +118,7 @@ def drawCourse(app):
                 else:
                     drawRect(obstacle.x - app.cameraX, obstacle.y, kObstacleThickness, obstacle.width, align='center', fill=kWallColor)
                 if app.drawLabels:
-                    drawLabel(obstacle - app.cameraX, obstacle.x, obstacle.y, fill='white')
+                    drawLabel(obstacle.x - app.cameraX, obstacle.x, obstacle.y, fill='white')
             case 'tree':
                 drawImage(kTreeTopPath, obstacle.x - app.cameraX, obstacle.y, align='center', borderWidth=2)
                 if app.drawLabels:
