@@ -2,6 +2,7 @@
 Frisbee Flight Simulator Game - CMU 15112 Term Project
 
 Run main.py to play.
+If you don't have the caveat font installed, you will need to install it for the best formatting experience.
 
 12/4/24 - State of the game
 

@@ -83,8 +83,8 @@ kMaxCloudCount = 20
 #Scoring Constants
 kScorableHeight = kFrisbeeThrowHeight
 kScorableTolerance = 5
-kScoreTextBuffer = 15
-kScoreTextSize = 20
+kScoreTextBuffer = 12
+kScoreTextSize = 25
 
 #Sliders
 kSliderWidth = 50
@@ -92,7 +92,7 @@ kSliderHeight = 500
 kSliderOpacity = 100
 kSliderSpacing = 40
 kSliderBorderWidth = 2
-kSliderTextSize = 20
+kSliderTextSize = 25
 #Power min, max, default
 kPwrSettings = [0, 300, 100]
 #Roll
@@ -154,7 +154,7 @@ BoingSounds = [Sound(kBoingPath+str(i)+'.mp3') for i in range(kBoings)]
 WhooshSounds = [Sound(kWhooshPath+str(i)+'.mp3') for i in range(kWhooshes)]
 
 #TUTORIAL
-kTutorialColor = 'skyBlue'
+kTutorialColor = 'tan'
 kTutorialTextColor = 'black'
 kTutorialSteps = 6
 kTutorialOpacity = 90
