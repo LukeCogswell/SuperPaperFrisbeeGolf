@@ -56,6 +56,8 @@ kFrisbeeInitPos = (kFrisbeeSize*2, kAppHeight/2)
 kWindPos = (100, kAppHeight-100)
 kWindLineCount = 20
 kWindLineOpacity = 15
+kFont = 'caveat'
+# 'arial', 'monospace', 'caveat', 'cinzel', 'montserrat', 'grenze', 'sacramento', 'orbitron'
 
 # BACKGROUND COLORS
 kGrassLight, kGrassMedium, kGrassDark = rgb(20, 150, 50), rgb(30, 125, 30), rgb(20, 100, 10)

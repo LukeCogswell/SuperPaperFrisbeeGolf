@@ -300,7 +300,7 @@ def drawFPS(app, timeStart):
         fps = 'Unlimited'
     else: 
         fps = int(1 / (now - timeStart))
-    drawLabel(fps, kAppWidth, 0, align='right-top')
+    drawLabel(fps, kAppWidth, 0, align='right-top', font=kFont)
 
 def drawSliders(slider1, slider2):
     yPos = kAppHeight - kSliderSpacing
@@ -312,10 +312,10 @@ def drawSliders(slider1, slider2):
     drawRect(xPos, yPos, kSliderWidth, kSliderHeight, opacity=kSliderOpacity, border='black', borderWidth=kSliderBorderWidth, fill=None, align='left-bottom')
     xPos += kSliderWidth/2
     if slider1.label == 'Power':
-        drawLabel(f'{int(100*slider1.percentage)}%', xPos, yPos-kSliderTextSize, size=kSliderTextSize)
+        drawLabel(f'{int(100*slider1.percentage)}%', xPos, yPos-kSliderTextSize, size=kSliderTextSize, font=kFont)
     else:
-        drawLabel(int(slider1.value()), xPos, yPos-kSliderTextSize, size=kSliderTextSize)
-    drawLabel(slider1.label, xPos, yPos+kSliderTextSize/2, size=kSliderTextSize)
+        drawLabel(int(slider1.value()), xPos, yPos-kSliderTextSize, size=kSliderTextSize, font=kFont)
+    drawLabel(slider1.label, xPos, yPos+kSliderTextSize/2, size=kSliderTextSize, font=kFont)
 
 
     #slider 2
@@ -324,22 +324,22 @@ def drawSliders(slider1, slider2):
     drawRect(xPos, yPos, kSliderWidth, kSliderHeight*max(0.001, slider2.percentage), align='left-bottom', opacity=kSliderOpacity, fill=fill2)
     drawRect(xPos, yPos, kSliderWidth, kSliderHeight, opacity=kSliderOpacity, border='black', borderWidth=kSliderBorderWidth, align='left-bottom', fill=None)
     xPos += kSliderWidth/2
-    drawLabel(int(slider2.value()), xPos, yPos-kSliderTextSize, size=kSliderTextSize)
-    drawLabel(slider2.label, xPos, yPos+kSliderTextSize, size=kSliderTextSize)
+    drawLabel(int(slider2.value()), xPos, yPos-kSliderTextSize, size=kSliderTextSize, font=kFont)
+    drawLabel(slider2.label, xPos, yPos+kSliderTextSize, size=kSliderTextSize, font=kFont)
 
 def drawGameOver(app):
     drawRect(0, 0, kAppWidth, kAppHeight, fill=kTutorialColor)
     drawBorder(0, 0, kAppWidth, kAppHeight, 10)
-    drawLabel(f'Congrats on completing {kMaxHoles} holes!', kAppWidth/2, kAppHeight/3, size=75, fill=kTutorialTextColor)
-    drawLabel(f'Your score was: {app.courseScore}', kAppWidth/2, kAppHeight/2, size=75, fill=kTutorialTextColor)
-    drawLabel(f"To play another {kMaxHoles}, press 'space'", kAppWidth/2, 2*kAppHeight/3, size=75, fill=kTutorialTextColor, border='black', borderWidth=2)
+    drawLabel(f'Congrats on completing {kMaxHoles} holes!', kAppWidth/2, kAppHeight/3, size=75, fill=kTutorialTextColor, font=kFont)
+    drawLabel(f'Your score was: {app.courseScore}', kAppWidth/2, kAppHeight/2, size=75, fill=kTutorialTextColor, font=kFont)
+    drawLabel(f"To play another {kMaxHoles}, press 'space'", kAppWidth/2, 2*kAppHeight/3, size=75, fill=kTutorialTextColor, border='black', borderWidth=2, font=kFont)
 
 def drawScore(app):
     drawRect(0,0,165,120,fill=kTutorialColor)
     drawBorder(0,0,165, 120, 3)
-    drawLabel(f'Score: {app.courseScore}', kScoreTextBuffer, kScoreTextBuffer, align='left-top', size=kScoreTextSize)
-    drawLabel(f'Hole: {app.currHole} Par: {app.course.calculatePar()}', kScoreTextBuffer, 2*kScoreTextBuffer+kScoreTextSize, align='left-top', size=kScoreTextSize)
-    drawLabel(f'Hole Throws: {app.holeScore}', kScoreTextBuffer, 3*kScoreTextBuffer+2*kScoreTextSize, align='left-top', size=kScoreTextSize)
+    drawLabel(f'Score: {app.courseScore}', kScoreTextBuffer, kScoreTextBuffer, align='left-top', size=kScoreTextSize, font=kFont)
+    drawLabel(f'Hole: {app.currHole} Par: {app.course.calculatePar()}', kScoreTextBuffer, 2*kScoreTextBuffer+kScoreTextSize, align='left-top', size=kScoreTextSize, font=kFont)
+    drawLabel(f'Hole Throws: {app.holeScore}', kScoreTextBuffer, 3*kScoreTextBuffer+2*kScoreTextSize, align='left-top', size=kScoreTextSize, font=kFont)
 
 def drawBorder(posX, posY, width, height, borderWidth, align='left-top'):
     drawRect(posX,posY,width, height, fill=None, border='darkGray', borderWidth=borderWidth, align=align)
@@ -360,9 +360,9 @@ def drawSplash(app):
     labelRot = math.sin(time.time()*kOpeningScreenTimeFactor) * 20
     drawImage(kGoalPath, 2*kAppWidth/3, 3*kAppHeight/4, align='center', width=200, height=400)
     fill = gradient('lightCyan', *[kFrisbeeColor]*int(60//30), 'skyBlue', 'steelBlue', start='top')
-    drawLabel('SUPER PAPER FRISBEE GOLF', kAppWidth/2, kAppHeight/4, rotateAngle = labelRot, size=60, fill='red', border='dimGray', borderWidth=3, bold=True)
+    drawLabel('SUPER PAPER FRISBEE GOLF', kAppWidth/2, kAppHeight/4, rotateAngle = labelRot, size=60, fill='red', border='dimGray', borderWidth=3, bold=True, font=kFont)
     drawOval(kAppWidth/3, 3*kAppHeight/5, 100, 300, fill=fill, rotateAngle=-40,border=kDiscGradient, borderWidth=kDiscBorderWidth)
-    drawLabel('press any key to start', kAppWidth/2, kAppHeight-100, rotateAngle = -labelRot, size=20, fill='red', border='dimGray', borderWidth=1)
+    drawLabel('press any key to start', kAppWidth/2, kAppHeight-100, rotateAngle = -labelRot, size=20, fill='red', border='dimGray', borderWidth=1, font=kFont)
 
 # tutorial draw steps
 def drawTutorialStep(app):
@@ -371,16 +371,16 @@ def drawTutorialStep(app):
             game2D.drawGame(app)
             drawRect(kAppWidth/2, kAppHeight/4, kAppWidth/2, kAppHeight/8,  fill=kTutorialColor, opacity=kTutorialOpacity, align='top')
             drawBorder(kAppWidth/2, kAppHeight/4, kAppWidth/2, kAppHeight/8, kTutorialBorderWidth, align='top')
-            drawLabel('Welcome to Super Paper Frisbee Golf! Your goal is to throw the frisbee across the field', kAppWidth/4+kScoreTextBuffer, kAppHeight/4+kScoreTextBuffer, size=kScoreTextSize, align='left-top', fill=kTutorialTextColor)
-            drawLabel('into the red goal on the right in fewer throws than the par. Be careful of the obstacles!', kAppWidth/4+kScoreTextBuffer, kAppHeight/4+2*kScoreTextBuffer+kScoreTextSize, size=kScoreTextSize, align='left-top', fill=kTutorialTextColor)
-            drawLabel('Press any key to continue.', kAppWidth/4+kScoreTextBuffer, kAppHeight/4+3*kScoreTextBuffer+2*kScoreTextSize, size=kScoreTextSize, align='left-top', fill=kTutorialTextColor)
+            drawLabel('Welcome to Super Paper Frisbee Golf! Your goal is to throw the frisbee across the field', kAppWidth/4+kScoreTextBuffer, kAppHeight/4+kScoreTextBuffer, size=kScoreTextSize, align='left-top', fill=kTutorialTextColor, font=kFont)
+            drawLabel('into the red goal on the right in fewer throws than the par. Be careful of the obstacles!', kAppWidth/4+kScoreTextBuffer, kAppHeight/4+2*kScoreTextBuffer+kScoreTextSize, size=kScoreTextSize, align='left-top', fill=kTutorialTextColor, font=kFont)
+            drawLabel('Press any key to continue.', kAppWidth/4+kScoreTextBuffer, kAppHeight/4+3*kScoreTextBuffer+2*kScoreTextSize, size=kScoreTextSize, align='left-top', fill=kTutorialTextColor, font=kFont)
         case 1:
             game2D.drawGame(app)
             drawRect(kAppWidth/2, kAppHeight/4, kAppWidth/2, kAppHeight/4,  fill=kTutorialColor, opacity=kTutorialOpacity, align='top')
             drawBorder(kAppWidth/2, kAppHeight/4, kAppWidth/2, kAppHeight/4, kTutorialBorderWidth, align='top')
-            drawLabel('The following are the obstacles to avoid, each with different properties.', kAppWidth/4+kScoreTextBuffer, kAppHeight/4+kScoreTextBuffer, size=kScoreTextSize, align='left-top', fill=kTutorialTextColor)
-            drawLabel('walls and trees will stop your frisbee, while orange bouncy walls will reflect the frisbee.', kAppWidth/4+kScoreTextBuffer, kAppHeight/4+2*kScoreTextBuffer+kScoreTextSize, size=kScoreTextSize, align='left-top', fill=kTutorialTextColor)
-            drawLabel('Geysers will not impede your frisbee, but will shoot it upwards if the geyser is active.', kAppWidth/4+kScoreTextBuffer, kAppHeight/4+3*kScoreTextBuffer+2*kScoreTextSize, size=kScoreTextSize, align='left-top', fill=kTutorialTextColor)
+            drawLabel('The following are the obstacles to avoid, each with different properties.', kAppWidth/4+kScoreTextBuffer, kAppHeight/4+kScoreTextBuffer, size=kScoreTextSize, align='left-top', fill=kTutorialTextColor, font=kFont)
+            drawLabel('walls and trees will stop your frisbee, while orange bouncy walls will reflect the frisbee.', kAppWidth/4+kScoreTextBuffer, kAppHeight/4+2*kScoreTextBuffer+kScoreTextSize, size=kScoreTextSize, align='left-top', fill=kTutorialTextColor, font=kFont)
+            drawLabel('Geysers will not impede your frisbee, but will shoot it upwards if the geyser is active.', kAppWidth/4+kScoreTextBuffer, kAppHeight/4+3*kScoreTextBuffer+2*kScoreTextSize, size=kScoreTextSize, align='left-top', fill=kTutorialTextColor, font=kFont)
             drawRect(4*kAppWidth/12, 2*kAppHeight/5+20, kObstacleThickness, 100, align='center', border=kBouncyColor, borderWidth = 5)
             drawImage(kTreeTopPath, 5*kAppWidth/12, 2*kAppHeight/5+20, align='center', borderWidth=2)
             drawRect(7*kAppWidth/12, 2*kAppHeight/5+20, kObstacleThickness, 100, align='center', fill=kWallColor)
@@ -391,27 +391,27 @@ def drawTutorialStep(app):
             drawSliders(*app.sliders2D)
             drawRect(kAppWidth/2, kAppHeight/4, kAppWidth/2, kAppHeight/8,  fill=kTutorialColor, opacity=kTutorialOpacity, align='top')
             drawBorder(kAppWidth/2, kAppHeight/4, kAppWidth/2, kAppHeight/8, kTutorialBorderWidth, align='top')
-            drawLabel('Click to change the direction of your throw.', kAppWidth/4+kScoreTextBuffer, kAppHeight/4+kScoreTextBuffer, size=kScoreTextSize, align='left-top', fill=kTutorialTextColor)
-            drawLabel('In the bottom right you have sliders to control the power and roll of your throw. Adjusting', kAppWidth/4+kScoreTextBuffer, kAppHeight/4+2*kScoreTextBuffer+kScoreTextSize, size=kScoreTextSize, align='left-top', fill=kTutorialTextColor)
-            drawLabel('the roll will cause the frisbee to curve left or right. To adjust, click and drag the bar.', kAppWidth/4+kScoreTextBuffer, kAppHeight/4+3*kScoreTextBuffer+2*kScoreTextSize, size=kScoreTextSize, align='left-top', fill=kTutorialTextColor)
+            drawLabel('Click to change the direction of your throw.', kAppWidth/4+kScoreTextBuffer, kAppHeight/4+kScoreTextBuffer, size=kScoreTextSize, align='left-top', fill=kTutorialTextColor, font=kFont)
+            drawLabel('In the bottom right you have sliders to control the power and roll of your throw. Adjusting', kAppWidth/4+kScoreTextBuffer, kAppHeight/4+2*kScoreTextBuffer+kScoreTextSize, size=kScoreTextSize, align='left-top', fill=kTutorialTextColor, font=kFont)
+            drawLabel('the roll will cause the frisbee to curve left or right. To adjust, click and drag the bar.', kAppWidth/4+kScoreTextBuffer, kAppHeight/4+3*kScoreTextBuffer+2*kScoreTextSize, size=kScoreTextSize, align='left-top', fill=kTutorialTextColor, font=kFont)
 
         case 3:
             game3D.drawGame(app)
             drawRect(kAppWidth/2, kAppHeight/4, kAppWidth/2, kAppHeight/8,  fill=kTutorialColor, opacity=kTutorialOpacity, align='top')
             drawBorder(kAppWidth/2, kAppHeight/4, kAppWidth/2, kAppHeight/8, kTutorialBorderWidth, align='top')
-            drawLabel('Welcome to the 3D view! Here you can see how high obstacles are (some walls are', kAppWidth/4+kScoreTextBuffer, kAppHeight/4+kScoreTextBuffer, size=kScoreTextSize, align='left-top', fill=kTutorialTextColor)
-            drawLabel('short enough to throw over). ', kAppWidth/4+kScoreTextBuffer, kAppHeight/4+2*kScoreTextBuffer+kScoreTextSize, size=kScoreTextSize, align='left-top', fill=kTutorialTextColor)
-            drawLabel('To switch between views press \'tab\'. Every course is completely randomly generated.', kAppWidth/4+kScoreTextBuffer, kAppHeight/4+3*kScoreTextBuffer+2*kScoreTextSize, size=kScoreTextSize, align='left-top', fill=kTutorialTextColor)
+            drawLabel('Welcome to the 3D view! Here you can see how high obstacles are (some walls are', kAppWidth/4+kScoreTextBuffer, kAppHeight/4+kScoreTextBuffer, size=kScoreTextSize, align='left-top', fill=kTutorialTextColor, font=kFont)
+            drawLabel('short enough to throw over). ', kAppWidth/4+kScoreTextBuffer, kAppHeight/4+2*kScoreTextBuffer+kScoreTextSize, size=kScoreTextSize, align='left-top', fill=kTutorialTextColor, font=kFont)
+            drawLabel('To switch between views press \'tab\'. Every course is completely randomly generated.', kAppWidth/4+kScoreTextBuffer, kAppHeight/4+3*kScoreTextBuffer+2*kScoreTextSize, size=kScoreTextSize, align='left-top', fill=kTutorialTextColor, font=kFont)
             
         case 4:
             game3D.drawGame(app)
             drawSliders(*app.sliders3D)
             drawRect(kAppWidth/2, kAppHeight/4, kAppWidth/2, 3*kAppHeight/16,  fill=kTutorialColor, opacity=kTutorialOpacity, align='top')
             drawBorder(kAppWidth/2, kAppHeight/4, kAppWidth/2, 3*kAppHeight/16, kTutorialBorderWidth, align='top')
-            drawLabel('In the bottom right you have sliders to control the upwards power of your throw and', kAppWidth/4+kScoreTextBuffer, kAppHeight/4+kScoreTextBuffer, size=kScoreTextSize, align='left-top', fill=kTutorialTextColor)
-            drawLabel('pitch of the frisbee. Positive pitch will let the frisbee float better as it flies,', kAppWidth/4+kScoreTextBuffer, kAppHeight/4+2*kScoreTextBuffer+kScoreTextSize, size=kScoreTextSize, align='left-top', fill=kTutorialTextColor)
-            drawLabel('negative will quickly bring it down. Press \'space\' to throw. ', kAppWidth/4+kScoreTextBuffer, kAppHeight/4+3*kScoreTextBuffer+2*kScoreTextSize, size=kScoreTextSize, align='left-top', fill=kTutorialTextColor)
-            drawLabel('Watch out for the wind! (wind will influence the disc more if it is tilted)', kAppWidth/4+kScoreTextBuffer, kAppHeight/4+4*kScoreTextBuffer+3*kScoreTextSize, size=kScoreTextSize, align='left-top', fill=kTutorialTextColor)
+            drawLabel('In the bottom right you have sliders to control the upwards power of your throw and', kAppWidth/4+kScoreTextBuffer, kAppHeight/4+kScoreTextBuffer, size=kScoreTextSize, align='left-top', fill=kTutorialTextColor, font=kFont)
+            drawLabel('pitch of the frisbee. Positive pitch will let the frisbee float better as it flies,', kAppWidth/4+kScoreTextBuffer, kAppHeight/4+2*kScoreTextBuffer+kScoreTextSize, size=kScoreTextSize, align='left-top', fill=kTutorialTextColor, font=kFont)
+            drawLabel('negative will quickly bring it down. Press \'space\' to throw. ', kAppWidth/4+kScoreTextBuffer, kAppHeight/4+3*kScoreTextBuffer+2*kScoreTextSize, size=kScoreTextSize, align='left-top', fill=kTutorialTextColor, font=kFont)
+            drawLabel('Watch out for the wind! (wind will influence the disc more if it is tilted)', kAppWidth/4+kScoreTextBuffer, kAppHeight/4+4*kScoreTextBuffer+3*kScoreTextSize, size=kScoreTextSize, align='left-top', fill=kTutorialTextColor, font=kFont)
 
         case 5:
             game2D.drawGame(app)
@@ -420,17 +420,17 @@ def drawTutorialStep(app):
             drawWind(app)
             drawRect(kAppWidth/2, kAppHeight/4, kAppWidth/2, 3*kAppHeight/16,  fill=kTutorialColor, opacity=kTutorialOpacity, align='top')
             drawBorder(kAppWidth/2, kAppHeight/4, kAppWidth/2, 3*kAppHeight/16, kTutorialBorderWidth, align='top')
-            drawLabel('In the bottom left you will find the wind indicator, this will show you the direction', kAppWidth/4+kScoreTextBuffer, kAppHeight/4+kScoreTextBuffer, size=kScoreTextSize, align='left-top', fill=kTutorialTextColor)
-            drawLabel('and power of the wind. Red is the strongest wind, green is the weakest. Some courses', kAppWidth/4+kScoreTextBuffer, kAppHeight/4+2*kScoreTextBuffer+kScoreTextSize, size=kScoreTextSize, align='left-top', fill=kTutorialTextColor)
-            drawLabel('are too long to fit on your screen, use the arrow keys in either view to pan left', kAppWidth/4+kScoreTextBuffer, kAppHeight/4+3*kScoreTextBuffer+2*kScoreTextSize, size=kScoreTextSize, align='left-top', fill=kTutorialTextColor)
-            drawLabel('and right. Your score is in the top left and will update after each hole.', kAppWidth/4+kScoreTextBuffer, kAppHeight/4+4*kScoreTextBuffer+3*kScoreTextSize, size=kScoreTextSize, align='left-top', fill=kTutorialTextColor)
+            drawLabel('In the bottom left you will find the wind indicator, this will show you the direction', kAppWidth/4+kScoreTextBuffer, kAppHeight/4+kScoreTextBuffer, size=kScoreTextSize, align='left-top', fill=kTutorialTextColor, font=kFont)
+            drawLabel('and power of the wind. Red is the strongest wind, green is the weakest. Some courses', kAppWidth/4+kScoreTextBuffer, kAppHeight/4+2*kScoreTextBuffer+kScoreTextSize, size=kScoreTextSize, align='left-top', fill=kTutorialTextColor, font=kFont)
+            drawLabel('are too long to fit on your screen, use the arrow keys in either view to pan left', kAppWidth/4+kScoreTextBuffer, kAppHeight/4+3*kScoreTextBuffer+2*kScoreTextSize, size=kScoreTextSize, align='left-top', fill=kTutorialTextColor, font=kFont)
+            drawLabel('and right. Your score is in the top left and will update after each hole.', kAppWidth/4+kScoreTextBuffer, kAppHeight/4+4*kScoreTextBuffer+3*kScoreTextSize, size=kScoreTextSize, align='left-top', fill=kTutorialTextColor, font=kFont)
 
 
 def drawWind(app):
     drawWindLines(app)
     x, y = kWindPos
     drawLine(x, y, x+app.wind.x*20, y + app.wind.y*20, arrowEnd = True, fill=game2D.getColorForPercentage(min(1, app.wind.magnitude() / 5)))
-    drawLabel('Wind', x, y, size=20, border='white', borderWidth=2)
+    drawLabel('Wind', x, y, size=20, border='white', borderWidth=2, font=kFont)
     if app.drawLabels:
         drawLabel(int(10*app.course.wind.magnitude())/10, x, y+25, size=20)
 
@@ -441,9 +441,9 @@ def drawWindLines(app):
 
 def drawControls(app):
     if app.showControls:
-        drawLabel("'tab' to switch view, click to aim, 'space' to throw. Click and drag to adjust sliders, 'r' to reset throw", app.width/2, 30, size=20)
+        drawLabel("'tab' to switch view, click to aim, 'space' to throw. Click and drag to adjust sliders, 'r' to reset throw", app.width/2, 30, size=20, font=kFont)
     else:
-        drawLabel("'c' to show controls", app.width/2, 30, size=20)
+        drawLabel("'c' to show controls", app.width/2, 30, size=20, font=kFont)
 
 
 def redrawAll(app):
@@ -467,9 +467,9 @@ def redrawAll(app):
         if app.showControls:
             drawControls(app)
         if app.scored:
-            drawLabel('GOAL!', kAppWidth/2, kAppHeight/2, size=100, border='white', borderWidth=4)
+            drawLabel('GOAL!', kAppWidth/2, kAppHeight/2, size=100, border='white', borderWidth=4, font=kFont)
             holeScore = app.holeScore-app.course.calculatePar()
-            drawLabel(f'Hole Score: {holeScore if holeScore != 0 else "Par!"}', kAppWidth/2, kAppHeight/2 + 100, size=100, border='white', borderWidth=4)
+            drawLabel(f'Hole Score: {holeScore if holeScore != 0 else "Par!"}', kAppWidth/2, kAppHeight/2 + 100, size=100, border='white', borderWidth=4, font=kFont)
 
 def main():
     runApp()

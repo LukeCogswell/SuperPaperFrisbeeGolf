@@ -42,7 +42,7 @@ def drawFrisbee(app, frisbee):
     if app.drawLabels:
         drawLine(frisbee.x - app.cameraX, frisbee.y, frisbee.x - app.cameraX + 100*frisbee.direction.x, frisbee.y + 100*frisbee.direction.y, arrowEnd=True,fill='red', opacity=30)
         drawLine(frisbee.x - app.cameraX, frisbee.y, frisbee.x - app.cameraX + 100*frisbee.leftDirection.x, frisbee.y + 100*frisbee.leftDirection.y, arrowEnd=True,fill='lime', opacity=30)
-        drawLabel(frisbee.getLabel(), frisbee.x - app.cameraX, frisbee.y+20) # draws frisbee label if labels are on
+        drawLabel(frisbee.getLabel(), frisbee.x - app.cameraX, frisbee.y+20, font=kFont) # draws frisbee label if labels are on
     # endTime = time.time()
     # print(f'Done: Time= {endTime-startTime}s')
 
@@ -58,28 +58,6 @@ def drawTrail(app, frisbee, frisbeeWidth):
             drawLine(*prevPoint, *currPoint, lineWidth=width, fill=kTrailColor, opacity=kTrailOpacity, dashes=True)
             prevPoint = frisbee.trail[i+1]
             prevPoint = prevPoint[0] - app.cameraX, prevPoint[1]
-
-## OLD PLAYER CODE - REMOVE ##
-# def drawPlayerRoute(player):
-#     drawLine(*player.pos.tup(), *player.goalPos.tup(), arrowEnd=True, lineWidth=5, opacity=5, fill='cyan')
-#     for index in range(len(player.futureGoalPositions)):
-#         if index == 0:
-#             drawLine(*player.goalPos.tup(), *player.futureGoalPositions[index].tup(), arrowEnd=True, lineWidth=5, opacity=5, fill='cyan')
-#         else:
-#             drawLine(*player.futureGoalPositions[index-1].tup(), *player.futureGoalPositions[index].tup(), arrowEnd=True, lineWidth=5, opacity=5, fill='cyan')
-
-# def drawPlayer(app, player):
-#     drawRect(player.pos.x, player.pos.y, 20, 30, fill=kTeamColors[player.team], align='center')
-#     drawLabel(str(player.number), player.pos.x, player.pos.y, fill=kTeamColors[(player.team+1)%2], size=16)
-#     if app.drawLabels:
-#         drawPlayerRoute(player)
-#         drawLine(*player.pos.tup(), *player.pos.added(player.velocity).tup(), arrowEnd=True, lineWidth=3, opacity=30, fill='cyan')
-
-# def drawPlayers(app):
-#     for team in app.teams:
-#         for player in team:
-#             drawPlayer(app, player)
-## END OLD CODE ##
 
 ## GRASS ##
 def drawBackground(app):
@@ -118,18 +96,18 @@ def drawCourse(app):
                 else:
                     drawRect(obstacle.x - app.cameraX, obstacle.y, kObstacleThickness, obstacle.width, align='center', fill=kWallColor)
                 if app.drawLabels:
-                    drawLabel(obstacle, obstacle.x - app.cameraX, obstacle.y, fill='white')
+                    drawLabel(obstacle, obstacle.x - app.cameraX, obstacle.y, fill='white', font=kFont)
             case 'tree':
                 drawImage(kTreeTopPath, obstacle.x - app.cameraX, obstacle.y, align='center', borderWidth=2)
                 if app.drawLabels:
-                    drawLabel(obstacle, obstacle.x - app.cameraX, obstacle.y, fill='white')
+                    drawLabel(obstacle, obstacle.x - app.cameraX, obstacle.y, fill='white', font=kFont)
             case 'geyser':
                 drawImage(kGeyserTopDownPath, obstacle.x - app.cameraX, obstacle.y, align='center')
                 if obstacle.isActive:
                     size = obstacle.getSize(time.time())
                     drawImage(kGeyserSprayTopDownPath, obstacle.x - app.cameraX, obstacle.y, width = size, height = size,align='center')
                 if app.drawLabels:
-                    drawLabel(obstacle, obstacle.x - app.cameraX, obstacle.y, fill='white')
+                    drawLabel(obstacle, obstacle.x - app.cameraX, obstacle.y, fill='white', font=kFont)
     drawImage(kGoalTopDownPath, app.course.goal.x - app.cameraX, app.course.goal.y, align="center")
 
 ## BASE DRAW FUNCTION CALLED BY MAIN ##
