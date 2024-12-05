@@ -149,15 +149,14 @@ def getAdjustedXForDistance(x, y):
     else:
         return y * (kAppWidth / kAppHeight) + kDistanceParallaxFactor*x/(kAppHeight/2 - y)
 
-
 def drawThrowVisualization(app):
-    drawFrisbee(app, Frisbee(\
-                        (app.frisbeeInitPoint.tup()[0], app.frisbeeInitPoint.tup()[1], kFrisbeeThrowHeight),\
-                        Vector2(1,0),\
-                        app.sliders2D[0].value(), \
-                        app.sliders3D[1].value(), \
-                        app.sliders3D[0].value(), \
-                        app.sliders2D[1].value()))
+    drawFrisbee(app, Frisbee(
+                         (app.frisbeeInitPoint.tup()[0], app.frisbeeInitPoint.tup()[1], kFrisbeeThrowHeight), 
+                         Vector2(1,0),
+                         app.sliders2D[0].value(), 
+                         app.sliders3D[1].value(), 
+                         app.sliders3D[0].value(), 
+                         app.sliders2D[1].value()))
 
 def drawGame(app):
     drawBackground(app)

@@ -94,7 +94,7 @@ kSliderTextSize = 20
 #Power min, max, default
 kPwrSettings = [0, 300, 100]
 #Roll
-kRollSettings = [-60, 60, 0]
+kRollSettings = [60, -60, 0]
 #Pitch
 kPitchSettings = [-15, 45, 10]
 #Up Power
@@ -109,6 +109,7 @@ kVerticalBuffer = 0
 kTreeVariantCount = 1
 kWallVariantCount = 1
 kTreeBaseSizeMultiplier = 4
+kTreeHeight = 50
 kDefaultObstaclePeriod = 150
 kWallSizeMultiplier = 2
 kObstacleThickness = 30

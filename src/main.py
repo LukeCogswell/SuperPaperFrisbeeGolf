@@ -141,7 +141,7 @@ def resetCourse(app):
 def onKeyPress(app, key):
     #quit the application or the tutorial if ever clicked
     if key == 'escape':
-        if app.isTutorial:
+        if app.isTutorial and not app.isStarting:
             app.isTutorial = False
         else:
             app.quit()
@@ -278,7 +278,7 @@ def addObstacles(course):
                 height = random.choice([i*kWallSizeMultiplier*kWallImageHeight/kZHeightFactor for i in range(1,5)])
                 newObstacle = Wall(x, y, z, width, height, random.choice([True, False, False]))
             case 'tree':
-                newObstacle = Tree(x,y,height*100*kTreeBaseSizeMultiplier/kZHeightFactor)
+                newObstacle = Tree(x,y, kTreeHeight)
             case 'geyser':
                 newObstacle = Geyser(x, y, random.random() * (kMaxGeyserFrequencey-kMinGeyserFrequency) + kMinGeyserFrequency)
             case _:
@@ -293,17 +293,6 @@ def onMouseDrag(app, mouseX, mouseY):
             app.sliders2D[app.sliderIndex].percentage = max(0, min(1-relativeMouseHeight, 1))
         else:
             app.sliders3D[app.sliderIndex].percentage = max(0, min(1-relativeMouseHeight, 1))
-    # app.curvePoint = (mouseX, mouseY)
-
-# def onMouseRelease(app, mouseX, mouseY):
-#     if app.throwing and not app.scored and app.throwPoint:
-        # aimVector = app.throwPoint.subtracted(app.frisbeeInitPoint)
-        # rollVector = Vector2(app.throwPoint.x-mouseX, app.throwPoint.y-mouseY)
-        # rollDirection = rollVector.dotProduct(aimVector.leftVector())
-        # roll = -kRollControlMultiplier * math.copysign(rollVector.magnitude(), rollDirection)
-        # newFrisbee = Frisbee((*app.frisbeeInitPoint.tup(), kFrisbeeThrowHeight), aimVector.unitVector(), aimVector.magnitude() * kAimControlMultiplier, app.upSpeed, app.initPitch, roll)
-        # app.newFrisbee=newFrisbee
-#         app.curvePoint = None
 
 def drawFPS(app, timeStart):
     now = time.time()
