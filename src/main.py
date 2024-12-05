@@ -362,7 +362,7 @@ def drawSplash(app):
     fill = gradient('lightCyan', *[kFrisbeeColor]*int(60//30), 'skyBlue', 'steelBlue', start='top')
     drawLabel('SUPER PAPER FRISBEE GOLF', kAppWidth/2, kAppHeight/4, rotateAngle = labelRot, size=60, fill='red', border='dimGray', borderWidth=3, bold=True, font=kFont)
     drawOval(kAppWidth/3, 3*kAppHeight/5, 100, 300, fill=fill, rotateAngle=-40,border=kDiscGradient, borderWidth=kDiscBorderWidth)
-    drawLabel('press any key to start', kAppWidth/2, kAppHeight-100, rotateAngle = -labelRot, size=20, fill='red', border='dimGray', borderWidth=1, font=kFont)
+    drawLabel('press any key to start', kAppWidth/2, kAppHeight-100, rotateAngle = -labelRot, size=kSliderTextSize, fill='red', border='dimGray', borderWidth=1, font=kFont)
 
 # tutorial draw steps
 def drawTutorialStep(app):
