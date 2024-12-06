@@ -80,7 +80,10 @@ class Frisbee():
                 zCheck = obstacle.isActive
             else:
                 zCheck = obstacle.z < self.z < (obstacle.z+obstacle.height)
-            
+
+            if obstacle.type == 'cart':
+                zCheck = False
+
             if zCheck and xCheck and yCheck:
                 self.collide(obstacle)
                 return True
@@ -499,6 +502,35 @@ class Geyser(Obstacle):
 
     def __repr__(self):
         return f'Obstacle({type(self)}, x={int(self.x)}, y={int(self.y)}, isActive={self.isActive}, height={int(self.height)})'
+
+class Cart(Obstacle):
+    def __init__(self, x,y,speed, distance):
+        super().__init__(x,y)
+        self.speed = speed
+        if distance/2 > y: startDistance = y
+        else: startDistance = distance/2
+        self.startPos = y-startDistance
+        if distance/2 < kAppHeight: endDistance = y
+        else: endDistance = distance/2
+        self.endPos = y + endDistance
+        self.forward = random.choice([-1, 1])
+        self.type = 'cart'
+        self.height = kMinObstacleHeight * 2
+        self.width = kCartSize
+
+    def move(self):
+        newY = self.y + self.speed * self.forward * kMotionStepsPerSecond
+        if newY <= 25: 
+            newY = 25
+            self.forward *= -1
+        if newY >= kAppHeight-25: 
+            newY = kAppHeight-25
+            self.forward *= -1
+        self.y = newY
+
+    def __repr__(self):
+        return f'Obstacle({type(self)}, x={int(self.x)}, y={int(self.y)}, speed={int(self.speed)}, forward={self.forward})'
+
 
 class Slider():
     def __init__(self, label, min, max, defaultValue):
