@@ -98,7 +98,7 @@ def drawCourse(app):
                 if app.drawLabels:
                     drawLabel(obstacle, obstacle.x - app.cameraX, obstacle.y, fill='white', font=kFont)
             case 'tree':
-                drawImage(kTreeTopPath, obstacle.x - app.cameraX, obstacle.y, align='center')
+                drawImage(kTreeTopPath, obstacle.x - app.cameraX, obstacle.y, align='center', borderWidth=2)
                 if app.drawLabels:
                     drawLabel(obstacle, obstacle.x - app.cameraX, obstacle.y, fill='white', font=kFont)
             case 'geyser':
@@ -108,8 +108,6 @@ def drawCourse(app):
                     drawImage(kGeyserSprayTopDownPath, obstacle.x - app.cameraX, obstacle.y, width = size, height = size,align='center')
                 if app.drawLabels:
                     drawLabel(obstacle, obstacle.x - app.cameraX, obstacle.y, fill='white', font=kFont)
-            case 'cart':
-                drawImage(kCart2DPath, obstacle.x - app.cameraX, obstacle.y, align='center', rotateAngle=obstacle.forward * (-90), width=kCartSize * 2, height=kCartSize * 2)
     drawImage(kGoalTopDownPath, app.course.goal.x - app.cameraX, app.course.goal.y, align="center")
 
 ## BASE DRAW FUNCTION CALLED BY MAIN ##

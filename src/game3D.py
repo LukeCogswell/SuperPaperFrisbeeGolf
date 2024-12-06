@@ -99,23 +99,12 @@ def drawCourse(app):
                 drawTree(app, obstacle, sizeMultiplier)
             case 'geyser':
                 drawGeyser(app, obstacle, sizeMultiplier)
-            case 'cart':
-                drawCart(app, obstacle, sizeMultiplier)
     drawFrisbees(app)
-
-def drawCart(app, cart, sizeMultiplier):
-    width = kCartSize * sizeMultiplier * 4
-    height = kCartSize * sizeMultiplier * 4
-    centerX = cart.y * (kAppWidth/kAppHeight)
-    # centerX  = getAdjustedXForDistance(cart.x, cart.y)
-    bottomY = (kAppHeight-kVerticalBuffer) - min((cart.x-app.cameraX)/kAppWidth * kHorizonHeight, kHorizonHeight)
-    centerY = bottomY - height/2
-    drawImage(kCart3DPath, centerX, centerY, align='center', width=width, height=height)
 
 def drawGeyser(app, geyser, sizeMultiplier):
     width = geyser.width*sizeMultiplier*(kAppWidth / (kAppHeight-kVerticalBuffer))
     height = geyser.width/2 * sizeMultiplier
-    # centerX = geyser.y * (kAppWidth / (kAppHeight-kVerticalBuffer))
+    centerX = geyser.y * (kAppWidth / (kAppHeight-kVerticalBuffer))
     centerX = getAdjustedXForDistance(geyser.x, geyser.y)
     bottomY = (kAppHeight-kVerticalBuffer) - min((geyser.x-app.cameraX)/kAppWidth * kHorizonHeight, kHorizonHeight)
     centerY = bottomY - height/2
@@ -127,7 +116,7 @@ def drawGeyser(app, geyser, sizeMultiplier):
 def drawWall(app, wall, sizeMultiplier):
     width = wall.width*sizeMultiplier*(kAppWidth / (kAppHeight-kVerticalBuffer))
     height = wall.height*sizeMultiplier*kZHeightFactor
-    # centerX = wall.y * (kAppWidth / (kAppHeight-kVerticalBuffer))
+    centerX = wall.y * (kAppWidth / (kAppHeight-kVerticalBuffer))
     centerX = getAdjustedXForDistance(wall.x, wall.y)
     # CENTER Y is the bottom point of the wall - half of the wall height
     bottomY = (kAppHeight-kVerticalBuffer) - min((wall.x-app.cameraX)/kAppWidth * kHorizonHeight, kHorizonHeight)
@@ -147,7 +136,7 @@ def drawWall(app, wall, sizeMultiplier):
 def drawTree(app, tree, sizeMultiplier):
     width = 50*kTreeBaseSizeMultiplier * sizeMultiplier
     height = 100*kTreeBaseSizeMultiplier*sizeMultiplier
-    # xPos = tree.y * (kAppWidth / (kAppHeight-kVerticalBuffer))
+    xPos = tree.y * (kAppWidth / (kAppHeight-kVerticalBuffer))
     xPos = getAdjustedXForDistance(tree.x, tree.y)
     yPos = (kAppHeight-kVerticalBuffer) - min((tree.x-app.cameraX)/kAppWidth * kHorizonHeight, kHorizonHeight)
     drawImage(tree.path3D, xPos, yPos, align='bottom', width=width, height=height)

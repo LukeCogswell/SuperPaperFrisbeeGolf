@@ -105,7 +105,7 @@ kUPPwrSettings = [0, 15, 6]
 # OBSTACLES
 kMinCourseLength = kAppWidth-400
 kMaxCourseLength = kMinCourseLength * 3
-kObstacleTypes = ['wall', 'tree', 'geyser', 'cart']
+kObstacleTypes = ['wall', 'tree', 'geyser']
 kSideBuffer = 100
 kVerticalBuffer = 0
 kTreeVariantCount = 1
@@ -122,15 +122,12 @@ kMinGeyserFrequency = 1/10
 kMaxGeyserPower = 10
 kMinGeyserPower = 5
 kZWindFactor = 1 / 10
-kMaxCartSpeed = 2
-kMinCartSpeed = 0.1
 
 # OBSTACLE AESTHETICS
 kBouncyColor = 'orange'
 kWallColor = rgb(255 * .396, 255 * .298, 255 * .227)
 kWallImageWidth = 100
 kWallImageHeight = 50
-kCartSize = 50
 kTreeTopPath = kOSFilePath + '/Images/TreeTopDown.png'
 kGoalPath = kOSFilePath + '/Images/Goal.png'
 kGoalTopDownPath = kOSFilePath + '/Images/GoalTopdown.png'
@@ -140,8 +137,6 @@ kGeyserPath3D = kOSFilePath + '/Images/Geyser3D.png'
 kGeyserTopDownPath = kOSFilePath + '/Images/GeyserTopDown.png'
 kGeyserSprayTopDownPath = kOSFilePath + '/Images/GeyserSprayTopDown.png'
 kGeyserSpray3DPath = kOSFilePath + '/Images/GeyserSpray.png'
-kCart3DPath = kOSFilePath + '/Images/GolfCart3D.png'
-kCart2DPath = kOSFilePath + '/Images/CartTopDown.png'
 kDistanceParallaxFactor = 2
 
 #SOUND EFFECTS WOO! - All voiced by yours truly ;)
