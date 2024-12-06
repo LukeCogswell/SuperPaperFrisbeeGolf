@@ -64,8 +64,8 @@ def onAppStart(app):
 
 def makeWindLines(app):
     for _ in range(kWindLineCount):
-        x, y = random.random() * kAppWidth, random.random() * kAppHeight
-        app.windLines.append(Vector2(x,y))
+        x, y, z = random.random() * kAppWidth, random.random() * kAppHeight, random.random() * kMaxObstacleHeight 
+        app.windLines.append(Vector3(x,y,z))
 
 def onStep(app):
     if not app.paused:
@@ -429,15 +429,24 @@ def drawTutorialStep(app):
 def drawWind(app):
     drawWindLines(app)
     x, y = kWindPos
-    drawLine(x, y, x+app.wind.x*20, y + app.wind.y*20, arrowEnd = True, fill=game2D.getColorForPercentage(min(1, app.wind.magnitude() / 5)))
+    if app.isTopDown:
+        endX, endY = x+app.wind.x*20, y + app.wind.y*20
+    else:
+        newWindVector = app.wind.leftVector().multipliedBy(-1 * app.wind.magnitude())
+        endX, endY = x + newWindVector.x*20, y+newWindVector.y*20
+
+    drawLine(x, y, endX, endY, arrowEnd = True, fill=game2D.getColorForPercentage(min(1, app.wind.magnitude() / 5)))
     drawLabel('Wind', x, y, size=20, border='white', borderWidth=2, font=kFont)
     if app.drawLabels:
         drawLabel(int(10*app.course.wind.magnitude())/10, x, y+25, size=20)
+    
 
 def drawWindLines(app):
-    for line in app.windLines:
-        x, y = line.x, line.y
-        drawLine(x, y, x+app.wind.x*20, y + app.wind.y*20, fill='white', opacity=kWindLineOpacity)
+    if app.isTopDown:
+        for line in app.windLines:
+            x, y = line.x, line.y
+            drawLine(x, y, x+app.wind.x*20, y + app.wind.y*20, fill='white', opacity=kWindLineOpacity)
+
 
 def drawControls(app):
     if app.showControls:
@@ -462,6 +471,7 @@ def redrawAll(app):
         else:
             game3D.drawGame(app)
             drawSliders(*app.sliders3D)
+            drawWind(app)
         drawFPS(app, startTime)
         drawScore(app)
         if app.showControls:
