@@ -1,7 +1,7 @@
 # SuperPaperFrisbeeGolf
 Frisbee Golf Simulator - CMU 15112 Term Project
 
-Run main.py to play.
+Run src/main.py to play.
 If you don't have the caveat font installed, you will need to install it for the best formatting experience.
 
 Play frisbee golf on randomly generated courses and try to get the lowest score you can! Avoid obstacles or use them to your advantage to plan your most efficient route from start to finish. Beware of the wind and good luck!
