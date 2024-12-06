@@ -92,9 +92,9 @@ def drawCourse(app):
         match obstacle.type:
             case 'wall':
                 if obstacle.isBouncy:
-                    drawRect(obstacle.x - app.cameraX, obstacle.y, kObstacleThickness, obstacle.width, align='center', border=kBouncyColor, borderWidth = 5)
+                    drawRect(obstacle.x - app.cameraX, obstacle.y, obstacle.depth, obstacle.width, align='center', border=kBouncyColor, borderWidth = 5)
                 else:
-                    drawRect(obstacle.x - app.cameraX, obstacle.y, kObstacleThickness, obstacle.width, align='center', fill=kWallColor)
+                    drawRect(obstacle.x - app.cameraX, obstacle.y, obstacle.depth, obstacle.width, align='center', fill=kWallColor)
                 if app.drawLabels:
                     drawLabel(obstacle, obstacle.x - app.cameraX, obstacle.y, fill='white', font=kFont)
             case 'tree':

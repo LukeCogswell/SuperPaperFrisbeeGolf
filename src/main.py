@@ -276,7 +276,12 @@ def addObstacles(course):
                 z = 0
                 width = random.choice([i*kWallSizeMultiplier*kWallImageWidth/(kAppWidth / (kAppHeight-kVerticalBuffer)) for i in range(1,4)])
                 height = random.choice([i*kWallSizeMultiplier*kWallImageHeight/kZHeightFactor for i in range(1,5)])
-                newObstacle = Wall(x, y, z, width, height, random.choice([True, False, False]))
+                isBouncy = random.choice([True, False, False])
+                newObstacle = Wall(x, y, z, width, height, isBouncy)
+                if isBouncy and random.choice([True, False, False]):
+                    width, depth = kObstacleThickness, width
+                    newObstacle = Wall(x, y, z, width, height, isBouncy, depth=depth)
+                    
             case 'tree':
                 newObstacle = Tree(x,y, kTreeHeight)
             case 'geyser':
