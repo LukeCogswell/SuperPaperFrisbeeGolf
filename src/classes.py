@@ -124,8 +124,8 @@ class Frisbee():
     def applyWind(self):
         if self.wind:
             wind = self.wind.multipliedBy(self.z*kZWindFactor)
-            forwardWindSpeed = wind.dotProduct(self.direction) * (.2 + abs(math.sin(self.pitch)))
-            leftWindSpeed = wind.dotProduct(self.leftDirection) * (.5 + abs(math.sin(self.roll)))
+            forwardWindSpeed = wind.dotProduct(self.direction) * (.2 + (math.sin(self.pitch)))
+            leftWindSpeed = wind.dotProduct(self.leftDirection) * (.5 + (math.sin(self.roll)))
             self.forwardSpeed += forwardWindSpeed
             leftWindSpeed += leftWindSpeed
 

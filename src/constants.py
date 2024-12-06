@@ -12,7 +12,7 @@ kSpeedResistance = 0.1     # resistance to speed based on current speed - PERCEN
 kPitchResistance = 0.1     # resistance to speed based on current pitch - PERCENTAGE
 kRollFactor      = 0.05    # roll increase based on current roll - PERCENTAGE 
 kRollFactorReduction = 1/5 # roll increase reduction based on current roll - RATIO
-kleftSpeedFactor = 10.0     # side speed increase factor based on current roll - PERCENTAGE
+kleftSpeedFactor = 15.0     # side speed increase factor based on current roll - PERCENTAGE
 kGravity = -.4              # downward acceleration due to gravity - UNITS / STEP / STEP
 
 ## TO BE REMOVED - PLAYER CONTROL
