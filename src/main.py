@@ -325,7 +325,7 @@ def drawSliders(slider1, slider2):
     drawRect(xPos, yPos, kSliderWidth, kSliderHeight, opacity=kSliderOpacity, border='black', borderWidth=kSliderBorderWidth, align='left-bottom', fill=None)
     xPos += kSliderWidth/2
     drawLabel(int(slider2.value()), xPos, yPos-kSliderTextSize, size=kSliderTextSize, font=kFont)
-    drawLabel(slider2.label, xPos, yPos+kSliderTextSize, size=kSliderTextSize, font=kFont)
+    drawLabel(slider2.label, xPos, yPos+kSliderTextSize/2, size=kSliderTextSize, font=kFont)
 
 def drawGameOver(app):
     drawRect(0, 0, kAppWidth, kAppHeight, fill=kTutorialColor)
